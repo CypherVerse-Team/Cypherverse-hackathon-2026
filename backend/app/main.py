@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from . import models
 from .database import engine
 
-from .routers import auth, workers, bookings, admin, categories, verifications
+from .routers import auth, workers, bookings, admin, categories, verifications, reviews, complaints, teams, contractors, payments, notifications
 from fastapi.staticfiles import StaticFiles
 import os
 
@@ -25,6 +25,12 @@ app.include_router(bookings.router)
 app.include_router(admin.router)
 app.include_router(categories.router)
 app.include_router(verifications.router)
+app.include_router(reviews.router)
+app.include_router(complaints.router)
+app.include_router(teams.router)
+app.include_router(contractors.router)
+app.include_router(payments.router)
+app.include_router(notifications.router)
 
 app.add_middleware(
     CORSMiddleware,
