@@ -1,7 +1,9 @@
-import sqlite3
 import uuid
 from datetime import datetime
 from passlib.context import CryptContext
+
+from app import models
+from app.database import Base, SessionLocal, engine
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -17,52 +19,71 @@ def get_hash(password: str):
     return "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW"
 
 def seed():
-    conn = sqlite3.connect("sql_app.db")
-    cursor = conn.cursor()
-    
-    # 1. Seed Categories
-    cursor.execute("DELETE FROM professions")
-    for cat in categories:
-        cursor.execute(
-            "INSERT INTO professions (profession_id, name, category, description, created_at, updated_at, is_deleted) VALUES (?, ?, ?, ?, ?, ?, ?)",
-            (str(uuid.uuid4()), cat["name"], cat["category"], cat["description"], datetime.utcnow(), datetime.utcnow(), 0)
+    Base.metadata.create_all(bind=engine)
+    db = SessionLocal()
+    try:
+        for table in reversed(Base.metadata.sorted_tables):
+            db.execute(table.delete())
+
+        now = datetime.utcnow()
+        profession_records = [
+            models.Profession(
+                profession_id=str(uuid.uuid4()),
+                name=cat["name"],
+                category=cat["category"],
+                description=cat["description"],
+                created_at=now,
+                updated_at=now,
+            )
+            for cat in categories
+        ]
+        db.add_all(profession_records)
+
+        admin = models.User(
+            user_id=str(uuid.uuid4()), mobile_number="9999999999", full_name="Super Admin",
+            hashed_password=get_hash("admin123"), account_type=models.RoleEnum.ADMIN,
+            verification_status=models.VerificationStatusEnum.VERIFIED,
+            account_status=models.AccountStatusEnum.ACTIVE, created_at=now, updated_at=now,
         )
-        
-    # 2. Seed Users
-    cursor.execute("DELETE FROM users")
-    
-    admin_id = str(uuid.uuid4())
-    cursor.execute("INSERT INTO users (user_id, mobile_number, full_name, hashed_password, account_type, verification_status, account_status, created_at, updated_at, is_deleted) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                   (admin_id, "9999999999", "Super Admin", get_hash("admin123"), "ADMIN", "VERIFIED", "ACTIVE", datetime.utcnow(), datetime.utcnow(), 0))
-                   
-    worker_id = str(uuid.uuid4())
-    cursor.execute("INSERT INTO users (user_id, mobile_number, full_name, hashed_password, account_type, verification_status, account_status, created_at, updated_at, is_deleted) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                   (worker_id, "8888888888", "Ramesh Kumar", get_hash("worker123"), "WORKER", "VERIFIED", "ACTIVE", datetime.utcnow(), datetime.utcnow(), 0))
-                   
-    customer_id = str(uuid.uuid4())
-    cursor.execute("INSERT INTO users (user_id, mobile_number, full_name, hashed_password, account_type, verification_status, account_status, created_at, updated_at, is_deleted) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                   (customer_id, "7777777777", "Amit Sharma", get_hash("cust123"), "CUSTOMER", "VERIFIED", "ACTIVE", datetime.utcnow(), datetime.utcnow(), 0))
+        worker = models.User(
+            user_id=str(uuid.uuid4()), mobile_number="8888888888", full_name="Ramesh Kumar",
+            hashed_password=get_hash("worker123"), account_type=models.RoleEnum.WORKER,
+            verification_status=models.VerificationStatusEnum.VERIFIED,
+            account_status=models.AccountStatusEnum.ACTIVE, created_at=now, updated_at=now,
+        )
+        customer = models.User(
+            user_id=str(uuid.uuid4()), mobile_number="7777777777", full_name="Amit Sharma",
+            hashed_password=get_hash("cust123"), account_type=models.RoleEnum.CUSTOMER,
+            verification_status=models.VerificationStatusEnum.VERIFIED,
+            account_status=models.AccountStatusEnum.ACTIVE, created_at=now, updated_at=now,
+        )
+        db.add_all([admin, worker, customer])
 
-    # 3. Seed Worker Profile
-    cursor.execute("DELETE FROM worker_profiles")
-    cursor.execute("SELECT profession_id FROM professions LIMIT 1")
-    prof_id = cursor.fetchone()[0]
-    
-    worker_prof_id = str(uuid.uuid4())
-    cursor.execute("INSERT INTO worker_profiles (worker_profile_id, user_id, years_of_experience, hourly_rate, daily_rate, home_city, availability_status, created_at, updated_at, is_deleted) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                   (worker_prof_id, worker_id, 5, 200, 1500, "Delhi", "AVAILABLE_NOW", datetime.utcnow(), datetime.utcnow(), 0))
-                   
-    cursor.execute("DELETE FROM worker_skills")
-    cursor.execute("INSERT INTO worker_skills (worker_skill_id, worker_id, profession_id, created_at, updated_at, is_deleted) VALUES (?, ?, ?, ?, ?, ?)",
-                   (str(uuid.uuid4()), worker_prof_id, prof_id, datetime.utcnow(), datetime.utcnow(), 0))
-    
-    # 4. Seed Notification for Worker
-    cursor.execute("DELETE FROM notifications")
-    cursor.execute("INSERT INTO notifications (notification_id, user_id, title, message, type, is_read, action_url, created_at, updated_at, is_deleted) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                   (str(uuid.uuid4()), worker_id, "Welcome to ShramSetu", "Your account has been verified.", "KYC_VERIFIED", 0, "/worker-dashboard", datetime.utcnow(), datetime.utcnow(), 0))
-
-    conn.commit()
-    conn.close()
+        worker_profile = models.WorkerProfile(
+            worker_profile_id=str(uuid.uuid4()), user=worker, years_of_experience=5,
+            hourly_rate=200, daily_rate=1500, home_city="Delhi",
+            availability_status=models.AvailabilityStatusEnum.AVAILABLE_NOW,
+            created_at=now, updated_at=now,
+        )
+        customer_profile = models.CustomerProfile(
+            customer_profile_id=str(uuid.uuid4()), user=customer, created_at=now, updated_at=now
+        )
+        db.add_all([worker_profile, customer_profile])
+        db.add(models.WorkerSkill(
+            worker_skill_id=str(uuid.uuid4()), worker=worker_profile,
+            profession=profession_records[0], created_at=now, updated_at=now,
+        ))
+        db.add(models.Notification(
+            notification_id=str(uuid.uuid4()), user=worker, title="Welcome to ShramSetu",
+            message="Your account has been verified.", type=models.NotificationTypeEnum.KYC_VERIFIED,
+            is_read=False, action_url="/worker-dashboard", created_at=now, updated_at=now,
+        ))
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise
+    finally:
+        db.close()
     print("Seed complete with dummy users and translations.")
 
 if __name__ == "__main__":
