@@ -44,6 +44,7 @@ function DrawoiAdminLayoutContent({ children }: { children: React.ReactNode }) {
   // Dedicated Admin management options vs regular user options
   const adminNavItems = [
     { label: 'Admin Dashboard', href: '/admin', tab: 'overview', icon: LayoutDashboard },
+    { label: 'Manage Admins', href: '/admin?tab=admins', tab: 'admins', icon: Shield },
     { label: 'Manage Workers', href: '/admin?tab=workers', tab: 'workers', icon: Briefcase },
     { label: 'Manage Customers', href: '/admin?tab=customers', tab: 'customers', icon: Users },
     { label: 'Manage Contractors', href: '/admin?tab=contractors', tab: 'contractors', icon: Building },
@@ -81,6 +82,7 @@ function DrawoiAdminLayoutContent({ children }: { children: React.ReactNode }) {
 
   const getPageTitle = () => {
     if (isAdmin && pathname === '/admin') {
+      if (currentTab === 'admins') return 'Manage Admins';
       if (currentTab === 'workers') return 'Manage Workers';
       if (currentTab === 'customers') return 'Manage Customers';
       if (currentTab === 'contractors') return 'Manage Contractors';

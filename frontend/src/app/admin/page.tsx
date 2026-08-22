@@ -73,6 +73,12 @@ function AdminDashboardContent() {
   const [newCatGroup, setNewCatGroup] = useState('Home Maintenance');
   const [newCatDesc, setNewCatDesc] = useState('');
 
+  // Add Admin State
+  const [showAddAdminModal, setShowAddAdminModal] = useState(false);
+  const [newAdminName, setNewAdminName] = useState('');
+  const [newAdminMobile, setNewAdminMobile] = useState('');
+  const [newAdminPassword, setNewAdminPassword] = useState('');
+
   // Modals & Action States
   const [previewDoc, setPreviewDoc] = useState<string | null>(null);
   const [rejectId, setRejectId] = useState<string | null>(null);
@@ -92,6 +98,40 @@ function AdminDashboardContent() {
   const showToast = (msg: string, type: 'success' | 'error') => {
     setToast({ msg, type });
     setTimeout(() => setToast(null), 3000);
+  };
+
+  const handleAddAdmin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newAdminName.trim() || !newAdminMobile.trim() || !newAdminPassword.trim()) {
+      showToast('Please fill all fields', 'error');
+      return;
+    }
+    setIsProcessing(true);
+    try {
+      const res = await fetchWithAuth('/admin/create-admin', {
+        method: 'POST',
+        body: JSON.stringify({
+          full_name: newAdminName.trim(),
+          mobile_number: newAdminMobile.trim(),
+          password: newAdminPassword.trim()
+        })
+      });
+      if (res.ok) {
+        showToast(`Admin account for ${newAdminName} created!`, 'success');
+        setNewAdminName('');
+        setNewAdminMobile('');
+        setNewAdminPassword('');
+        setShowAddAdminModal(false);
+        loadAll();
+      } else {
+        const err = await res.json();
+        showToast(err.detail || 'Failed to create admin', 'error');
+      }
+    } catch {
+      showToast('Network error', 'error');
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const loadAll = async () => {
@@ -214,6 +254,9 @@ function AdminDashboardContent() {
   }
 
   // Filtered lists
+  const admins = allUsers.filter(u => u.account_type === 'ADMIN')
+    .filter(u => u.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) || u.mobile_number?.includes(searchQuery));
+
   const workers = allUsers.filter(u => ['WORKER', 'GROUP_LEADER'].includes(u.account_type))
     .filter(u => u.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) || u.mobile_number?.includes(searchQuery));
   
@@ -251,9 +294,16 @@ function AdminDashboardContent() {
       <div className="pb-4 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <div>
           <h1 className="text-xl font-semibold text-gray-900">Admin Control Center</h1>
-          <p className="text-gray-500 text-sm">Manage platform workers, customers, contractors, works, KYC status, and categories</p>
+          <p className="text-gray-500 text-sm">Manage platform workers, customers, contractors, works, KYC status, categories, and system admins</p>
         </div>
         <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowAddAdminModal(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold transition-all shadow-sm"
+          >
+            <Plus size={15} />
+            Add Admin
+          </button>
           <button
             onClick={loadAll}
             disabled={refreshing}
@@ -289,8 +339,9 @@ function AdminDashboardContent() {
               <h2 className="text-base font-semibold text-gray-900">Platform Quick Actions & Overview</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {[
+                  { label: 'Manage Admins', count: admins.length, note: 'System administrators', icon: ShieldCheck, action: () => setActiveTab('admins'), color: 'text-indigo-600', bg: 'bg-indigo-50' },
                   { label: 'Manage Workers', count: workers.length, note: 'Manage verified workforce', icon: Briefcase, action: () => setActiveTab('workers'), color: 'text-blue-600', bg: 'bg-blue-50' },
-                  { label: 'Worker KYC Status', count: verifications.length, note: 'Pending ID review', icon: ShieldCheck, action: () => setActiveTab('verifications'), color: 'text-orange-600', bg: 'bg-orange-50' },
+                  { label: 'Worker KYC Status', count: verifications.length, note: 'Pending ID review', icon: ShieldAlert, action: () => setActiveTab('verifications'), color: 'text-orange-600', bg: 'bg-orange-50' },
                   { label: 'Manage Works / Jobs', count: bookings.length, note: 'Active bookings & works', icon: CheckCircle, action: () => setActiveTab('works'), color: 'text-green-600', bg: 'bg-green-50' },
                   { label: 'Manage Categories', count: categories.length, note: 'Skill professions', icon: Grid, action: () => setActiveTab('categories'), color: 'text-purple-600', bg: 'bg-purple-50' },
                   { label: 'Open Complaints', count: complaints.filter(c => c.complaint_status === 'SUBMITTED').length, note: 'Requires investigation', icon: MessageSquareWarning, action: () => setActiveTab('complaints'), color: 'text-red-600', bg: 'bg-red-50' },
@@ -310,6 +361,83 @@ function AdminDashboardContent() {
                     <ChevronRight size={16} className="text-gray-300 group-hover:text-gray-500 transition-colors" />
                   </button>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {/* ── MANAGE ADMINS ── */}
+          {activeTab === 'admins' && (
+            <div className="p-5 space-y-4">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                <div>
+                  <h2 className="text-base font-semibold text-gray-900">Manage System Administrators ({admins.length})</h2>
+                  <p className="text-xs text-gray-500">View authorized admin accounts and add new administrators</p>
+                </div>
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                  <div className="relative flex-1 sm:w-64">
+                    <Search size={14} className="absolute left-3 top-2.5 text-gray-400" />
+                    <input
+                      type="text"
+                      placeholder="Search admins..."
+                      value={searchQuery}
+                      onChange={e => setSearchQuery(e.target.value)}
+                      className="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-gray-200 focus:outline-none focus:border-blue-500"
+                    />
+                  </div>
+                  <button
+                    onClick={() => setShowAddAdminModal(true)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition-all shadow-sm flex-shrink-0"
+                  >
+                    <Plus size={14} /> Add Admin
+                  </button>
+                </div>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm">
+                  <thead>
+                    <tr className="border-b border-gray-100 bg-gray-50/50">
+                      <th className="py-2.5 px-3 text-xs font-semibold text-gray-500 uppercase">Admin Name</th>
+                      <th className="py-2.5 px-3 text-xs font-semibold text-gray-500 uppercase">Mobile Number</th>
+                      <th className="py-2.5 px-3 text-xs font-semibold text-gray-500 uppercase">Role</th>
+                      <th className="py-2.5 px-3 text-xs font-semibold text-gray-500 uppercase">Account Status</th>
+                      <th className="py-2.5 px-3 text-xs font-semibold text-gray-500 uppercase text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {admins.map(a => (
+                      <tr key={a.user_id} className="hover:bg-gray-50 transition-colors">
+                        <td className="py-3 px-3 font-medium text-gray-900">
+                          <div className="flex items-center gap-2">
+                            <div className="w-7 h-7 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold text-xs flex-shrink-0">
+                              {a.full_name?.charAt(0) || 'A'}
+                            </div>
+                            <span>{a.full_name}</span>
+                          </div>
+                        </td>
+                        <td className="py-3 px-3 text-gray-600 font-mono text-xs">{a.mobile_number}</td>
+                        <td className="py-3 px-3">
+                          <span className="text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded">
+                            {a.account_type}
+                          </span>
+                        </td>
+                        <td className="py-3 px-3"><StatusBadge status={a.account_status} /></td>
+                        <td className="py-3 px-3 text-right">
+                          <button
+                            onClick={() => handleToggleUserStatus(a.user_id, a.account_status)}
+                            className={`px-2.5 py-1 text-xs rounded font-medium ${
+                              a.account_status === 'ACTIVE'
+                                ? 'bg-red-50 text-red-700 hover:bg-red-100'
+                                : 'bg-green-50 text-green-700 hover:bg-green-100'
+                            }`}
+                          >
+                            {a.account_status === 'ACTIVE' ? 'Suspend' : 'Activate'}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
           )}
@@ -935,6 +1063,84 @@ function AdminDashboardContent() {
                 {isProcessing ? 'Updating...' : 'Update Status'}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Admin Modal */}
+      {showAddAdminModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowAddAdminModal(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between pb-3 border-b border-gray-100 mb-4">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-sm">
+                  🛡️
+                </div>
+                <div>
+                  <h3 className="font-bold text-gray-900 text-base">Add New Admin</h3>
+                  <p className="text-xs text-gray-500">Create an authorized administrative account</p>
+                </div>
+              </div>
+              <button onClick={() => setShowAddAdminModal(false)} className="p-1.5 text-gray-400 hover:bg-gray-100 rounded-lg">
+                <X size={16} />
+              </button>
+            </div>
+
+            <form onSubmit={handleAddAdmin} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Full Name</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Rahul Sharma"
+                  value={newAdminName}
+                  onChange={e => setNewAdminName(e.target.value)}
+                  className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Mobile Number</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. 9876543210"
+                  value={newAdminMobile}
+                  onChange={e => setNewAdminMobile(e.target.value)}
+                  className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Admin Password</label>
+                <input
+                  type="password"
+                  required
+                  placeholder="Enter secure admin password"
+                  value={newAdminPassword}
+                  onChange={e => setNewAdminPassword(e.target.value)}
+                  className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-3 border-t border-gray-100">
+                <button
+                  type="button"
+                  onClick={() => setShowAddAdminModal(false)}
+                  className="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-xl font-medium"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isProcessing}
+                  className="flex items-center gap-1.5 px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold shadow-md shadow-blue-500/20 transition-all disabled:opacity-50"
+                >
+                  <Plus size={15} />
+                  {isProcessing ? 'Creating...' : 'Create Admin'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

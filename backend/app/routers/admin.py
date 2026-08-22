@@ -1,11 +1,20 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import func
+from pydantic import BaseModel
 from .. import models, schemas
 from ..database import get_db
+from ..core.security import get_password_hash
 from typing import List, Optional
+from datetime import datetime
+import uuid
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
+
+class AdminCreate(BaseModel):
+    full_name: str
+    mobile_number: str
+    password: str
 
 @router.get("/stats")
 def get_platform_stats(db: Session = Depends(get_db)):
@@ -13,6 +22,7 @@ def get_platform_stats(db: Session = Depends(get_db)):
     total_workers = db.query(models.User).filter(models.User.account_type.in_([models.RoleEnum.WORKER, models.RoleEnum.GROUP_LEADER])).count()
     total_customers = db.query(models.User).filter(models.User.account_type == models.RoleEnum.CUSTOMER).count()
     total_contractors = db.query(models.User).filter(models.User.account_type == models.RoleEnum.CONTRACTOR).count()
+    total_admins = db.query(models.User).filter(models.User.account_type == models.RoleEnum.ADMIN).count()
     total_bookings = db.query(models.Booking).count()
     total_revenue = db.query(func.sum(models.Booking.agreed_amount)).scalar() or 0
     
@@ -25,9 +35,41 @@ def get_platform_stats(db: Session = Depends(get_db)):
         "total_workers": total_workers,
         "total_customers": total_customers,
         "total_contractors": total_contractors,
+        "total_admins": total_admins,
         "total_bookings": total_bookings,
         "total_revenue": total_revenue,
         "pending_verifications": pending_verifications
+    }
+
+@router.post("/create-admin")
+def create_new_admin(admin_in: AdminCreate, db: Session = Depends(get_db)):
+    existing = db.query(models.User).filter(models.User.mobile_number == admin_in.mobile_number).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="Mobile number already registered")
+    
+    hashed = get_password_hash(admin_in.password)
+    now = datetime.utcnow()
+    new_admin = models.User(
+        user_id=str(uuid.uuid4()),
+        full_name=admin_in.full_name,
+        mobile_number=admin_in.mobile_number,
+        hashed_password=hashed,
+        account_type=models.RoleEnum.ADMIN,
+        verification_status=models.VerificationStatusEnum.VERIFIED,
+        account_status=models.AccountStatusEnum.ACTIVE,
+        created_at=now,
+        updated_at=now
+    )
+    db.add(new_admin)
+    db.commit()
+    db.refresh(new_admin)
+    
+    return {
+        "message": "Admin account created successfully",
+        "user_id": new_admin.user_id,
+        "full_name": new_admin.full_name,
+        "mobile_number": new_admin.mobile_number,
+        "account_type": new_admin.account_type.value
     }
 
 @router.get("/users")
