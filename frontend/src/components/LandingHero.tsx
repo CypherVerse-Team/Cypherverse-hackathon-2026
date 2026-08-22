@@ -9,10 +9,13 @@ export default function LandingHero() {
   const { t } = useLanguage();
   return (
     <div
-      className="group relative overflow-hidden rounded-3xl border border-white/10 bg-[#030712] text-white shadow-2xl text-center before:pointer-events-none before:absolute before:inset-[-28px] before:z-0 before:bg-[url('https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=2200&q=80')] before:bg-cover before:bg-center before:grayscale before:blur-[12px] before:content-['']"
+      className="relative overflow-hidden rounded-3xl border border-white/10 bg-[#030712] bg-cover bg-center bg-no-repeat text-white shadow-2xl text-center"
+      style={{
+        backgroundImage: "url('https://images.unsplash.com/photo-1504307651254-35680f356f27?q=80&w=2000&auto=format&fit=crop')",
+      }}
     >
-      {/* Cool grayscale image layer; the overlay and content remain sharp above it. */}
-      <div className="absolute inset-0 z-[1] bg-slate-950/75 pointer-events-none" />
+      {/* Keep the background subdued so the foreground content stays legible. */}
+      <div className="absolute inset-0 z-[1] bg-black/70 pointer-events-none" />
 
       {/* 1. Deep Indigo/Blue base gradient */}
       <div className="absolute inset-0 z-[2] bg-[radial-gradient(ellipse_at_top,rgba(30,58,138,0.35)_0%,rgba(15,23,42,0.8)_60%,rgba(3,7,18,1)_100%)] pointer-events-none" />
