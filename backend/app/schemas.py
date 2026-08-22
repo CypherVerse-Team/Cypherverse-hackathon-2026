@@ -45,6 +45,8 @@ class WorkerProfileBase(BaseModel):
     hourly_rate: Optional[float] = None
     daily_rate: Optional[float] = None
     short_description: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
 
 class WorkerProfileUpdate(WorkerProfileBase):
     pass
