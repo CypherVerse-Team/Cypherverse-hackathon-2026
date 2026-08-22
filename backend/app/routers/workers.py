@@ -71,7 +71,9 @@ def get_workers(
         query = query.filter(models.User.verification_status == models.VerificationStatusEnum.VERIFIED)
         
     if city:
-        query = query.filter(models.WorkerProfile.home_city == city)
+        query = query.filter(
+        models.WorkerProfile.home_city.ilike(f"%{city.strip()}%")
+    )
     if availability:
         query = query.filter(models.WorkerProfile.availability_status == availability)
     if min_rate is not None:
