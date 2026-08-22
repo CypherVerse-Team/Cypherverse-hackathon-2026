@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import AppLayout from "@/components/AppLayout";
 import { AuthProvider } from "@/context/AuthContext";
 import { LanguageProvider } from "@/context/LanguageContext";
 
@@ -20,18 +19,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.className} bg-gray-50 min-h-screen flex flex-col justify-between`}>
+      <body className={`${inter.className} bg-gray-50 min-h-screen`}>
         <LanguageProvider>
           <AuthProvider>
-            <Navbar />
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
+            <AppLayout>
               {children}
-            </main>
-            <Footer />
+            </AppLayout>
           </AuthProvider>
         </LanguageProvider>
       </body>
     </html>
   );
 }
+
 

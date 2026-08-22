@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { fetchWithAuth } from '@/lib/api';
 
-export default function Navbar() {
+export default function Navbar({ onToggleSidebar }: { onToggleSidebar?: () => void }) {
   const { user, isAuthenticated, logout } = useAuth();
   const { locale, setLocale, t } = useLanguage();
   const router = useRouter();
@@ -45,24 +45,31 @@ export default function Navbar() {
   const unreadCount = notifications.filter(n => !n.is_read).length;
 
   return (
-    <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <nav className="bg-white border-b border-gray-200 sticky top-0 z-40">
+      <div className={`mx-auto px-4 sm:px-6 lg:px-8 transition-all duration-300 ${isAuthenticated ? 'lg:pl-72 max-w-full' : 'max-w-7xl'}`}>
         <div className="flex justify-between h-16">
-          {/* Left portion: Hamburger + Brand + Desktop Nav */}
-          <div className="flex items-center">
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="p-1.5 mr-1.5 xs:mr-3 rounded-lg text-gray-500 hover:text-gray-900 hover:bg-gray-100 focus:outline-none transition-all duration-150 active:scale-90 sm:hidden"
-              aria-label="Toggle menu"
-            >
-              {isMenuOpen ? (
-                <X className="h-5 w-5 transition-transform duration-200 rotate-90" />
-              ) : (
-                <Menu className="h-5 w-5 transition-transform duration-200" />
-              )}
-            </button>
+          {/* Left portion: Sidebar Toggle Button + Brand */}
+          <div className="flex items-center space-x-3">
+            {isAuthenticated ? (
+              <button
+                onClick={onToggleSidebar}
+                className="p-2 rounded-xl text-gray-700 hover:bg-blue-50 hover:text-blue-600 focus:outline-none transition-all flex items-center space-x-2 font-bold text-xs"
+                title="Toggle Left Navigation Sidebar"
+              >
+                <Menu className="h-5 w-5" />
+                <span className="hidden sm:inline-block">Navigation Menu</span>
+              </button>
+            ) : (
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="p-1.5 mr-1.5 rounded-lg text-gray-500 hover:text-gray-900 hover:bg-gray-100 focus:outline-none transition-all sm:hidden"
+                aria-label="Toggle menu"
+              >
+                {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              </button>
+            )}
             
-            <Link href="/" className="flex-shrink-0 flex items-center transition-opacity hover:opacity-90 active:scale-95 duration-150">
+            <Link href="/" className="flex-shrink-0 flex items-center">
               <span className="text-xl sm:text-2xl font-bold text-blue-600 tracking-tight">ShramSetu</span>
             </Link>
             
