@@ -120,18 +120,18 @@ export default function CustomerDashboard() {
   if (isLoading) return <div className="text-center mt-20">Loading...</div>;
 
   return (
-    <div className="space-y-6">
-      <div className="bg-[#121318] border border-[#22242b] p-6 rounded-3xl shadow-xl flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3">
+    <div className="space-y-5">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-4 border-b border-gray-100">
         <div>
-          <h1 className="text-2xl font-extrabold text-white tracking-tight">My Bookings & Service Requests</h1>
-          <p className="text-zinc-400 text-xs mt-0.5 font-medium">Track active worker assignments, service progress, and past work requests</p>
+          <h1 className="text-xl font-semibold text-gray-900">My Bookings & Service Requests</h1>
+          <p className="text-gray-500 text-sm mt-0.5">Track active worker assignments, service progress, and past work requests</p>
         </div>
         {user?.account_type === 'CONTRACTOR' && (
           <button 
             onClick={() => setShowBulkModal(true)}
-            className="bg-[#00e599] hover:bg-[#00cc88] text-black font-extrabold px-4 py-2 rounded-xl text-xs shadow-[0_0_15px_rgba(0,229,153,0.3)] transition-all cursor-pointer"
+            className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg text-sm transition-all cursor-pointer"
           >
-            + Create Bulk Workforce Request
+            + Bulk Workforce Request
           </button>
         )}
       </div>

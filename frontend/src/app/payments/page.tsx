@@ -86,16 +86,14 @@ export default function PaymentsPage() {
   const isWorker = user?.account_type === 'WORKER' || user?.account_type === 'GROUP_LEADER';
 
   return (
-    <div className="space-y-6">
-      <div className="bg-[#121318] border border-[#22242b] p-6 rounded-3xl shadow-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+    <div className="space-y-5">
+      <div className="pb-4 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <div>
-          <h1 className="text-2xl font-extrabold text-white tracking-tight">Payments & Financial Invoices</h1>
-          <p className="text-zinc-400 text-xs mt-0.5 font-medium">
-            Transparent digital invoices, platform commissions, tax breakdown & instant direct payout settlements.
-          </p>
+          <h1 className="text-xl font-semibold text-gray-900">Payments & Financial Invoices</h1>
+          <p className="text-gray-500 text-sm">Transparent invoices, commissions, and payout settlements</p>
         </div>
-        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-mono font-bold bg-[#00e599]/10 text-[#00e599] border border-[#00e599]/30">
-          <Lock className="w-3.5 h-3.5 mr-1 text-[#00e599]" /> Escrow Protected
+        <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-green-50 text-green-700 border border-green-100">
+          <Lock className="w-3 h-3 mr-1" /> Escrow Protected
         </span>
       </div>
 

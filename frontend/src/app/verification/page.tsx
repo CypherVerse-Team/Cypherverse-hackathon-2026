@@ -90,16 +90,14 @@ export default function VerificationPage() {
   const currentStatus = verStatus?.status || user?.verification_status || 'UNVERIFIED';
 
   return (
-    <div className="space-y-6">
-      <div className="bg-[#121318] border border-[#22242b] p-6 rounded-3xl shadow-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+    <div className="space-y-5">
+      <div className="pb-4 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <div>
-          <h1 className="text-2xl font-extrabold text-white tracking-tight">KYC & Skill Verification Portal</h1>
-          <p className="text-zinc-400 text-xs mt-0.5 font-medium">
-            Verified workers receive priority job listings, higher hourly rates, and the official ShramSetu Gold Badge.
-          </p>
+          <h1 className="text-xl font-semibold text-gray-900">KYC & Skill Verification</h1>
+          <p className="text-gray-500 text-sm">Verified workers get priority listings, higher rates, and the ShramSetu Gold Badge</p>
         </div>
-        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-mono font-bold bg-[#00e599]/10 text-[#00e599] border border-[#00e599]/30">
-          <Award className="w-3.5 h-3.5 mr-1 text-[#00e599]" /> Status: {currentStatus}
+        <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-100">
+          <Award className="w-3 h-3 mr-1" /> Status: {currentStatus}
         </span>
       </div>
 

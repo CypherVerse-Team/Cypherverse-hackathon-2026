@@ -194,29 +194,29 @@ export default function WorkerDashboard() {
   const isGroupLeader = user?.account_type === 'GROUP_LEADER';
 
   return (
-    <div className="space-y-6">
-      {/* Dashboard Top Header & Tabs (Neon Console Style) */}
-      <div className="bg-[#121318] border border-[#22242b] p-6 rounded-3xl shadow-xl space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#22242b]">
+    <div className="space-y-5">
+      {/* Dashboard Top Header & Tabs */}
+      <div className="border-b border-gray-100 pb-4 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-extrabold text-white tracking-tight">Worker Operational Dashboard</h1>
-            <p className="text-xs text-zinc-400 font-medium">Manage incoming bookings, set work location & view payout earnings</p>
+            <h1 className="text-xl font-semibold text-gray-900">Worker Dashboard</h1>
+            <p className="text-sm text-gray-500">Manage bookings, set work location & view earnings</p>
           </div>
           {isGroupLeader && (
-            <span className="bg-[#00e599]/10 text-[#00e599] border border-[#00e599]/30 text-xs font-mono font-bold px-3 py-1 rounded-full uppercase tracking-wider self-start sm:self-auto">
+            <span className="bg-blue-50 text-blue-700 border border-blue-200 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wide self-start sm:self-auto">
               Group Leader
             </span>
           )}
         </div>
 
-        {/* Navigation Tabs with Neon Accent */}
-        <div className="flex space-x-2 overflow-x-auto pb-1 text-xs sm:text-sm font-bold">
-          <button onClick={() => setActiveTab('profile')} className={`pb-2 px-4 rounded-xl transition-all ${activeTab === 'profile' ? 'bg-[#00e599] text-black font-extrabold shadow-[0_0_15px_rgba(0,229,153,0.3)]' : 'text-zinc-400 hover:text-white hover:bg-[#181a20]'}`}>KYC & Profile Overview</button>
-          <button onClick={() => setActiveTab('location')} className={`pb-2 px-4 rounded-xl transition-all ${activeTab === 'location' ? 'bg-[#00e599] text-black font-extrabold shadow-[0_0_15px_rgba(0,229,153,0.3)]' : 'text-zinc-400 hover:text-white hover:bg-[#181a20]'}`}>📍 Work Location & Map</button>
-          <button onClick={() => setActiveTab('bookings')} className={`pb-2 px-4 rounded-xl transition-all ${activeTab === 'bookings' ? 'bg-[#00e599] text-black font-extrabold shadow-[0_0_15px_rgba(0,229,153,0.3)]' : 'text-zinc-400 hover:text-white hover:bg-[#181a20]'}`}>My Bookings</button>
-          <button onClick={() => setActiveTab('earnings')} className={`pb-2 px-4 rounded-xl transition-all ${activeTab === 'earnings' ? 'bg-[#00e599] text-black font-extrabold shadow-[0_0_15px_rgba(0,229,153,0.3)]' : 'text-zinc-400 hover:text-white hover:bg-[#181a20]'}`}>Earnings</button>
+        {/* Navigation Tabs */}
+        <div className="flex space-x-1 overflow-x-auto text-sm">
+          <button onClick={() => setActiveTab('profile')} className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${activeTab === 'profile' ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'}`}>KYC & Profile</button>
+          <button onClick={() => setActiveTab('location')} className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${activeTab === 'location' ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'}`}>📍 Work Location</button>
+          <button onClick={() => setActiveTab('bookings')} className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${activeTab === 'bookings' ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'}`}>Bookings</button>
+          <button onClick={() => setActiveTab('earnings')} className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${activeTab === 'earnings' ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'}`}>Earnings</button>
           {isGroupLeader && (
-            <button onClick={() => setActiveTab('team')} className={`pb-2 px-4 rounded-xl transition-all ${activeTab === 'team' ? 'bg-[#00e599] text-black font-extrabold shadow-[0_0_15px_rgba(0,229,153,0.3)]' : 'text-zinc-400 hover:text-white hover:bg-[#181a20]'}`}>My Team</button>
+            <button onClick={() => setActiveTab('team')} className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${activeTab === 'team' ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'}`}>My Team</button>
           )}
         </div>
       </div>
