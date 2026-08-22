@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { 
   Home, Grid, User, LayoutDashboard, Briefcase, Building, 
-  CreditCard, ShieldCheck, HelpCircle, Bell, LogOut, Shield, ChevronRight, X
+  CreditCard, ShieldCheck, HelpCircle, Bell, LogOut, Shield, ChevronRight, X, BarChart2
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -58,6 +58,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
       items: [
         { label: 'Payments & Invoices', href: '/payments', icon: CreditCard },
         { label: 'KYC & Skill Verification', href: '/verification', icon: ShieldCheck },
+        { label: 'Summary Statistics', href: '/analytics', icon: BarChart2 },
       ]
     },
     {

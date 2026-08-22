@@ -93,6 +93,9 @@ export default function Navbar() {
                   <Link href="/verification" className="border-transparent text-gray-600 hover:text-blue-600 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                     Verification
                   </Link>
+                  <Link href="/analytics" className="border-transparent text-gray-600 hover:text-blue-600 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                    Stats 📊
+                  </Link>
                 </>
               )}
               <Link href="/support" className="border-transparent text-gray-600 hover:text-blue-600 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
