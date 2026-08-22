@@ -2,25 +2,55 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { fetchWithAuth } from '@/lib/api';
-import { HelpCircle, AlertTriangle, CheckCircle, FileText, Upload, Clock, MessageSquare, ShieldAlert } from 'lucide-react';
+import { fetchWithAuth, API_ORIGIN } from '@/lib/api';
+import { 
+  HelpCircle, AlertTriangle, CheckCircle, FileText, Upload, 
+  Clock, MessageSquare, ShieldAlert, Phone, Mail, Send, 
+  CheckCircle2, Eye, ShieldCheck, ChevronRight, Sparkles, X
+} from 'lucide-react';
 import Link from 'next/link';
-import AccountQuickHub from '@/components/AccountQuickHub';
+
+const SUPPORT_CATEGORIES = [
+  'General Inquiry & Help',
+  'Quality of Work / Service Issue',
+  'Payment & Payout Dispute',
+  'Worker No-Show / Delay',
+  'KYC & Verification Help',
+  'Safety & Misconduct Report',
+  'App Bug / Technical Issue',
+];
+
+const StatusBadge = ({ status }: { status: string }) => {
+  const map: Record<string, string> = {
+    SUBMITTED:     'bg-red-50 text-red-700 border border-red-200',
+    INVESTIGATING: 'bg-yellow-50 text-yellow-700 border border-yellow-200',
+    RESOLVED:      'bg-green-50 text-green-700 border border-green-200',
+    CLOSED:        'bg-gray-100 text-gray-600 border border-gray-200',
+  };
+  return (
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded text-xs font-semibold ${map[status] || 'bg-gray-100 text-gray-600'}`}>
+      {status}
+    </span>
+  );
+};
 
 export default function SupportPage() {
   const { user, isAuthenticated } = useAuth();
 
+  const [activeTab, setActiveTab] = useState<'create' | 'my_tickets'>('create');
   const [bookings, setBookings] = useState<any[]>([]);
-  const [complaints, setComplaints] = useState<any[]>([]);
+  const [myTickets, setMyTickets] = useState<any[]>([]);
   
   // Form state
+  const [category, setCategory] = useState(SUPPORT_CATEGORIES[0]);
   const [bookingId, setBookingId] = useState('');
-  const [category, setCategory] = useState('Quality of Work');
   const [description, setDescription] = useState('');
   const [file, setFile] = useState<File | null>(null);
 
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [msg, setMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [previewDoc, setPreviewDoc] = useState<string | null>(null);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -33,16 +63,16 @@ export default function SupportPage() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const bRes = await fetchWithAuth('/v1/bookings/me');
+      const [bRes, tRes] = await Promise.all([
+        fetchWithAuth('/v1/bookings/me'),
+        fetchWithAuth('/v1/complaints/me'),
+      ]);
       if (bRes.ok) {
-        const data = await bRes.json();
-        setBookings(data);
-        if (data.length > 0) setBookingId(data[0].booking_id);
+        const bData = await bRes.json();
+        setBookings(bData);
       }
-
-      if (user?.account_type === 'ADMIN') {
-        const cRes = await fetchWithAuth('/v1/complaints/admin');
-        if (cRes.ok) setComplaints(await cRes.json());
+      if (tRes.ok) {
+        setMyTickets(await tRes.json());
       }
     } catch (e) {
       console.error(e);
@@ -51,18 +81,21 @@ export default function SupportPage() {
     }
   };
 
-  const handleSubmitComplaint = async (e: React.FormEvent) => {
+  const handleSubmitTicket = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!bookingId) {
-      setMsg({ type: 'error', text: 'Please select a valid booking' });
+    if (!description.trim()) {
+      setMsg({ type: 'error', text: 'Please enter a description for your support request' });
       return;
     }
     setMsg(null);
+    setSubmitting(true);
 
     const formData = new FormData();
-    formData.append('booking_id', bookingId);
     formData.append('complaint_category', category);
-    formData.append('description', description);
+    formData.append('description', description.trim());
+    if (bookingId && bookingId !== 'none') {
+      formData.append('booking_id', bookingId);
+    }
     if (file) {
       formData.append('file', file);
     }
@@ -74,176 +107,295 @@ export default function SupportPage() {
       });
 
       if (res.ok) {
-        setMsg({ type: 'success', text: 'Support ticket & complaint submitted successfully!' });
+        const created = await res.json();
+        setMsg({ 
+          type: 'success', 
+          text: `Support ticket #${created.case_id} submitted! Our team will respond shortly.` 
+        });
         setDescription('');
+        setBookingId('');
         setFile(null);
         loadData();
+        setActiveTab('my_tickets');
       } else {
         const err = await res.json();
-        setMsg({ type: 'error', text: err.detail || 'Failed to submit complaint' });
+        setMsg({ type: 'error', text: err.detail || 'Failed to submit support ticket' });
       }
     } catch (e: any) {
       setMsg({ type: 'error', text: e.message || 'An error occurred' });
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  if (!isAuthenticated) {
-    return (
-      <div className="max-w-xl mx-auto py-16 text-center bg-white rounded-3xl p-8 border border-gray-100 shadow-sm">
-        <HelpCircle className="w-16 h-16 text-blue-600 mx-auto mb-4" />
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Help & Dispute Support Center</h2>
-        <p className="text-gray-600 mb-6">Please log in to raise support tickets, file disputes on service bookings, or track ticket resolutions.</p>
-        <Link href="/login" className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold text-sm inline-block">
-          Log In Now
-        </Link>
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-8 max-w-7xl mx-auto">
+    <div className="space-y-6">
+
       {/* Header Banner */}
-      <div className="bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 text-white rounded-3xl p-8 sm:p-10 shadow-xl">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+      <div className="pb-4 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <div>
+          <h1 className="text-xl font-semibold text-gray-900">Help & Support Center</h1>
+          <p className="text-sm text-gray-500">Raise support tickets, report job disputes, and track resolutions</p>
+        </div>
+
+        {isAuthenticated && (
+          <div className="flex items-center gap-1.5 bg-gray-100 p-1 rounded-xl text-xs font-semibold">
+            <button
+              onClick={() => setActiveTab('create')}
+              className={`px-3 py-1.5 rounded-lg transition-all ${
+                activeTab === 'create' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              Raise Ticket
+            </button>
+            <button
+              onClick={() => setActiveTab('my_tickets')}
+              className={`px-3 py-1.5 rounded-lg transition-all ${
+                activeTab === 'my_tickets' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              My Tickets ({myTickets.length})
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Quick Help Contacts Row */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="p-4 rounded-xl border border-gray-200 bg-white flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0">
+            <Phone size={20} />
+          </div>
           <div>
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-500/20 text-blue-300 border border-blue-500/30 mb-3">
-              <ShieldAlert className="w-3.5 h-3.5 mr-1" /> 24/7 Platform Protection & Mediation
-            </span>
-            <h1 className="text-3xl font-extrabold tracking-tight">Support & Dispute Center</h1>
-            <p className="text-blue-200 text-sm mt-1">
-              Have an issue with a booking, payment, or worker performance? Submit evidence for rapid admin resolution.
-            </p>
+            <div className="text-xs text-gray-400 font-medium">Toll-Free Helpline</div>
+            <div className="text-sm font-bold text-gray-900">+91 1800-123-7890</div>
+          </div>
+        </div>
+
+        <div className="p-4 rounded-xl border border-gray-200 bg-white flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center flex-shrink-0">
+            <Mail size={20} />
+          </div>
+          <div>
+            <div className="text-xs text-gray-400 font-medium">Email Support</div>
+            <div className="text-sm font-bold text-gray-900">support@shramsetu.in</div>
+          </div>
+        </div>
+
+        <div className="p-4 rounded-xl border border-gray-200 bg-white flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-green-50 text-green-600 flex items-center justify-center flex-shrink-0">
+            <ShieldCheck size={20} />
+          </div>
+          <div>
+            <div className="text-xs text-gray-400 font-medium">Resolution SLA</div>
+            <div className="text-sm font-bold text-gray-900">&lt; 24 Hours Response</div>
           </div>
         </div>
       </div>
 
+      {/* Alert Messages */}
       {msg && (
-        <div className={`p-4 rounded-2xl flex items-center space-x-3 text-sm font-medium ${msg.type === 'success' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-red-50 text-red-800 border border-red-200'}`}>
-          {msg.type === 'success' ? <CheckCircle className="w-5 h-5 text-emerald-600" /> : <AlertTriangle className="w-5 h-5 text-red-600" />}
+        <div className={`p-4 rounded-xl flex items-center space-x-2 text-sm font-medium ${
+          msg.type === 'success' ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'
+        }`}>
+          {msg.type === 'success' ? <CheckCircle className="w-5 h-5 flex-shrink-0 text-green-600" /> : <AlertTriangle className="w-5 h-5 flex-shrink-0 text-red-600" />}
           <span>{msg.text}</span>
         </div>
       )}
 
-      {/* Main Form & Tickets Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-        
-        {/* Left Column: Account Quick Hub */}
-        <div>
-          <AccountQuickHub />
+      {/* Main Support Workspace */}
+      {!isAuthenticated ? (
+        <div className="max-w-xl mx-auto py-12 text-center bg-white rounded-2xl p-8 border border-gray-200 shadow-sm">
+          <HelpCircle className="w-12 h-12 text-blue-600 mx-auto mb-3" />
+          <h2 className="text-xl font-bold text-gray-900 mb-1">Sign in to Submit Support Tickets</h2>
+          <p className="text-xs text-gray-500 mb-6">Log in to your ShramSetu account to raise disputes, track resolution progress and receive official support.</p>
+          <Link href="/login" className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold text-xs inline-block transition-all shadow-sm">
+            Log In to Account
+          </Link>
         </div>
-
-        {/* Right Column: Ticket Submission Form & FAQs */}
-        <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-gray-100 shadow-sm">
-            <div className="flex items-center space-x-3 mb-6">
-              <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
-                <MessageSquare className="w-5 h-5" />
-              </div>
-              <div>
-                <h2 className="text-xl font-bold text-gray-900">Raise New Dispute / Ticket</h2>
-                <p className="text-xs text-gray-500">File a complaint for escrow hold & review</p>
-              </div>
-            </div>
-
-            <form onSubmit={handleSubmitComplaint} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1">Select Booking</label>
-                <select 
-                  value={bookingId}
-                  onChange={(e) => setBookingId(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-                  required
-                >
-                  {bookings.length === 0 ? (
-                    <option value="">No active or completed bookings available</option>
-                  ) : (
-                    bookings.map((b: any) => (
-                      <option key={b.booking_id} value={b.booking_id}>
-                        Booking #{b.booking_id.substring(0, 8)} - ₹{b.agreed_amount || 0} ({b.booking_status})
-                      </option>
-                    ))
-                  )}
-                </select>
+      ) : (
+        <>
+          {/* TAB 1: CREATE TICKET */}
+          {activeTab === 'create' && (
+            <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+              <div className="mb-5 pb-4 border-b border-gray-100">
+                <h2 className="text-base font-bold text-gray-900">Submit a Support Ticket / Dispute</h2>
+                <p className="text-xs text-gray-500 mt-0.5">Please provide details regarding your inquiry, booking issue, or service grievance.</p>
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1">Issue Category</label>
-                <select 
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-                >
-                  <option value="Quality of Work">Substandard / Incomplete Work</option>
-                  <option value="No Show / Delay">Worker No Show / Unreasonable Delay</option>
-                  <option value="Payment Dispute">Payment / Overcharging Issue</option>
-                  <option value="Misconduct">Professional Misconduct / Unsafe Behavior</option>
-                  <option value="Other">Other Query</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1">Detailed Explanation</label>
-                <textarea 
-                  rows={4}
-                  placeholder="Explain what went wrong in detail..."
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-                  required
-                />
-              </div>
-
-              <button 
-                type="submit" 
-                disabled={bookings.length === 0}
-                className={`w-full font-semibold py-3 rounded-xl text-sm transition-colors shadow-sm ${
-                  bookings.length === 0 ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 text-white'
-                }`}
-              >
-                Submit Ticket to Admin Review
-              </button>
-            </form>
-          </div>
-
-          {/* FAQs & Protection Guarantee */}
-          <div className="bg-slate-900 rounded-3xl p-6 sm:p-8 text-white space-y-4">
-            <h3 className="text-xl font-bold flex items-center text-blue-400">
-              <ShieldAlert className="w-5 h-5 mr-2" /> ShramSetu Escrow Guarantee
-            </h3>
-            <p className="text-slate-300 text-sm leading-relaxed">
-              When a dispute is raised, payment holds in escrow are automatically paused until an impartial admin reviews evidence from both parties.
-            </p>
-            <div className="space-y-3 pt-2 text-xs text-slate-400">
-              <div className="flex items-start space-x-2">
-                <Clock className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
-                <span>Standard Resolution Time: 24 - 48 Hours</span>
-              </div>
-              <div className="flex items-start space-x-2">
-                <CheckCircle className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
-                <span>Full refund eligible if service was unfulfilled or cancelled by worker</span>
-              </div>
-            </div>
-          </div>
-
-          {user?.account_type === 'ADMIN' && complaints.length > 0 && (
-            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-gray-100 shadow-sm">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">All System Complaints (Admin View)</h3>
-              <div className="space-y-3 max-h-60 overflow-y-auto">
-                {complaints.map((c: any) => (
-                  <div key={c.complaint_id} className="p-3 bg-gray-50 rounded-xl text-xs space-y-1 border">
-                    <div className="flex justify-between font-bold text-gray-900">
-                      <span>Case {c.case_id}</span>
-                      <span className="text-blue-600">{c.complaint_status}</span>
-                    </div>
-                    <p className="text-gray-600">{c.description}</p>
+              <form onSubmit={handleSubmitTicket} className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Category Selection */}
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                      Issue Category
+                    </label>
+                    <select
+                      value={category}
+                      onChange={(e) => setCategory(e.target.value)}
+                      className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-xs text-gray-900 bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
+                    >
+                      {SUPPORT_CATEGORIES.map((cat, idx) => (
+                        <option key={idx} value={cat}>{cat}</option>
+                      ))}
+                    </select>
                   </div>
-                ))}
-              </div>
+
+                  {/* Optional Booking Association */}
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                      Related Booking (Optional)
+                    </label>
+                    <select
+                      value={bookingId}
+                      onChange={(e) => setBookingId(e.target.value)}
+                      className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-xs text-gray-900 bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
+                    >
+                      <option value="">None / General Inquiry</option>
+                      {bookings.map((b) => (
+                        <option key={b.booking_id} value={b.booking_id}>
+                          Booking #{b.booking_id.substring(0, 8)} — ₹{b.agreed_amount || 0} ({b.booking_status})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Description */}
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                    Describe Your Issue in Detail
+                  </label>
+                  <textarea
+                    rows={4}
+                    required
+                    placeholder="Provide detailed context, timestamps, or reasons for your request..."
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-xs text-gray-900 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none resize-none"
+                  />
+                </div>
+
+                {/* File Attachment */}
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                    Attach Screenshot / Document (Optional)
+                  </label>
+                  <div className="border border-dashed border-gray-300 rounded-xl p-4 text-center hover:bg-gray-50/50 transition-colors">
+                    <input
+                      type="file"
+                      id="support-file"
+                      className="hidden"
+                      onChange={(e) => setFile(e.target.files ? e.target.files[0] : null)}
+                    />
+                    <label htmlFor="support-file" className="cursor-pointer flex flex-col items-center justify-center">
+                      <Upload className="w-6 h-6 text-gray-400 mb-1" />
+                      <span className="text-xs font-semibold text-blue-600">
+                        {file ? file.name : 'Click to upload proof (JPG, PNG, PDF)'}
+                      </span>
+                      <span className="text-[10px] text-gray-400 mt-0.5">Maximum size: 5MB</span>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Submit Action */}
+                <div className="pt-2 flex justify-end">
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="flex items-center gap-1.5 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-blue-500/20 disabled:opacity-50"
+                  >
+                    <Send size={14} />
+                    {submitting ? 'Submitting Ticket...' : 'Submit Support Ticket'}
+                  </button>
+                </div>
+              </form>
             </div>
           )}
-        </div>
 
-      </div>
+          {/* TAB 2: MY TICKETS */}
+          {activeTab === 'my_tickets' && (
+            <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-gray-100">
+                <div>
+                  <h2 className="text-base font-bold text-gray-900">My Support Tickets ({myTickets.length})</h2>
+                  <p className="text-xs text-gray-500">Track current review status and admin resolution remarks</p>
+                </div>
+                <button
+                  onClick={() => setActiveTab('create')}
+                  className="px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg text-xs font-bold hover:bg-blue-100 transition-all"
+                >
+                  + New Ticket
+                </button>
+              </div>
+
+              {myTickets.length === 0 ? (
+                <div className="py-12 text-center text-gray-400 border-2 border-dashed border-gray-200 rounded-xl text-xs">
+                  <MessageSquare className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+                  <p className="font-medium text-gray-600">You haven't submitted any support tickets yet.</p>
+                </div>
+              ) : (
+                <div className="divide-y divide-gray-100">
+                  {myTickets.map((t) => (
+                    <div key={t.complaint_id} className="py-4 first:pt-0 last:pb-0 space-y-2">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono font-bold text-xs text-gray-900">{t.case_id}</span>
+                          <span className="text-xs text-gray-600 font-medium bg-gray-100 px-2 py-0.5 rounded">
+                            {t.complaint_category}
+                          </span>
+                        </div>
+                        <StatusBadge status={t.complaint_status} />
+                      </div>
+
+                      <p className="text-xs text-gray-700 leading-relaxed">{t.description}</p>
+
+                      {t.evidence && t.evidence.length > 0 && (
+                        <div className="pt-1">
+                          <button
+                            onClick={() => setPreviewDoc(t.evidence[0].file_path)}
+                            className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 hover:text-blue-800"
+                          >
+                            <Eye size={12} /> View Attached Evidence
+                          </button>
+                        </div>
+                      )}
+
+                      {/* Admin Resolution Remarks */}
+                      {t.admin_remarks && (
+                        <div className="bg-blue-50 border border-blue-100 p-3 rounded-xl text-xs text-blue-900 mt-2">
+                          <div className="font-bold text-blue-950 mb-0.5">Admin Response:</div>
+                          <div>{t.admin_remarks}</div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </>
+      )}
+
+      {/* Document Preview Modal */}
+      {previewDoc && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setPreviewDoc(null)}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
+            <div className="flex justify-between items-center px-5 py-3 border-b border-gray-100">
+              <h3 className="font-semibold text-gray-900 text-sm">Attachment Preview</h3>
+              <button onClick={() => setPreviewDoc(null)} className="p-1.5 text-gray-400 hover:bg-gray-100 rounded-lg"><X size={16} /></button>
+            </div>
+            <div className="flex-1 overflow-auto p-4 flex justify-center bg-gray-50">
+              {previewDoc.endsWith('.pdf') ? (
+                <iframe src={`${API_ORIGIN}${previewDoc}`} className="w-full h-[600px] border-0 rounded-lg" />
+              ) : (
+                <img src={`${API_ORIGIN}${previewDoc}`} alt="Document Preview" className="max-w-full max-h-[600px] object-contain rounded-lg" />
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

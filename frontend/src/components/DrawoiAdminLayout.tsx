@@ -51,7 +51,7 @@ function DrawoiAdminLayoutContent({ children }: { children: React.ReactNode }) {
     { label: 'Manage Works / Jobs', href: '/admin?tab=works', tab: 'works', icon: CheckCircle },
     { label: 'Worker KYC Status', href: '/admin?tab=verifications', tab: 'verifications', icon: ShieldCheck },
     { label: 'Manage Categories', href: '/admin?tab=categories', tab: 'categories', icon: Grid },
-    { label: 'Disputes & Complaints', href: '/admin?tab=complaints', tab: 'complaints', icon: MessageSquareWarning },
+    { label: 'Support & Disputes', href: '/admin?tab=complaints', tab: 'complaints', icon: HelpCircle },
     { label: 'Bulk Matchmaking', href: '/admin?tab=matchmaking', tab: 'matchmaking', icon: Layers },
     { label: 'Financials & Invoices', href: '/admin?tab=financials', tab: 'financials', icon: CreditCard },
     { label: 'Platform Analytics', href: '/analytics', icon: BarChart2 },
@@ -73,7 +73,7 @@ function DrawoiAdminLayoutContent({ children }: { children: React.ReactNode }) {
     { label: 'KYC Verification', href: '/verification', icon: ShieldCheck },
     { label: 'Statistics', href: '/analytics', icon: BarChart2 },
     { label: 'Notifications', href: '/notifications', icon: Bell },
-    { label: 'Support', href: '/support', icon: HelpCircle },
+    { label: 'Support Center', href: '/support', icon: HelpCircle },
     { label: 'Categories', href: '/categories', icon: Grid },
     { label: 'Worker Directory', href: '/', icon: Home },
   ];
@@ -88,7 +88,8 @@ function DrawoiAdminLayoutContent({ children }: { children: React.ReactNode }) {
       if (currentTab === 'contractors') return 'Manage Contractors';
       if (currentTab === 'works') return 'Manage Works & Bookings';
       if (currentTab === 'verifications') return 'Worker KYC Status';
-      if (currentTab === 'complaints') return 'Disputes & Complaints';
+      if (currentTab === 'categories') return 'Manage Categories';
+      if (currentTab === 'complaints') return 'Support Tickets & Disputes';
       if (currentTab === 'matchmaking') return 'Bulk Matchmaking';
       if (currentTab === 'financials') return 'Financials & Invoices';
       if (currentTab === 'stats') return 'Platform Summary Stats';

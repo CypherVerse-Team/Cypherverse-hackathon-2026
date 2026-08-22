@@ -171,8 +171,10 @@ class ComplaintEvidenceResponse(BaseModel):
 class ComplaintResponse(BaseModel):
     complaint_id: str
     case_id: str
-    booking_id: str
-    complainant_user_id: str
+    booking_id: Optional[str] = None
+    complainant_user_id: Optional[str] = None
+    complainant_name: Optional[str] = None
+    complainant_mobile: Optional[str] = None
     complaint_category: str
     complaint_status: ComplaintStatusEnum
     description: str

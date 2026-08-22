@@ -9,7 +9,7 @@ import {
   CheckCircle, XCircle, Eye, BarChart2, MessageSquareWarning,
   Layers, TrendingUp, ShieldCheck, Clock, AlertTriangle,
   ChevronRight, RefreshCw, UserCog, X, Search, Plus,
-  Building, Check, Ban, Filter, Grid
+  Building, Check, Ban, Filter, Grid, HelpCircle
 } from 'lucide-react';
 import SummaryStatsCard from '@/components/SummaryStatsCard';
 
@@ -927,53 +927,86 @@ function AdminDashboardContent() {
             </div>
           )}
 
-          {/* ── 8. COMPLAINTS ── */}
+          {/* ── 8. SUPPORT TICKETS & DISPUTES ── */}
           {activeTab === 'complaints' && (
             <div className="p-5 space-y-4">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                 <div>
-                  <h2 className="text-base font-semibold text-gray-900">Disputes & Complaints</h2>
-                  <p className="text-xs text-gray-500">{complaints.length} registered dispute cases</p>
+                  <h2 className="text-base font-semibold text-gray-900">Support Tickets & Disputes ({complaints.length})</h2>
+                  <p className="text-xs text-gray-500">Live feed of user inquiries, service grievances, and booking dispute claims</p>
+                </div>
+                <div className="relative w-full sm:w-64">
+                  <Search size={14} className="absolute left-3 top-2.5 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search tickets by ID, name or category..."
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                    className="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-gray-200 focus:outline-none focus:border-blue-500"
+                  />
                 </div>
               </div>
+
               {complaints.length === 0 ? (
                 <div className="py-16 text-center text-gray-400 border-2 border-dashed border-gray-200 rounded-xl">
-                  <MessageSquareWarning size={32} className="mx-auto mb-2 text-gray-300" />
-                  <p className="text-sm font-medium">No active disputes</p>
+                  <HelpCircle size={32} className="mx-auto mb-2 text-gray-300" />
+                  <p className="text-sm font-medium">No open support tickets or disputes</p>
                 </div>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-sm">
                     <thead>
                       <tr className="border-b border-gray-100 bg-gray-50/50">
-                        {['Case ID', 'Category', 'Status', 'Description', 'Evidence', 'Action'].map(h => (
-                          <th key={h} className="py-2.5 px-3 text-xs font-semibold text-gray-500 uppercase">{h}</th>
-                        ))}
+                        <th className="py-2.5 px-3 text-xs font-semibold text-gray-500 uppercase">Ticket ID</th>
+                        <th className="py-2.5 px-3 text-xs font-semibold text-gray-500 uppercase">Complainant / User</th>
+                        <th className="py-2.5 px-3 text-xs font-semibold text-gray-500 uppercase">Category</th>
+                        <th className="py-2.5 px-3 text-xs font-semibold text-gray-500 uppercase">Status</th>
+                        <th className="py-2.5 px-3 text-xs font-semibold text-gray-500 uppercase">Description</th>
+                        <th className="py-2.5 px-3 text-xs font-semibold text-gray-500 uppercase">Evidence</th>
+                        <th className="py-2.5 px-3 text-xs font-semibold text-gray-500 uppercase text-right">Action</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-50">
-                      {complaints.map((c) => (
-                        <tr key={c.complaint_id} className="hover:bg-gray-50 transition-colors">
-                          <td className="py-3 px-3 font-mono text-xs text-gray-700">{c.case_id}</td>
-                          <td className="py-3 px-3 text-gray-700">{c.complaint_category}</td>
-                          <td className="py-3 px-3"><StatusBadge status={c.complaint_status} /></td>
-                          <td className="py-3 px-3 text-gray-500 max-w-[200px] truncate text-xs" title={c.description}>{c.description}</td>
-                          <td className="py-3 px-3">
-                            {c.evidence?.length > 0 ? (
-                              <button onClick={() => setPreviewDoc(c.evidence[0].file_path)}
-                                className="flex items-center gap-1 text-blue-600 hover:text-blue-800 text-xs font-medium">
-                                <Eye size={13} /> View
+                      {complaints
+                        .filter(c =>
+                          c.case_id?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          c.complainant_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          c.complaint_category?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          c.description?.toLowerCase().includes(searchQuery.toLowerCase())
+                        )
+                        .map((c) => (
+                          <tr key={c.complaint_id} className="hover:bg-gray-50 transition-colors">
+                            <td className="py-3 px-3 font-mono font-bold text-xs text-gray-900">{c.case_id}</td>
+                            <td className="py-3 px-3">
+                              <div className="font-medium text-gray-900 text-xs">{c.complainant_name || 'User'}</div>
+                              <div className="text-[11px] text-gray-400 font-mono">{c.complainant_mobile || '—'}</div>
+                            </td>
+                            <td className="py-3 px-3 text-xs font-medium text-gray-700">{c.complaint_category}</td>
+                            <td className="py-3 px-3"><StatusBadge status={c.complaint_status} /></td>
+                            <td className="py-3 px-3 text-gray-600 max-w-[240px] text-xs">
+                              <div className="truncate" title={c.description}>{c.description}</div>
+                              {c.admin_remarks && (
+                                <div className="text-[11px] text-blue-600 font-medium truncate mt-0.5" title={`Admin: ${c.admin_remarks}`}>
+                                  ↳ Reply: {c.admin_remarks}
+                                </div>
+                              )}
+                            </td>
+                            <td className="py-3 px-3">
+                              {c.evidence?.length > 0 ? (
+                                <button onClick={() => setPreviewDoc(c.evidence[0].file_path)}
+                                  className="flex items-center gap-1 text-blue-600 hover:text-blue-800 text-xs font-semibold">
+                                  <Eye size={13} /> View File
+                                </button>
+                              ) : <span className="text-gray-300 text-xs">—</span>}
+                            </td>
+                            <td className="py-3 px-3 text-right">
+                              <button onClick={() => setResolveComplaintId(c.complaint_id)}
+                                className="px-2.5 py-1 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded-lg text-xs font-bold transition-colors">
+                                Respond / Resolve
                               </button>
-                            ) : <span className="text-gray-300 text-xs">—</span>}
-                          </td>
-                          <td className="py-3 px-3">
-                            <button onClick={() => setResolveComplaintId(c.complaint_id)}
-                              className="px-2.5 py-1 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded text-xs font-medium transition-colors">
-                              Resolve
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
+                            </td>
+                          </tr>
+                        ))}
                     </tbody>
                   </table>
                 </div>
