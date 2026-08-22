@@ -149,21 +149,21 @@ export default function ProfilePage() {
 
   return (
     <div className="space-y-6">
-      {/* Clean Profile Header Card (Drawoi Admin Style) */}
-      <div className="bg-zinc-900 rounded-3xl p-6 shadow-md border border-zinc-800">
+      {/* Profile Header Card (Neon Console Style) */}
+      <div className="bg-[#121318] rounded-3xl p-6 shadow-xl border border-[#22242b]">
         <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6">
-          <div className="w-20 h-20 rounded-2xl bg-blue-600 text-white flex items-center justify-center font-black text-2xl shadow-lg ring-4 ring-blue-500/20">
+          <div className="w-20 h-20 rounded-2xl bg-[#00e599] text-black flex items-center justify-center font-black text-3xl shadow-[0_0_25px_rgba(0,229,153,0.3)] ring-4 ring-[#00e599]/20">
             {user?.full_name?.charAt(0) || 'U'}
           </div>
           <div className="text-center sm:text-left flex-1">
             <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
               <h1 className="text-2xl font-extrabold text-white tracking-tight">{user?.full_name}</h1>
-              <span className={`text-xs font-extrabold px-3 py-1 rounded-full border ${roleBadgeColor}`}>
+              <span className="text-xs font-mono font-extrabold px-3 py-1 rounded-full bg-[#00e599]/10 text-[#00e599] border border-[#00e599]/30">
                 {user?.account_type}
               </span>
               {(user?.verification_status === 'VERIFIED' || user?.verification_status === true) && (
-                <span className="inline-flex items-center text-xs font-bold px-3 py-1 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-800">
-                  <ShieldCheck className="w-3.5 h-3.5 mr-1 text-emerald-400" /> Verified User
+                <span className="inline-flex items-center text-xs font-mono font-bold px-3 py-1 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-800">
+                  <ShieldCheck className="w-3.5 h-3.5 mr-1 text-[#00e599]" /> Verified User
                 </span>
               )}
             </div>
