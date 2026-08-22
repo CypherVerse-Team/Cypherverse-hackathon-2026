@@ -194,36 +194,42 @@ export default function WorkerDashboard() {
   const isGroupLeader = user?.account_type === 'GROUP_LEADER';
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-900">Worker Dashboard</h1>
-        {isGroupLeader && (
-          <span className="bg-indigo-100 text-indigo-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-            Group Leader
-          </span>
-        )}
-      </div>
-
-      <div className="flex space-x-4 border-b">
-        <button onClick={() => setActiveTab('profile')} className={`pb-2 font-medium ${activeTab === 'profile' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-500'}`}>Profile & KYC</button>
-        <button onClick={() => setActiveTab('location')} className={`pb-2 font-medium ${activeTab === 'location' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-500'}`}>📍 Work Location & Map</button>
-        <button onClick={() => setActiveTab('bookings')} className={`pb-2 font-medium ${activeTab === 'bookings' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-500'}`}>My Bookings</button>
-        <button onClick={() => setActiveTab('earnings')} className={`pb-2 font-medium ${activeTab === 'earnings' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-500'}`}>Earnings</button>
-        {isGroupLeader && (
-          <button onClick={() => setActiveTab('team')} className={`pb-2 font-medium ${activeTab === 'team' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-500'}`}>My Team</button>
-        )}
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-        {/* Left Column: Account Quick Hub */}
-        <div>
+    <div className="max-w-7xl mx-auto px-4 py-4">
+      {/* Grid Layout starting immediately below top navbar header */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
+        
+        {/* Left Column: Account Quick Hub right below top header navbar */}
+        <div className="lg:col-span-1">
           <AccountQuickHub />
         </div>
 
-        {/* Right Column: Main Tab Content */}
-        <div className="lg:col-span-2">
+        {/* Right Column: Dashboard Header, Tab Controls & Content */}
+        <div className="lg:col-span-3 space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200">
+            <div>
+              <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Worker Dashboard</h1>
+              <p className="text-xs text-slate-500 font-medium">Manage job requests, work location, and earnings</p>
+            </div>
+            {isGroupLeader && (
+              <span className="bg-indigo-100 text-indigo-800 text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wider self-start sm:self-auto">
+                Group Leader
+              </span>
+            )}
+          </div>
+
+          {/* Navigation Tabs */}
+          <div className="flex space-x-2 border-b border-slate-200 overflow-x-auto pb-1 text-xs sm:text-sm">
+            <button onClick={() => setActiveTab('profile')} className={`pb-2.5 px-3 font-bold transition-all ${activeTab === 'profile' ? 'border-b-2 border-indigo-600 text-indigo-600' : 'text-slate-500 hover:text-slate-800'}`}>KYC & Profile Overview</button>
+            <button onClick={() => setActiveTab('location')} className={`pb-2.5 px-3 font-bold transition-all ${activeTab === 'location' ? 'border-b-2 border-indigo-600 text-indigo-600' : 'text-slate-500 hover:text-slate-800'}`}>📍 Work Location & Map</button>
+            <button onClick={() => setActiveTab('bookings')} className={`pb-2.5 px-3 font-bold transition-all ${activeTab === 'bookings' ? 'border-b-2 border-indigo-600 text-indigo-600' : 'text-slate-500 hover:text-slate-800'}`}>My Bookings</button>
+            <button onClick={() => setActiveTab('earnings')} className={`pb-2.5 px-3 font-bold transition-all ${activeTab === 'earnings' ? 'border-b-2 border-indigo-600 text-indigo-600' : 'text-slate-500 hover:text-slate-800'}`}>Earnings</button>
+            {isGroupLeader && (
+              <button onClick={() => setActiveTab('team')} className={`pb-2.5 px-3 font-bold transition-all ${activeTab === 'team' ? 'border-b-2 border-indigo-600 text-indigo-600' : 'text-slate-500 hover:text-slate-800'}`}>My Team</button>
+            )}
+          </div>
+
           {activeTab === 'profile' && (
-            <div className="space-y-8">
+            <div className="space-y-6">
       
       {/* Verification Status Banner */}
       <div className={`p-4 rounded-xl border flex items-center ${

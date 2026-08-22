@@ -148,58 +148,61 @@ export default function ProfilePage() {
   }[user?.account_type || 'CUSTOMER'];
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto">
-      {/* Profile Header Banner */}
-      <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-3xl p-8 sm:p-10 shadow-xl border border-slate-800">
-        <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6">
-          <div className="w-24 h-24 rounded-full bg-blue-600 text-white flex items-center justify-center font-extrabold text-3xl shadow-lg ring-4 ring-white/10">
-            {user?.full_name?.charAt(0) || 'U'}
-          </div>
-          <div className="text-center sm:text-left flex-1">
-            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
-              <h1 className="text-3xl font-extrabold tracking-tight">{user?.full_name}</h1>
-              <span className={`text-xs font-extrabold px-3 py-1 rounded-full border ${roleBadgeColor}`}>
-                {user?.account_type}
-              </span>
-              {(user?.verification_status === 'VERIFIED' || user?.verification_status === true) && (
-                <span className="inline-flex items-center text-xs font-bold px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                  <ShieldCheck className="w-3.5 h-3.5 mr-1" /> Verified User
-                </span>
-              )}
-            </div>
-            <p className="text-slate-400 text-sm mt-1 flex items-center justify-center sm:justify-start">
-              <Phone className="w-3.5 h-3.5 mr-1 text-slate-500" /> {user?.mobile_number}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {msg && (
-        <div className={`p-4 rounded-2xl flex items-center space-x-3 text-sm font-medium ${msg.type === 'success' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-red-50 text-red-800 border border-red-200'}`}>
-          {msg.type === 'success' ? <CheckCircle2 className="w-5 h-5 text-emerald-600" /> : <AlertCircle className="w-5 h-5 text-red-600" />}
-          <span>{msg.text}</span>
-        </div>
-      )}
-
-      {/* Main Settings & Modify Form */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+    <div className="max-w-7xl mx-auto px-4 py-4">
+      {/* Main Grid Layout starting immediately below top navbar header */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
         
-        {/* Account Quick Links & Hubs Side Column */}
-        <div className="space-y-6">
+        {/* Left Column: Account Quick Hub right below top header navbar */}
+        <div className="lg:col-span-1">
           <AccountQuickHub />
         </div>
 
-        {/* Profile Modification Form */}
-        <div className="lg:col-span-2 bg-white rounded-3xl p-6 sm:p-8 border border-gray-100 shadow-sm">
-          <div className="flex items-center space-x-3 mb-6 pb-4 border-b border-gray-100">
-            <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
-              <Edit3 className="w-5 h-5" />
-            </div>
-            <div>
-              <h2 className="text-xl font-bold text-gray-900">Modify Account Details</h2>
-              <p className="text-xs text-gray-500">Update your contact details, skills, location, and rates</p>
+        {/* Right Column: Profile Header & Settings Content */}
+        <div className="lg:col-span-3 space-y-6">
+          
+          {/* Clean Profile Header Card (No Gradient) */}
+          <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-200/90">
+            <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6">
+              <div className="w-20 h-20 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-black text-2xl shadow-md ring-4 ring-indigo-50">
+                {user?.full_name?.charAt(0) || 'U'}
+              </div>
+              <div className="text-center sm:text-left flex-1">
+                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                  <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">{user?.full_name}</h1>
+                  <span className={`text-xs font-extrabold px-3 py-1 rounded-full border ${roleBadgeColor}`}>
+                    {user?.account_type}
+                  </span>
+                  {(user?.verification_status === 'VERIFIED' || user?.verification_status === true) && (
+                    <span className="inline-flex items-center text-xs font-bold px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      <ShieldCheck className="w-3.5 h-3.5 mr-1 text-emerald-600" /> Verified User
+                    </span>
+                  )}
+                </div>
+                <p className="text-slate-500 text-xs mt-1.5 flex items-center justify-center sm:justify-start font-medium">
+                  <Phone className="w-3.5 h-3.5 mr-1 text-slate-400" /> Mobile: {user?.mobile_number}
+                </p>
+              </div>
             </div>
           </div>
+
+          {msg && (
+            <div className={`p-4 rounded-2xl flex items-center space-x-3 text-xs font-semibold ${msg.type === 'success' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-rose-50 text-rose-800 border border-rose-200'}`}>
+              {msg.type === 'success' ? <CheckCircle2 className="w-4 h-4 text-emerald-600" /> : <AlertCircle className="w-4 h-4 text-rose-600" />}
+              <span>{msg.text}</span>
+            </div>
+          )}
+
+          {/* Profile Modification Form */}
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm">
+            <div className="flex items-center space-x-3 mb-6 pb-4 border-b border-slate-100">
+              <div className="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
+                <Edit3 className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-xl font-extrabold text-slate-900">Modify Account Details</h2>
+                <p className="text-xs text-slate-500 font-medium">Update contact details, trade skills, home city, and rates</p>
+              </div>
+            </div>
 
           <form onSubmit={handleUpdateProfile} className="space-y-5">
             {/* Basic Information */}
@@ -319,6 +322,7 @@ export default function ProfilePage() {
           </form>
         </div>
 
+        </div>
       </div>
     </div>
   );
