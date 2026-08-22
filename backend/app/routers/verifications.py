@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, s
 from sqlalchemy.orm import Session
 from .. import models, schemas
 from ..database import get_db
-from ..core.deps import get_current_worker, get_current_admin
+from ..core.deps import get_current_worker, get_current_admin, get_current_user
 
 router = APIRouter(prefix="/api/v1", tags=["verifications"])
 
@@ -87,7 +87,7 @@ def submit_verification(
     return new_req
 
 @router.get("/verification/status", response_model=schemas.VerificationRequestResponse)
-def get_verification_status(user: models.User = Depends(get_current_worker), db: Session = Depends(get_db)):
+def get_verification_status(user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):
     req = db.query(models.VerificationRequest).filter(
         models.VerificationRequest.user_id == user.user_id
     ).order_by(models.VerificationRequest.created_at.desc()).first()

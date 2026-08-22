@@ -35,7 +35,7 @@ export default function SearchFilters() {
     <div className="w-full max-w-4xl mx-auto space-y-4">
       <form 
         onSubmit={handleSearch} 
-        className="bg-white/95 backdrop-blur-xl p-3 sm:p-4 rounded-2xl sm:rounded-3xl shadow-2xl border border-white/20 flex flex-col md:flex-row gap-3 items-center transition-all duration-300 hover:shadow-indigo-500/10"
+        className="flex flex-col items-center gap-3 rounded-2xl border border-white/10 bg-white p-3 shadow-2xl focus-within:ring-2 focus-within:ring-blue-500 sm:rounded-3xl sm:p-4 md:flex-row transition-all duration-300"
       >
         {/* Keyword Search Input */}
         <div className="relative flex-1 w-full">
@@ -45,7 +45,7 @@ export default function SearchFilters() {
             placeholder={t('home.searchPlaceholder') || "Search skills e.g. Electrician, Plumbing..."}
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
-            className="w-full pl-12 pr-10 py-3.5 bg-slate-50 hover:bg-slate-100/80 focus:bg-white border border-slate-200 focus:border-indigo-500 rounded-xl sm:rounded-2xl text-slate-800 text-sm font-semibold placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 transition-all"
+            className="w-full pl-12 pr-10 py-3.5 bg-slate-50 hover:bg-slate-100/60 focus:bg-white border border-slate-200/80 focus:border-blue-500/40 rounded-xl sm:rounded-2xl text-slate-800 text-sm font-semibold placeholder:text-slate-400 focus:outline-none transition-all duration-200"
           />
           {keyword && (
             <button
@@ -66,7 +66,7 @@ export default function SearchFilters() {
             placeholder={t('home.locationPlaceholder') || "City or Location..."}
             value={location}
             onChange={(e) => setLocation(e.target.value)}
-            className="w-full pl-12 pr-10 py-3.5 bg-slate-50 hover:bg-slate-100/80 focus:bg-white border border-slate-200 focus:border-indigo-500 rounded-xl sm:rounded-2xl text-slate-800 text-sm font-semibold placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 transition-all"
+            className="w-full pl-12 pr-10 py-3.5 bg-slate-50 hover:bg-slate-100/60 focus:bg-white border border-slate-200/80 focus:border-blue-500/40 rounded-xl sm:rounded-2xl text-slate-800 text-sm font-semibold placeholder:text-slate-400 focus:outline-none transition-all duration-200"
           />
           {location && (
             <button
