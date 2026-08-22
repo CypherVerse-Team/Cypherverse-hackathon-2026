@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { fetchWithAuth, API_BASE_URL, cleanName } from '@/lib/api';
 import { Phone, Lock, Eye, EyeOff, Loader2, ArrowRight, UserCheck, ShieldCheck, MapPin, DollarSign, Briefcase, CheckCircle2, Building, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 
-export default function UnifiedAuthPage() {
+function AuthForm() {
   const searchParams = useSearchParams();
   const initialMode = searchParams.get('mode') === 'register' ? 'register' : 'login';
 
@@ -487,3 +487,16 @@ export default function UnifiedAuthPage() {
     </div>
   );
 }
+
+export default function UnifiedAuthPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex justify-center items-center py-20 text-gray-500 text-sm font-medium">
+        Loading ShramSetu Auth...
+      </div>
+    }>
+      <AuthForm />
+    </Suspense>
+  );
+}
+
