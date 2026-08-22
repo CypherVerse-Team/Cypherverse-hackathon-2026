@@ -66,23 +66,42 @@ export default function Navbar() {
               <span className="text-xl sm:text-2xl font-bold text-blue-600 tracking-tight">ShramSetu</span>
             </Link>
             
-            <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-              <Link href="/" className="border-blue-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+            <div className="hidden md:ml-6 md:flex md:space-x-6">
+              <Link href="/" className="border-transparent text-gray-600 hover:text-blue-600 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                 {t('nav.directory')}
               </Link>
+              <Link href="/categories" className="border-transparent text-gray-600 hover:text-blue-600 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                Categories
+              </Link>
               {isAuthenticated && ['CUSTOMER', 'CONTRACTOR'].includes(user?.account_type || '') && (
-                <Link href="/dashboard" className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                <Link href="/dashboard" className="border-transparent text-gray-600 hover:text-blue-600 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                   {t('dashboard.myBookings')}
                 </Link>
               )}
               {isAuthenticated && ['WORKER', 'GROUP_LEADER'].includes(user?.account_type || '') && (
-                <Link href="/worker-dashboard" className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                <Link href="/worker-dashboard" className="border-transparent text-gray-600 hover:text-blue-600 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                   {t('nav.dashboard')}
                 </Link>
               )}
+              <Link href="/contractor" className="border-transparent text-gray-600 hover:text-blue-600 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                Contractors
+              </Link>
+              {isAuthenticated && (
+                <>
+                  <Link href="/payments" className="border-transparent text-gray-600 hover:text-blue-600 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                    Payments
+                  </Link>
+                  <Link href="/verification" className="border-transparent text-gray-600 hover:text-blue-600 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                    Verification
+                  </Link>
+                </>
+              )}
+              <Link href="/support" className="border-transparent text-gray-600 hover:text-blue-600 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                Support
+              </Link>
               {user?.account_type === 'ADMIN' && (
-                <Link href="/admin" className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                  Admin Panel
+                <Link href="/admin" className="border-transparent text-gray-600 hover:text-blue-600 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                  Admin
                 </Link>
               )}
             </div>
@@ -113,7 +132,10 @@ export default function Navbar() {
                 </button>
                 {showNotifications && (
                   <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50">
-                    <div className="px-4 py-2 font-bold text-gray-900 border-b">Notifications</div>
+                    <div className="px-4 py-2 font-bold text-gray-900 border-b flex justify-between items-center">
+                      <span>Notifications</span>
+                      <Link href="/notifications" onClick={() => setShowNotifications(false)} className="text-xs text-blue-600 hover:underline">View All</Link>
+                    </div>
                     <div className="max-h-64 overflow-y-auto">
                       {notifications.length === 0 ? (
                         <div className="px-4 py-4 text-sm text-gray-500 text-center">No notifications</div>
@@ -151,7 +173,7 @@ export default function Navbar() {
                     <User className="h-5 w-5" />
                   </div>
                 </div>
-                {/* Mobile User avatar (clicking toggles menu to see details) */}
+                {/* Mobile User avatar */}
                 <div className="sm:hidden h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 cursor-pointer" onClick={() => setIsMenuOpen(!isMenuOpen)}>
                   <User className="h-5 w-5" />
                 </div>
@@ -175,24 +197,31 @@ export default function Navbar() {
 
       {/* Mobile Drawer Navigation Menu */}
       <div 
-        className={`sm:hidden overflow-hidden transition-all duration-300 ease-in-out bg-white ${
-          isMenuOpen ? 'max-h-[350px] border-t border-gray-100 opacity-100' : 'max-h-0 opacity-0 pointer-events-none'
+        className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out bg-white ${
+          isMenuOpen ? 'max-h-[500px] border-t border-gray-100 opacity-100' : 'max-h-0 opacity-0 pointer-events-none'
         }`}
       >
-        <div className="px-4 py-3 space-y-3 shadow-inner">
-          <div className="flex flex-col space-y-1">
+        <div className="px-4 py-3 space-y-2 shadow-inner">
+          <div className="grid grid-cols-2 gap-2">
             <Link 
               href="/" 
               onClick={() => setIsMenuOpen(false)}
-              className="block px-3 py-2.5 rounded-xl text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50/50 transition-all duration-150 active:scale-[0.98]"
+              className="block px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 transition-all"
             >
               {t('nav.directory')}
+            </Link>
+            <Link 
+              href="/categories" 
+              onClick={() => setIsMenuOpen(false)}
+              className="block px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 transition-all"
+            >
+              Categories
             </Link>
             {isAuthenticated && ['CUSTOMER', 'CONTRACTOR'].includes(user?.account_type || '') && (
               <Link 
                 href="/dashboard" 
                 onClick={() => setIsMenuOpen(false)}
-                className="block px-3 py-2.5 rounded-xl text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50/50 transition-all duration-150 active:scale-[0.98]"
+                className="block px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 transition-all"
               >
                 {t('dashboard.myBookings')}
               </Link>
@@ -201,16 +230,55 @@ export default function Navbar() {
               <Link 
                 href="/worker-dashboard" 
                 onClick={() => setIsMenuOpen(false)}
-                className="block px-3 py-2.5 rounded-xl text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50/50 transition-all duration-150 active:scale-[0.98]"
+                className="block px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 transition-all"
               >
                 {t('nav.dashboard')}
               </Link>
             )}
+            <Link 
+              href="/contractor" 
+              onClick={() => setIsMenuOpen(false)}
+              className="block px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 transition-all"
+            >
+              Contractor Hub
+            </Link>
+            {isAuthenticated && (
+              <>
+                <Link 
+                  href="/payments" 
+                  onClick={() => setIsMenuOpen(false)}
+                  className="block px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 transition-all"
+                >
+                  Payments
+                </Link>
+                <Link 
+                  href="/verification" 
+                  onClick={() => setIsMenuOpen(false)}
+                  className="block px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 transition-all"
+                >
+                  KYC Verification
+                </Link>
+                <Link 
+                  href="/notifications" 
+                  onClick={() => setIsMenuOpen(false)}
+                  className="block px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 transition-all"
+                >
+                  Notifications
+                </Link>
+              </>
+            )}
+            <Link 
+              href="/support" 
+              onClick={() => setIsMenuOpen(false)}
+              className="block px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 transition-all"
+            >
+              Support Center
+            </Link>
             {user?.account_type === 'ADMIN' && (
               <Link 
                 href="/admin" 
                 onClick={() => setIsMenuOpen(false)}
-                className="block px-3 py-2.5 rounded-xl text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50/50 transition-all duration-150 active:scale-[0.98]"
+                className="block px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 transition-all"
               >
                 Admin Panel
               </Link>
