@@ -17,8 +17,13 @@ async function getWorkers(searchParams: any) {
   try {
     const params = new URLSearchParams();
     if (searchParams.category) params.append('category_id', searchParams.category);
-    if (searchParams.q) params.append('skill_name', searchParams.q);
-    if (searchParams.city) params.append('city', searchParams.city);
+    const searchTerm = searchParams.q || searchParams.keyword || searchParams.skill_name;
+    if (searchTerm) {
+      params.append('q', searchTerm);
+      params.append('skill_name', searchTerm);
+    }
+    const locationTerm = searchParams.city || searchParams.location;
+    if (locationTerm) params.append('city', locationTerm);
     if (searchParams.verified === 'true') params.append('verified_only', 'true');
     
     const res = await fetch(`${API_BASE_URL}/workers?${params.toString()}`, { cache: 'no-store' });
