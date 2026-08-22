@@ -91,15 +91,15 @@ export default function VerificationPage() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-3xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+      <div className="bg-white border border-slate-200/90 p-6 rounded-3xl shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <div>
-          <h1 className="text-2xl font-extrabold text-white tracking-tight">KYC & Skill Verification Portal</h1>
-          <p className="text-zinc-400 text-xs mt-0.5 font-medium">
+          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">KYC & Skill Verification Portal</h1>
+          <p className="text-slate-500 text-xs mt-0.5 font-medium">
             Verified workers receive priority job listings, higher hourly rates, and the official ShramSetu Gold Badge.
           </p>
         </div>
-        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-indigo-950 text-indigo-300 border border-indigo-800">
-          <Award className="w-3.5 h-3.5 mr-1 text-indigo-400" /> Status: {currentStatus}
+        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
+          <Award className="w-3.5 h-3.5 mr-1 text-indigo-600" /> Status: {currentStatus}
         </span>
       </div>
 

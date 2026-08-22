@@ -121,10 +121,10 @@ export default function CustomerDashboard() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-3xl flex justify-between items-end">
+      <div className="bg-white border border-slate-200/90 p-6 rounded-3xl shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3">
         <div>
-          <h1 className="text-2xl font-extrabold text-white tracking-tight">My Bookings & Service Requests</h1>
-          <p className="text-zinc-400 text-xs mt-0.5 font-medium">Track active worker assignments, service progress, and past work requests</p>
+          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">My Bookings & Service Requests</h1>
+          <p className="text-slate-500 text-xs mt-0.5 font-medium">Track active worker assignments, service progress, and past work requests</p>
         </div>
         {user?.account_type === 'CONTRACTOR' && (
           <button 

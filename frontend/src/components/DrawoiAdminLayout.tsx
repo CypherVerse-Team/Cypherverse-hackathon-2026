@@ -96,47 +96,47 @@ export default function DrawoiAdminLayout({ children }: { children: React.ReactN
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex font-sans antialiased">
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex font-sans antialiased">
       
       {/* Mobile Drawer Overlay */}
       {isMobileOpen && (
         <div 
           onClick={() => setIsMobileOpen(false)}
-          className="fixed inset-0 z-40 bg-zinc-950/80 backdrop-blur-sm lg:hidden transition-opacity"
+          className="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-sm lg:hidden transition-opacity"
         />
       )}
 
-      {/* Drawoi Admin Left Sidebar */}
+      {/* Clean White Drawoi Admin Sidebar */}
       <aside className={`
-        fixed top-0 left-0 z-50 h-screen w-64 bg-zinc-900 border-r border-zinc-800/80 flex flex-col justify-between transition-transform duration-300 ease-in-out
+        fixed top-0 left-0 z-50 h-screen w-64 bg-white border-r border-slate-200/90 shadow-sm flex flex-col justify-between transition-transform duration-300 ease-in-out
         ${isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
         <div className="flex flex-col h-full overflow-hidden">
           
-          {/* Logo Header */}
-          <div className="flex items-center justify-between px-5 h-[64px] border-b border-zinc-800/80">
+          {/* Brand Header */}
+          <div className="flex items-center justify-between px-5 h-[64px] border-b border-slate-100">
             <Link href="/" onClick={() => setIsMobileOpen(false)} className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-blue-600 rounded-xl flex items-center justify-center text-white font-black text-base shadow-md shadow-blue-600/30">
+              <div className="w-8 h-8 bg-blue-600 rounded-xl flex items-center justify-center text-white font-black text-base shadow-sm shadow-blue-600/30">
                 S
               </div>
-              <span className="text-lg font-extrabold text-white tracking-tight">
-                ShramSetu <span className="text-xs text-blue-400 font-bold px-1.5 py-0.5 rounded-md bg-blue-950 border border-blue-800/50">Admin</span>
+              <span className="text-lg font-extrabold text-slate-900 tracking-tight">
+                ShramSetu <span className="text-xs text-blue-600 font-bold px-1.5 py-0.5 rounded-md bg-blue-50 border border-blue-100">Admin</span>
               </span>
             </Link>
 
             <button
               onClick={() => setIsMobileOpen(false)}
-              className="lg:hidden p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800"
+              className="lg:hidden p-1.5 rounded-lg text-slate-400 hover:text-slate-800 hover:bg-slate-100"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
 
-          {/* Navigation Links */}
-          <nav className="flex-1 px-3 py-4 space-y-5 overflow-y-auto custom-scrollbar">
+          {/* Enhanced Natural Sidebar Typography & Navigation Items */}
+          <nav className="flex-1 px-3 py-4 space-y-6 overflow-y-auto custom-scrollbar">
             {navGroups.map((group) => (
               <div key={group.title} className="space-y-1.5">
-                <div className="px-3 text-[10px] font-black tracking-widest text-zinc-400 uppercase">
+                <div className="px-3 text-[11px] font-black tracking-widest text-slate-400 uppercase">
                   {group.title}
                 </div>
                 <div className="space-y-1">
@@ -149,14 +149,14 @@ export default function DrawoiAdminLayout({ children }: { children: React.ReactN
                         href={item.href}
                         onClick={() => setIsMobileOpen(false)}
                         className={`
-                          flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all w-full
+                          flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs transition-all w-full
                           ${isActive 
-                            ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 font-extrabold' 
-                            : 'text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/60'
+                            ? 'bg-blue-600 text-white shadow-sm shadow-blue-600/30 font-extrabold' 
+                            : 'text-slate-600 font-semibold hover:text-blue-600 hover:bg-blue-50/60'
                           }
                         `}
                       >
-                        <div className={`p-1 rounded-lg ${isActive ? 'bg-white/20 text-white' : 'text-zinc-400'}`}>
+                        <div className={`p-1.5 rounded-lg flex-shrink-0 transition-colors ${isActive ? 'bg-white/20 text-white' : 'text-slate-400 group-hover:text-blue-600'}`}>
                           <IconComponent size={16} />
                         </div>
                         <span className="truncate">{item.label}</span>
@@ -169,32 +169,32 @@ export default function DrawoiAdminLayout({ children }: { children: React.ReactN
           </nav>
 
           {/* Bottom User Profile Section */}
-          <div className="p-3 border-t border-zinc-800/80 relative user-dropdown-container">
+          <div className="p-3 border-t border-slate-100 relative user-dropdown-container">
             <button
               onClick={() => setShowUserDropdown(!showUserDropdown)}
-              className="flex items-center justify-between gap-2.5 rounded-xl p-2 text-xs bg-zinc-950/60 hover:bg-zinc-800 border border-zinc-800 transition-all w-full text-left"
+              className="flex items-center justify-between gap-2.5 rounded-2xl p-2.5 text-xs bg-slate-50 hover:bg-slate-100/80 border border-slate-200/80 transition-all w-full text-left cursor-pointer"
             >
-              <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-extrabold text-sm flex-shrink-0">
+              <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-black text-sm flex-shrink-0 shadow-xs">
                 {user?.full_name?.charAt(0) || 'U'}
               </div>
               <div className="flex-1 min-w-0">
-                <div className="font-extrabold text-white text-xs truncate">{user?.full_name}</div>
-                <div className="text-[10px] text-zinc-400 truncate uppercase font-semibold">{user?.account_type}</div>
+                <div className="font-extrabold text-slate-900 text-xs truncate">{user?.full_name}</div>
+                <div className="text-[10px] text-blue-600 font-bold uppercase truncate">{user?.account_type}</div>
               </div>
-              <ChevronDown size={14} className="text-zinc-400 flex-shrink-0" />
+              <ChevronDown size={14} className="text-slate-400 flex-shrink-0" />
             </button>
 
             {/* Dropdown Menu Popup */}
             {showUserDropdown && (
-              <div className="absolute bottom-full left-3 right-3 mb-2 bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl p-2 space-y-1 z-50">
-                <div className="px-3 py-2 border-b border-zinc-800/80">
-                  <div className="font-extrabold text-xs text-white">{user?.full_name}</div>
-                  <div className="text-[10px] text-zinc-400 font-mono mt-0.5">{user?.mobile_number}</div>
+              <div className="absolute bottom-full left-3 right-3 mb-2 bg-white border border-slate-200 rounded-2xl shadow-xl p-2 space-y-1 z-50">
+                <div className="px-3 py-2 border-b border-slate-100">
+                  <div className="font-extrabold text-xs text-slate-900">{user?.full_name}</div>
+                  <div className="text-[10px] text-slate-500 font-mono mt-0.5">{user?.mobile_number}</div>
                 </div>
                 <Link
                   href="/profile"
                   onClick={() => setShowUserDropdown(false)}
-                  className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-zinc-300 hover:text-white hover:bg-zinc-800 rounded-xl transition-all w-full"
+                  className="flex items-center gap-2 px-3 py-2 text-xs font-bold text-slate-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all w-full"
                 >
                   <User size={14} />
                   <span>My Profile</span>
@@ -204,7 +204,7 @@ export default function DrawoiAdminLayout({ children }: { children: React.ReactN
                     setShowUserDropdown(false);
                     handleLogout();
                   }}
-                  className="flex items-center gap-2 px-3 py-2 text-xs font-bold text-rose-400 hover:bg-rose-950/40 rounded-xl transition-all w-full"
+                  className="flex items-center gap-2 px-3 py-2 text-xs font-bold text-rose-600 hover:bg-rose-50 rounded-xl transition-all w-full"
                 >
                   <LogOut size={14} />
                   <span>Sign Out</span>
@@ -217,24 +217,24 @@ export default function DrawoiAdminLayout({ children }: { children: React.ReactN
       </aside>
 
       {/* Main Layout Body */}
-      <div className="flex-1 lg:ml-64 flex flex-col min-h-screen bg-zinc-950 overflow-hidden">
+      <div className="flex-1 lg:ml-64 flex flex-col min-h-screen bg-slate-50 overflow-hidden">
         
-        {/* Drawoi Admin Top Navigation Bar */}
-        <header className="sticky top-0 z-30 h-[64px] bg-zinc-900/90 border-b border-zinc-800/80 px-4 sm:px-8 flex items-center justify-between backdrop-blur-md">
+        {/* Clean White Top Bar */}
+        <header className="sticky top-0 z-30 h-[64px] bg-white/95 border-b border-slate-200/90 px-4 sm:px-8 flex items-center justify-between backdrop-blur-md shadow-xs">
           
           <div className="flex items-center space-x-3">
             <button
               onClick={() => setIsMobileOpen(true)}
-              className="lg:hidden p-2 rounded-xl text-zinc-400 hover:text-white hover:bg-zinc-800 focus:outline-none"
+              className="lg:hidden p-2 rounded-xl text-slate-500 hover:text-slate-900 hover:bg-slate-100 focus:outline-none"
             >
               <Menu className="w-5 h-5" />
             </button>
 
             <div>
-              <div className="flex items-center space-x-2 text-xs text-zinc-400 font-medium">
+              <div className="flex items-center space-x-2 text-xs text-slate-500 font-medium">
                 <span>ShramSetu</span>
                 <span>/</span>
-                <span className="text-blue-400 font-bold">{getPageTitle()}</span>
+                <span className="text-blue-600 font-extrabold">{getPageTitle()}</span>
               </div>
             </div>
           </div>
@@ -244,24 +244,24 @@ export default function DrawoiAdminLayout({ children }: { children: React.ReactN
             
             <Link
               href="/analytics"
-              className="hidden sm:inline-flex items-center space-x-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 px-3 py-1.5 rounded-xl text-xs font-bold border border-zinc-700 transition-all"
+              className="hidden sm:inline-flex items-center space-x-1.5 bg-slate-100 hover:bg-slate-200/80 text-slate-800 px-3 py-1.5 rounded-xl text-xs font-extrabold border border-slate-200 transition-all"
             >
-              <BarChart2 className="w-3.5 h-3.5 text-blue-400" />
+              <BarChart2 className="w-3.5 h-3.5 text-blue-600" />
               <span>Stats 📊</span>
             </Link>
 
             <Link
               href="/notifications"
-              className="p-2 rounded-xl text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all relative"
+              className="p-2 rounded-xl text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-all relative"
               title="Notifications"
             >
-              <Bell className="w-4 h-4" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-blue-500 rounded-full animate-ping" />
+              <Bell className="w-4.5 h-4.5" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-blue-600 rounded-full animate-ping" />
             </Link>
 
-            <div className="flex items-center space-x-2 bg-zinc-800/80 border border-zinc-700/80 px-3 py-1.5 rounded-xl text-xs">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="font-extrabold text-white uppercase text-[11px] tracking-wider">{user?.account_type}</span>
+            <div className="flex items-center space-x-2 bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-xl text-xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="font-extrabold text-slate-900 uppercase text-[11px] tracking-wider">{user?.account_type}</span>
             </div>
 
           </div>

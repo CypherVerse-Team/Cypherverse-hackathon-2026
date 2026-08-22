@@ -196,14 +196,14 @@ export default function WorkerDashboard() {
   return (
     <div className="space-y-6">
       {/* Dashboard Top Header & Tabs */}
-      <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-3xl space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-zinc-800">
+      <div className="bg-white border border-slate-200/90 p-6 rounded-3xl shadow-sm space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
           <div>
-            <h1 className="text-2xl font-extrabold text-white tracking-tight">Worker Operational Dashboard</h1>
-            <p className="text-xs text-zinc-400 font-medium">Manage incoming bookings, set work location & view payout earnings</p>
+            <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Worker Operational Dashboard</h1>
+            <p className="text-xs text-slate-500 font-medium">Manage incoming bookings, set work location & view payout earnings</p>
           </div>
           {isGroupLeader && (
-            <span className="bg-indigo-950 text-indigo-300 border border-indigo-800/80 text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wider self-start sm:self-auto">
+            <span className="bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wider self-start sm:self-auto">
               Group Leader
             </span>
           )}
@@ -211,12 +211,12 @@ export default function WorkerDashboard() {
 
         {/* Navigation Tabs */}
         <div className="flex space-x-2 overflow-x-auto pb-1 text-xs sm:text-sm font-bold">
-          <button onClick={() => setActiveTab('profile')} className={`pb-2 px-4 rounded-xl transition-all ${activeTab === 'profile' ? 'bg-blue-600 text-white shadow-md' : 'text-zinc-400 hover:text-white hover:bg-zinc-800'}`}>KYC & Profile Overview</button>
-          <button onClick={() => setActiveTab('location')} className={`pb-2 px-4 rounded-xl transition-all ${activeTab === 'location' ? 'bg-blue-600 text-white shadow-md' : 'text-zinc-400 hover:text-white hover:bg-zinc-800'}`}>📍 Work Location & Map</button>
-          <button onClick={() => setActiveTab('bookings')} className={`pb-2 px-4 rounded-xl transition-all ${activeTab === 'bookings' ? 'bg-blue-600 text-white shadow-md' : 'text-zinc-400 hover:text-white hover:bg-zinc-800'}`}>My Bookings</button>
-          <button onClick={() => setActiveTab('earnings')} className={`pb-2 px-4 rounded-xl transition-all ${activeTab === 'earnings' ? 'bg-blue-600 text-white shadow-md' : 'text-zinc-400 hover:text-white hover:bg-zinc-800'}`}>Earnings</button>
+          <button onClick={() => setActiveTab('profile')} className={`pb-2 px-4 rounded-xl transition-all ${activeTab === 'profile' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:text-blue-600 hover:bg-slate-100'}`}>KYC & Profile Overview</button>
+          <button onClick={() => setActiveTab('location')} className={`pb-2 px-4 rounded-xl transition-all ${activeTab === 'location' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:text-blue-600 hover:bg-slate-100'}`}>📍 Work Location & Map</button>
+          <button onClick={() => setActiveTab('bookings')} className={`pb-2 px-4 rounded-xl transition-all ${activeTab === 'bookings' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:text-blue-600 hover:bg-slate-100'}`}>My Bookings</button>
+          <button onClick={() => setActiveTab('earnings')} className={`pb-2 px-4 rounded-xl transition-all ${activeTab === 'earnings' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:text-blue-600 hover:bg-slate-100'}`}>Earnings</button>
           {isGroupLeader && (
-            <button onClick={() => setActiveTab('team')} className={`pb-2 px-4 rounded-xl transition-all ${activeTab === 'team' ? 'bg-blue-600 text-white shadow-md' : 'text-zinc-400 hover:text-white hover:bg-zinc-800'}`}>My Team</button>
+            <button onClick={() => setActiveTab('team')} className={`pb-2 px-4 rounded-xl transition-all ${activeTab === 'team' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:text-blue-600 hover:bg-slate-100'}`}>My Team</button>
           )}
         </div>
       </div>

@@ -87,15 +87,15 @@ export default function PaymentsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-3xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+      <div className="bg-white border border-slate-200/90 p-6 rounded-3xl shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <div>
-          <h1 className="text-2xl font-extrabold text-white tracking-tight">Payments & Financial Invoices</h1>
-          <p className="text-zinc-400 text-xs mt-0.5 font-medium">
+          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Payments & Financial Invoices</h1>
+          <p className="text-slate-500 text-xs mt-0.5 font-medium">
             Transparent digital invoices, platform commissions, tax breakdown & instant direct payout settlements.
           </p>
         </div>
-        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-950 text-emerald-300 border border-emerald-800">
-          <Lock className="w-3.5 h-3.5 mr-1 text-emerald-400" /> Escrow Protected
+        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+          <Lock className="w-3.5 h-3.5 mr-1 text-emerald-600" /> Escrow Protected
         </span>
       </div>
 
