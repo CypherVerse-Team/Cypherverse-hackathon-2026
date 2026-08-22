@@ -86,111 +86,108 @@ export default function PaymentsPage() {
   const isWorker = user?.account_type === 'WORKER' || user?.account_type === 'GROUP_LEADER';
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto">
-      {/* Header Banner */}
-      <div className="bg-gradient-to-r from-emerald-700 via-teal-700 to-cyan-800 text-white rounded-3xl p-8 sm:p-10 shadow-xl">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-          <div>
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-white/20 text-white backdrop-blur-md mb-3">
-              <Lock className="w-3.5 h-3.5 mr-1 text-emerald-200" /> Escrow Protected Transactions
-            </span>
-            <h1 className="text-3xl font-extrabold tracking-tight">Payments & Financial Invoices</h1>
-            <p className="text-emerald-100 text-sm mt-1">
-              Transparent digital invoices, platform commissions, tax breakdown & instant direct payout settlements.
-            </p>
-          </div>
-          <div className="bg-white/10 backdrop-blur-md px-5 py-3 rounded-2xl border border-white/20 text-right">
-            <span className="text-xs text-emerald-200 block">Account Role</span>
-            <span className="text-base font-bold text-white">{user?.account_type}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Financial Overview Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {isWorker ? (
-          <>
-            <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex items-center space-x-4">
-              <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
-                <DollarSign className="w-7 h-7" />
-              </div>
-              <div>
-                <span className="text-xs text-gray-500 font-medium">Total Net Earnings</span>
-                <h3 className="text-2xl font-extrabold text-gray-900">₹{earnings?.total_earnings || 0}</h3>
-              </div>
-            </div>
-
-            <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex items-center space-x-4">
-              <div className="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
-                <TrendingUp className="w-7 h-7" />
-              </div>
-              <div>
-                <span className="text-xs text-gray-500 font-medium">This Month Earnings</span>
-                <h3 className="text-2xl font-extrabold text-gray-900">₹{earnings?.monthly_earnings || 0}</h3>
-              </div>
-            </div>
-
-            <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex items-center space-x-4">
-              <div className="w-14 h-14 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center font-bold">
-                <CheckCircle2 className="w-7 h-7" />
-              </div>
-              <div>
-                <span className="text-xs text-gray-500 font-medium">Paid Jobs Count</span>
-                <h3 className="text-2xl font-extrabold text-gray-900">{earnings?.completed_jobs || 0} Jobs</h3>
-              </div>
-            </div>
-          </>
-        ) : (
-          <>
-            <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex items-center space-x-4">
-              <div className="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
-                <Receipt className="w-7 h-7" />
-              </div>
-              <div>
-                <span className="text-xs text-gray-500 font-medium">Total Bookings Executed</span>
-                <h3 className="text-2xl font-extrabold text-gray-900">{bookings.length} Bookings</h3>
-              </div>
-            </div>
-
-            <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex items-center space-x-4">
-              <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
-                <ShieldCheck className="w-7 h-7" />
-              </div>
-              <div>
-                <span className="text-xs text-gray-500 font-medium">Completed Payments</span>
-                <h3 className="text-2xl font-extrabold text-gray-900">
-                  {bookings.filter(b => b.booking_status === 'COMPLETED').length} Completed
-                </h3>
-              </div>
-            </div>
-
-            <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex items-center space-x-4">
-              <div className="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold">
-                <Lock className="w-7 h-7" />
-              </div>
-              <div>
-                <span className="text-xs text-gray-500 font-medium">Active Escrow Protection</span>
-                <h3 className="text-2xl font-extrabold text-gray-900">100% Guaranteed</h3>
-              </div>
-            </div>
-          </>
-        )}
-      </div>
-
-      {/* Main Grid: Left Quick Hub, Right Transactions & Payouts */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-        {/* Left Column: Account Quick Hub */}
-        <div>
+    <div className="max-w-7xl mx-auto px-4 py-4">
+      {/* Main Grid Layout starting immediately below top navbar header */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
+        
+        {/* Left Column: Account Quick Hub right below top header navbar */}
+        <div className="lg:col-span-1">
           <AccountQuickHub />
         </div>
 
-        {/* Right Column: Bookings & Invoice Records & Payout Account */}
-        <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-gray-100 shadow-sm">
+        {/* Right Column: Title & Payments Content */}
+        <div className="lg:col-span-3 space-y-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-3 border-b border-slate-200">
+            <div>
+              <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Payments & Financial Invoices</h1>
+              <p className="text-slate-500 text-xs mt-0.5 font-medium">
+                Transparent digital invoices, platform commissions, tax breakdown & instant direct payout settlements.
+              </p>
+            </div>
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+              <Lock className="w-3.5 h-3.5 mr-1 text-emerald-600" /> Escrow Protected
+            </span>
+          </div>
+
+          {/* Financial Overview Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {isWorker ? (
+              <>
+                <div className="bg-white p-6 rounded-3xl border border-slate-200/90 shadow-sm flex items-center space-x-4">
+                  <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+                    <DollarSign className="w-7 h-7" />
+                  </div>
+                  <div>
+                    <span className="text-xs text-slate-500 font-medium">Total Net Earnings</span>
+                    <h3 className="text-2xl font-extrabold text-slate-900">₹{earnings?.total_earnings || 0}</h3>
+                  </div>
+                </div>
+
+                <div className="bg-white p-6 rounded-3xl border border-slate-200/90 shadow-sm flex items-center space-x-4">
+                  <div className="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
+                    <TrendingUp className="w-7 h-7" />
+                  </div>
+                  <div>
+                    <span className="text-xs text-slate-500 font-medium">This Month Earnings</span>
+                    <h3 className="text-2xl font-extrabold text-slate-900">₹{earnings?.monthly_earnings || 0}</h3>
+                  </div>
+                </div>
+
+                <div className="bg-white p-6 rounded-3xl border border-slate-200/90 shadow-sm flex items-center space-x-4">
+                  <div className="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold">
+                    <Receipt className="w-7 h-7" />
+                  </div>
+                  <div>
+                    <span className="text-xs text-slate-500 font-medium">Completed Jobs</span>
+                    <h3 className="text-2xl font-extrabold text-slate-900">
+                      {earnings?.completed_jobs_count || 0} Jobs
+                    </h3>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="bg-white p-6 rounded-3xl border border-slate-200/90 shadow-sm flex items-center space-x-4">
+                  <div className="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
+                    <Receipt className="w-7 h-7" />
+                  </div>
+                  <div>
+                    <span className="text-xs text-slate-500 font-medium">Total Bookings Paid</span>
+                    <h3 className="text-2xl font-extrabold text-slate-900">₹{bookings.reduce((sum, b) => sum + (b.agreed_amount || 0), 0)}</h3>
+                  </div>
+                </div>
+
+                <div className="bg-white p-6 rounded-3xl border border-slate-200/90 shadow-sm flex items-center space-x-4">
+                  <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+                    <ShieldCheck className="w-7 h-7" />
+                  </div>
+                  <div>
+                    <span className="text-xs text-slate-500 font-medium">Completed Payments</span>
+                    <h3 className="text-2xl font-extrabold text-slate-900">
+                      {bookings.filter(b => b.booking_status === 'COMPLETED').length} Completed
+                    </h3>
+                  </div>
+                </div>
+
+                <div className="bg-white p-6 rounded-3xl border border-slate-200/90 shadow-sm flex items-center space-x-4">
+                  <div className="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold">
+                    <Lock className="w-7 h-7" />
+                  </div>
+                  <div>
+                    <span className="text-xs text-slate-500 font-medium">Active Escrow Protection</span>
+                    <h3 className="text-2xl font-extrabold text-slate-900">100% Guaranteed</h3>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* Invoices & Payment Records */}
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm">
             <div className="flex justify-between items-center mb-6">
               <div>
-                <h2 className="text-xl font-bold text-gray-900">Invoices & Payment Records</h2>
-                <p className="text-xs text-gray-500">View & download formal tax invoices for completed bookings</p>
+                <h2 className="text-xl font-extrabold text-slate-900">Invoices & Payment Records</h2>
+                <p className="text-xs text-slate-500 font-medium">View & download formal tax invoices for completed bookings</p>
               </div>
             </div>
 
