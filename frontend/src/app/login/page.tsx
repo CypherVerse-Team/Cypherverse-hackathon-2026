@@ -259,12 +259,11 @@ function AuthForm() {
               {authMode === 'register' && (
                 <div>
                   <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">I am registering as a...</label>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                  <div className="grid grid-cols-3 gap-3">
                     {[
                       { id: 'CUSTOMER', label: 'Customer', sub: 'Hire Workers' },
                       { id: 'WORKER', label: 'Worker', sub: 'Provide Services' },
                       { id: 'CONTRACTOR', label: 'Contractor', sub: 'Manage Crews' },
-                      { id: 'ADMIN', label: 'Admin', sub: 'Control Panel' },
                     ].map(r => (
                       <button
                         key={r.id}
@@ -272,7 +271,7 @@ function AuthForm() {
                         onClick={() => setAccountType(r.id as any)}
                         className={`p-3 rounded-2xl border text-center transition-all ${
                           accountType === r.id
-                            ? 'border-blue-500 bg-blue-50/80 text-blue-700 shadow-sm font-bold ring-2 ring-blue-500/20'
+                            ? 'border-blue-500 bg-blue-50/80 text-blue-700 shadow-sm font-bold'
                             : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
                         }`}
                       >
