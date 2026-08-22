@@ -1,6 +1,7 @@
 const configuredApiUrl = process.env.NEXT_PUBLIC_API_URL || process.env.VITE_API_URL;
 
-export const API_BASE_URL = (configuredApiUrl || 'http://localhost:8000/api').replace(/\/$/, '');
+const rawBaseUrl = (configuredApiUrl || 'http://localhost:8000/api').replace(/\/$/, '');
+export const API_BASE_URL = rawBaseUrl.endsWith('/api') ? rawBaseUrl : `${rawBaseUrl}/api`;
 export const API_ORIGIN = API_BASE_URL.endsWith('/api')
   ? API_BASE_URL.slice(0, -4)
   : API_BASE_URL;
