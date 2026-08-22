@@ -62,8 +62,14 @@ export default function NotificationsPage() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-8">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Main Notifications Column */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        
+        {/* Left Column: Account Quick Hub */}
+        <div>
+          <AccountQuickHub />
+        </div>
+
+        {/* Right Column: Notifications Feed */}
         <div className="lg:col-span-2 space-y-8">
           {/* Header */}
           <div className="bg-white rounded-3xl p-6 sm:p-8 border border-gray-100 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -162,10 +168,6 @@ export default function NotificationsPage() {
           </div>
         </div>
 
-        {/* Side Column: Account Quick Hub */}
-        <div className="space-y-6">
-          <AccountQuickHub />
-        </div>
       </div>
     </div>
   );

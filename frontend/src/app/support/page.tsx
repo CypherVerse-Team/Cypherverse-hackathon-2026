@@ -124,88 +124,87 @@ export default function SupportPage() {
       )}
 
       {/* Main Form & Tickets Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         
-        {/* Ticket Submission Form */}
-        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-gray-100 shadow-sm">
-          <div className="flex items-center space-x-3 mb-6">
-            <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
-              <MessageSquare className="w-5 h-5" />
-            </div>
-            <div>
-              <h2 className="text-xl font-bold text-gray-900">Raise New Dispute / Ticket</h2>
-              <p className="text-xs text-gray-500">File a complaint for escrow hold & review</p>
-            </div>
-          </div>
-
-          <form onSubmit={handleSubmitComplaint} className="space-y-4">
-            <div>
-              <label className="block text-xs font-bold text-gray-700 mb-1">Select Booking</label>
-              <select 
-                value={bookingId}
-                onChange={(e) => setBookingId(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-                required
-              >
-                {bookings.length === 0 ? (
-                  <option value="">No active or completed bookings available</option>
-                ) : (
-                  bookings.map((b: any) => (
-                    <option key={b.booking_id} value={b.booking_id}>
-                      Booking #{b.booking_id.substring(0, 8)} - ₹{b.agreed_amount || 0} ({b.booking_status})
-                    </option>
-                  ))
-                )}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-gray-700 mb-1">Issue Category</label>
-              <select 
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-              >
-                <option value="Quality of Work">Substandard / Incomplete Work</option>
-                <option value="No Show / Delay">Worker No Show / Unreasonable Delay</option>
-                <option value="Payment Dispute">Payment / Overcharging Issue</option>
-                <option value="Misconduct">Professional Misconduct / Unsafe Behavior</option>
-                <option value="Other">Other Query</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-gray-700 mb-1">Detailed Explanation</label>
-              <textarea 
-                rows={4}
-                placeholder="Describe what happened with clear details..."
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-gray-700 mb-1">Attach Evidence Image / Doc (Optional)</label>
-              <input 
-                type="file" 
-                onChange={(e) => setFile(e.target.files ? e.target.files[0] : null)}
-                className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-              />
-            </div>
-
-            <button 
-              type="submit" 
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl text-sm transition-colors shadow-sm"
-            >
-              Submit Ticket to Admin Review
-            </button>
-          </form>
+        {/* Left Column: Account Quick Hub */}
+        <div>
+          <AccountQuickHub />
         </div>
 
-        {/* FAQs & Protection Guarantee */}
-        <div className="space-y-6">
+        {/* Right Column: Ticket Submission Form & FAQs */}
+        <div className="lg:col-span-2 space-y-6">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-gray-100 shadow-sm">
+            <div className="flex items-center space-x-3 mb-6">
+              <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+                <MessageSquare className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-gray-900">Raise New Dispute / Ticket</h2>
+                <p className="text-xs text-gray-500">File a complaint for escrow hold & review</p>
+              </div>
+            </div>
+
+            <form onSubmit={handleSubmitComplaint} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1">Select Booking</label>
+                <select 
+                  value={bookingId}
+                  onChange={(e) => setBookingId(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                  required
+                >
+                  {bookings.length === 0 ? (
+                    <option value="">No active or completed bookings available</option>
+                  ) : (
+                    bookings.map((b: any) => (
+                      <option key={b.booking_id} value={b.booking_id}>
+                        Booking #{b.booking_id.substring(0, 8)} - ₹{b.agreed_amount || 0} ({b.booking_status})
+                      </option>
+                    ))
+                  )}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1">Issue Category</label>
+                <select 
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                >
+                  <option value="Quality of Work">Substandard / Incomplete Work</option>
+                  <option value="No Show / Delay">Worker No Show / Unreasonable Delay</option>
+                  <option value="Payment Dispute">Payment / Overcharging Issue</option>
+                  <option value="Misconduct">Professional Misconduct / Unsafe Behavior</option>
+                  <option value="Other">Other Query</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1">Detailed Explanation</label>
+                <textarea 
+                  rows={4}
+                  placeholder="Explain what went wrong in detail..."
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                  required
+                />
+              </div>
+
+              <button 
+                type="submit" 
+                disabled={bookings.length === 0}
+                className={`w-full font-semibold py-3 rounded-xl text-sm transition-colors shadow-sm ${
+                  bookings.length === 0 ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 text-white'
+                }`}
+              >
+                Submit Ticket to Admin Review
+              </button>
+            </form>
+          </div>
+
+          {/* FAQs & Protection Guarantee */}
           <div className="bg-slate-900 rounded-3xl p-6 sm:p-8 text-white space-y-4">
             <h3 className="text-xl font-bold flex items-center text-blue-400">
               <ShieldAlert className="w-5 h-5 mr-2" /> ShramSetu Escrow Guarantee
@@ -241,8 +240,6 @@ export default function SupportPage() {
               </div>
             </div>
           )}
-
-          <AccountQuickHub />
         </div>
 
       </div>

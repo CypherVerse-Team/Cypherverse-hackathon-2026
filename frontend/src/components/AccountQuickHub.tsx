@@ -38,7 +38,7 @@ export default function AccountQuickHub() {
   ];
 
   return (
-    <div className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm space-y-5">
+    <div className="bg-white rounded-3xl p-5 border border-gray-100 shadow-sm space-y-4 sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto custom-scrollbar">
       {/* Mini Profile Header inside card */}
       <div className="flex items-center space-x-3 pb-4 border-b border-gray-100">
         <div className="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center font-extrabold text-xl shadow-md">

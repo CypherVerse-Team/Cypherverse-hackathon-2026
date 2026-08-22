@@ -180,9 +180,14 @@ export default function PaymentsPage() {
         )}
       </div>
 
-      {/* Main Grid: Transactions & Payouts & Quick Hub */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Bookings & Invoice Records */}
+      {/* Main Grid: Left Quick Hub, Right Transactions & Payouts */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        {/* Left Column: Account Quick Hub */}
+        <div>
+          <AccountQuickHub />
+        </div>
+
+        {/* Right Column: Bookings & Invoice Records & Payout Account */}
         <div className="lg:col-span-2 space-y-6">
           <div className="bg-white rounded-3xl p-6 sm:p-8 border border-gray-100 shadow-sm">
             <div className="flex justify-between items-center mb-6">
@@ -233,10 +238,8 @@ export default function PaymentsPage() {
               </div>
             )}
           </div>
-        </div>
 
-        {/* Side Column: Payout Account & Account Quick Hub */}
-        <div className="space-y-6">
+          {/* Worker Payout Account Setup */}
           {isWorker && (
             <div className="bg-white rounded-3xl p-6 sm:p-8 border border-gray-100 shadow-sm">
               <div className="flex items-center space-x-3 mb-6">
@@ -286,8 +289,6 @@ export default function PaymentsPage() {
               </form>
             </div>
           )}
-
-          <AccountQuickHub />
         </div>
       </div>
 

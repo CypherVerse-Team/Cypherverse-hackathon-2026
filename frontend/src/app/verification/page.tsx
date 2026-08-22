@@ -14,6 +14,7 @@ export default function VerificationPage() {
   const [file, setFile] = useState<File | null>(null);
   const [verStatus, setVerStatus] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [isUploading, setIsUploading] = useState(false);
   const [msg, setMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   useEffect(() => {
@@ -47,27 +48,29 @@ export default function VerificationPage() {
       return;
     }
     setMsg(null);
-
-    const formData = new FormData();
-    formData.append('document_type', docType);
-    formData.append('file', file);
-
+    setIsUploading(true);
     try {
+      const formData = new FormData();
+      formData.append('document_type', docType);
+      formData.append('file', file);
+
       const res = await fetchWithAuth('/v1/verification/upload', {
         method: 'POST',
         body: formData
       });
 
       if (res.ok) {
-        setMsg({ type: 'success', text: 'Verification document uploaded successfully! Status set to PENDING.' });
+        setMsg({ type: 'success', text: 'Verification document uploaded successfully!' });
         setFile(null);
         loadStatus();
       } else {
         const err = await res.json();
-        setMsg({ type: 'error', text: err.detail || 'Failed to upload verification document' });
+        setMsg({ type: 'error', text: err.detail || 'Failed to upload document' });
       }
     } catch (e: any) {
-      setMsg({ type: 'error', text: e.message || 'An error occurred during upload' });
+      setMsg({ type: 'error', text: e.message || 'Upload failed' });
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -115,122 +118,101 @@ export default function VerificationPage() {
       )}
 
       {/* Grid Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         
-        {/* Verification Upload Form */}
-        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-gray-100 shadow-sm">
-          <div className="flex items-center space-x-3 mb-6">
-            <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
-              <Upload className="w-5 h-5" />
-            </div>
-            <div>
-              <h2 className="text-xl font-bold text-gray-900">Submit Verification Documents</h2>
-              <p className="text-xs text-gray-500">Supported formats: PDF, JPG, PNG (Max 5MB)</p>
-            </div>
-          </div>
-
-          <form onSubmit={handleUpload} className="space-y-4">
-            <div>
-              <label className="block text-xs font-bold text-gray-700 mb-1">Document Type</label>
-              <select 
-                value={docType}
-                onChange={(e) => setDocType(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-              >
-                <option value="Aadhaar Card">Aadhaar Card (Govt ID)</option>
-                <option value="PAN Card">PAN Card</option>
-                <option value="Voter ID">Voter ID Card</option>
-                <option value="Trade Skill Certificate">Trade / Vocational Skill Certificate</option>
-                <option value="Contractor License">Contractor License Document</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-gray-700 mb-1">Upload File Document</label>
-              <input 
-                type="file" 
-                accept=".pdf,.jpg,.jpeg,.png"
-                onChange={(e) => setFile(e.target.files ? e.target.files[0] : null)}
-                className="w-full text-xs text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                required
-              />
-            </div>
-
-            <button 
-              type="submit"
-              disabled={currentStatus === 'PENDING' || currentStatus === 'UNDER_REVIEW'}
-              className={`w-full font-semibold py-3 rounded-xl text-sm transition-colors shadow-sm ${
-                currentStatus === 'PENDING' || currentStatus === 'UNDER_REVIEW'
-                  ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                  : 'bg-blue-600 hover:bg-blue-700 text-white'
-              }`}
-            >
-              {currentStatus === 'PENDING' || currentStatus === 'UNDER_REVIEW' 
-                ? 'Verification Request Under Review' 
-                : 'Upload & Submit for Verification'}
-            </button>
-          </form>
+        {/* Left Column: Account Quick Hub */}
+        <div>
+          <AccountQuickHub />
         </div>
 
-        {/* Verification Status Card & Perks */}
-        <div className="space-y-6">
+        {/* Right Column: Verification Form & Status */}
+        <div className="lg:col-span-2 space-y-6">
           <div className="bg-white rounded-3xl p-6 sm:p-8 border border-gray-100 shadow-sm">
-            <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
-              <FileCheck className="w-5 h-5 mr-2 text-blue-600" /> Verification Status Tracker
-            </h3>
+            <div className="flex items-center space-x-3 mb-6">
+              <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+                <Upload className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-gray-900">Submit Verification Documents</h2>
+                <p className="text-xs text-gray-500">Supported formats: PDF, JPG, PNG (Max 5MB)</p>
+              </div>
+            </div>
 
-            <div className="p-4 rounded-2xl bg-gray-50 border border-gray-100 flex items-center space-x-4 mb-6">
-              {currentStatus === 'VERIFIED' && (
+            <form onSubmit={handleUpload} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1">Document Type</label>
+                <select 
+                  value={docType}
+                  onChange={(e) => setDocType(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                >
+                  <option value="Aadhaar Card">Aadhaar Card (Govt ID)</option>
+                  <option value="PAN Card">PAN Card</option>
+                  <option value="Voter ID">Voter ID Card</option>
+                  <option value="Trade Skill Certificate">Trade / Vocational Skill Certificate</option>
+                  <option value="Contractor License">Contractor License Document</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1">Upload File / Document</label>
+                <input 
+                  type="file" 
+                  accept="image/*,.pdf"
+                  onChange={(e) => setFile(e.target.files?.[0] || null)}
+                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm outline-none bg-gray-50 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                  required
+                />
+              </div>
+
+              <button 
+                type="submit" 
+                disabled={isUploading}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl text-sm transition-colors shadow-sm mt-4 flex items-center justify-center"
+              >
+                <FileCheck className="w-4 h-4 mr-2" />
+                {isUploading ? 'Uploading Document...' : 'Submit Document for Review'}
+              </button>
+            </form>
+          </div>
+
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-gray-100 shadow-sm space-y-6">
+            <h3 className="text-xl font-bold text-gray-900">Verification Guidelines & Perks</h3>
+            
+            <div className="flex items-center space-x-4 p-4 rounded-2xl bg-gray-50 border border-gray-100">
+              {currentStatus === 'VERIFIED' ? (
                 <>
                   <div className="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold">
-                    <CheckCircle2 className="w-7 h-7" />
+                    <ShieldCheck className="w-7 h-7" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-emerald-800 text-base">Fully Verified</h4>
-                    <p className="text-xs text-emerald-600">Your digital identity & skill credentials have been approved.</p>
+                    <h4 className="font-bold text-gray-900 text-base">Account Fully Verified</h4>
+                    <p className="text-xs text-gray-500">Your profile badge is active and visible across the marketplace.</p>
                   </div>
                 </>
-              )}
-
-              {(currentStatus === 'PENDING' || currentStatus === 'UNDER_REVIEW') && (
+              ) : (currentStatus === 'PENDING' || currentStatus === 'UNDER_REVIEW') ? (
                 <>
                   <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center font-bold">
                     <Clock className="w-7 h-7" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-amber-800 text-base">Under Review</h4>
-                    <p className="text-xs text-amber-600">Our admin team is inspecting your uploaded document hash.</p>
+                    <h4 className="font-bold text-gray-900 text-base">Verification Under Review</h4>
+                    <p className="text-xs text-gray-500">Our admin team is validating your documents (12-24h turnaround).</p>
                   </div>
                 </>
-              )}
-
-              {currentStatus === 'REJECTED' && (
-                <>
-                  <div className="w-12 h-12 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center font-bold">
-                    <XCircle className="w-7 h-7" />
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-red-800 text-base">Verification Rejected</h4>
-                    <p className="text-xs text-red-600">{verStatus?.rejection_reason || 'Document unreadable or invalid.'}</p>
-                  </div>
-                </>
-              )}
-
-              {currentStatus === 'UNVERIFIED' && (
+              ) : (
                 <>
                   <div className="w-12 h-12 rounded-2xl bg-gray-200 text-gray-600 flex items-center justify-center font-bold">
                     <UserCheck className="w-7 h-7" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-gray-800 text-base">Unverified Account</h4>
+                    <h4 className="font-bold text-gray-900 text-base">Unverified Account</h4>
                     <p className="text-xs text-gray-500">Upload your ID card above to unlock verified badge perks.</p>
                   </div>
                 </>
               )}
             </div>
 
-            {/* Perks List */}
-            <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Verified Worker Benefits</h4>
             <ul className="space-y-2.5 text-xs text-gray-600">
               <li className="flex items-center">
                 <CheckCircle2 className="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" /> Blue Verification Shield on directory search
@@ -243,8 +225,6 @@ export default function VerificationPage() {
               </li>
             </ul>
           </div>
-
-          <AccountQuickHub />
         </div>
 
       </div>

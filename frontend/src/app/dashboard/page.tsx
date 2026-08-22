@@ -136,8 +136,13 @@ export default function CustomerDashboard() {
         )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Main Bookings Column */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        {/* Left Column: Account Quick Hub */}
+        <div>
+          <AccountQuickHub />
+        </div>
+
+        {/* Right Column: Main Bookings */}
         <div className="lg:col-span-2 space-y-6">
           {bookings.length === 0 ? (
             <div className="bg-white rounded-2xl p-10 text-center border border-dashed border-gray-300">

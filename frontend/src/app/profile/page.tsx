@@ -148,7 +148,7 @@ export default function ProfilePage() {
   }[user?.account_type || 'CUSTOMER'];
 
   return (
-    <div className="space-y-8 max-w-5xl mx-auto">
+    <div className="space-y-8 max-w-7xl mx-auto">
       {/* Profile Header Banner */}
       <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-3xl p-8 sm:p-10 shadow-xl border border-slate-800">
         <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6">
@@ -182,8 +182,13 @@ export default function ProfilePage() {
       )}
 
       {/* Main Settings & Modify Form */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         
+        {/* Account Quick Links & Hubs Side Column */}
+        <div className="space-y-6">
+          <AccountQuickHub />
+        </div>
+
         {/* Profile Modification Form */}
         <div className="lg:col-span-2 bg-white rounded-3xl p-6 sm:p-8 border border-gray-100 shadow-sm">
           <div className="flex items-center space-x-3 mb-6 pb-4 border-b border-gray-100">
@@ -312,11 +317,6 @@ export default function ProfilePage() {
               {isSaving ? 'Saving Changes...' : 'Save & Update Profile'}
             </button>
           </form>
-        </div>
-
-        {/* Account Quick Links & Hubs Side Column */}
-        <div className="space-y-6">
-          <AccountQuickHub />
         </div>
 
       </div>

@@ -205,8 +205,13 @@ export default function WorkerDashboard() {
         )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Main Tab Content Column */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        {/* Left Column: Account Quick Hub */}
+        <div>
+          <AccountQuickHub />
+        </div>
+
+        {/* Right Column: Main Tab Content */}
         <div className="lg:col-span-2">
           {activeTab === 'profile' && (
             <div className="space-y-8">
@@ -525,11 +530,6 @@ export default function WorkerDashboard() {
         </div>
       )}
 
-        </div>
-
-        {/* Side Column: Account Quick Hub */}
-        <div className="space-y-6">
-          <AccountQuickHub />
         </div>
       </div>
     </div>

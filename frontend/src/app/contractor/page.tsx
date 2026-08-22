@@ -170,63 +170,59 @@ export default function ContractorPage() {
       )}
 
       {/* Main Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         
-        {/* Main Content Column */}
+        {/* Left Column: Account Quick Hub */}
+        <div>
+          <AccountQuickHub />
+        </div>
+
+        {/* Right Column: Main Content Column */}
         <div className="lg:col-span-2 space-y-6">
         
         {/* TEAM MANAGEMENT SECTION */}
-        <div className="space-y-6">
-          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-gray-100 shadow-sm">
+        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-gray-100 shadow-sm">
             <div className="flex items-center space-x-3 mb-6">
               <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
                 <Users className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-gray-900">Work Team Portal</h2>
-                <p className="text-xs text-gray-500">For Group Leaders & Skilled Crew Commanders</p>
+                <h2 className="text-xl font-bold text-gray-900">My Work Crew Team</h2>
+                <p className="text-xs text-gray-500">Group leaders can register workers and manage crew members</p>
               </div>
             </div>
 
             {team ? (
-              <div className="space-y-6">
-                <div className="bg-blue-50/50 p-5 rounded-2xl border border-blue-100 flex justify-between items-center">
+              <div className="space-y-4">
+                <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100 flex justify-between items-center">
                   <div>
-                    <h3 className="text-lg font-bold text-gray-900">{team.name}</h3>
-                    <p className="text-xs text-blue-700 font-medium mt-0.5">Primary Trade: {team.primary_profession}</p>
+                    <h3 className="font-extrabold text-gray-900 text-base">{team.name}</h3>
+                    <p className="text-xs text-gray-500">{team.primary_profession} • Capacity: {team.members?.length || 0}/{team.max_capacity} workers</p>
                   </div>
-                  <div className="text-right">
-                    <span className="text-xs text-gray-500 block">Capacity</span>
-                    <span className="text-sm font-bold text-gray-900">{team.members?.length || 0} / {team.max_capacity}</span>
-                  </div>
+                  <span className="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-extrabold rounded-full">Active Team</span>
                 </div>
 
                 {/* Add Member Form */}
-                <form onSubmit={handleAddMember} className="space-y-3 bg-gray-50 p-4 rounded-2xl border border-gray-200/60">
-                  <label className="text-xs font-bold text-gray-700 flex items-center">
-                    <UserPlus className="w-3.5 h-3.5 mr-1 text-blue-600" /> Add Worker to Team by Mobile
-                  </label>
-                  <div className="flex gap-2">
-                    <input 
-                      type="text" 
-                      placeholder="Worker Mobile Number (+91...)"
-                      value={memberMobile}
-                      onChange={(e) => setMemberMobile(e.target.value)}
-                      className="flex-grow px-3 py-2 text-sm border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
-                      required
-                    />
-                    <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-semibold transition-colors">
-                      Add Worker
-                    </button>
-                  </div>
+                <form onSubmit={handleAddMember} className="flex gap-2 pt-2">
+                  <input 
+                    type="text" 
+                    placeholder="Enter Worker Mobile Number to add..."
+                    value={memberMobile}
+                    onChange={(e) => setMemberMobile(e.target.value)}
+                    className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                    required
+                  />
+                  <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl font-semibold text-xs transition-colors flex items-center">
+                    <UserPlus className="w-4 h-4 mr-1" /> Add Member
+                  </button>
                 </form>
 
                 {/* Team Members List */}
-                <div>
-                  <h4 className="text-sm font-bold text-gray-800 mb-3">Team Members</h4>
-                  <div className="space-y-2 max-h-60 overflow-y-auto">
+                <div className="pt-2 space-y-2">
+                  <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider">Crew Members</h4>
+                  <div className="divide-y divide-gray-100 bg-gray-50 rounded-2xl p-4 border border-gray-100 space-y-2">
                     {team.members?.map((m: any, idx: number) => (
-                      <div key={m.member_id || idx} className="flex justify-between items-center p-3 bg-white border border-gray-100 rounded-xl text-xs">
+                      <div key={m.member_id || idx} className="flex justify-between items-center text-xs py-1">
                         <div className="font-medium text-gray-800">
                           {m.worker_profile?.user?.full_name || `Member ID: ${m.worker_profile_id.substring(0, 8)}...`}
                         </div>
@@ -262,13 +258,12 @@ export default function ContractorPage() {
                       <option value="Construction">Construction</option>
                       <option value="Electrician">Electrician</option>
                       <option value="Plumber">Plumber</option>
-                      <option value="Carpenter">Carpenter</option>
                       <option value="Painter">Painter</option>
-                      <option value="Mason">Mason</option>
+                      <option value="Carpenter">Carpenter</option>
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-gray-700 mb-1">Max Capacity</label>
+                    <label className="block text-xs font-bold text-gray-700 mb-1">Max Workers</label>
                     <input 
                       type="number" 
                       value={maxCapacity}
@@ -285,7 +280,6 @@ export default function ContractorPage() {
               </form>
             )}
           </div>
-        </div>
 
         {/* CONTRACTOR BULK REQUESTS SECTION */}
         <div className="space-y-6">
@@ -312,9 +306,10 @@ export default function ContractorPage() {
                   required
                 />
               </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1">Profession Needed</label>
+                  <label className="block text-xs font-bold text-gray-700 mb-1">Required Profession</label>
                   <select 
                     value={reqProfession}
                     onChange={(e) => setReqProfession(e.target.value)}
@@ -322,14 +317,15 @@ export default function ContractorPage() {
                   >
                     <option value="Electrician">Electrician</option>
                     <option value="Plumber">Plumber</option>
-                    <option value="Carpenter">Carpenter</option>
                     <option value="Painter">Painter</option>
+                    <option value="Carpenter">Carpenter</option>
                     <option value="Mason">Mason</option>
-                    <option value="Construction">Construction</option>
+                    <option value="Welder">Welder</option>
                   </select>
                 </div>
+
                 <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1">Workers Quantity</label>
+                  <label className="block text-xs font-bold text-gray-700 mb-1">Worker Count Required</label>
                   <input 
                     type="number" 
                     value={reqQty}
@@ -340,6 +336,28 @@ export default function ContractorPage() {
                   />
                 </div>
               </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 mb-1">Start Date</label>
+                  <input 
+                    type="date" 
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 mb-1">End Date</label>
+                  <input 
+                    type="date" 
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+                  />
+                </div>
+              </div>
+
               <button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl text-sm transition-colors flex items-center justify-center">
                 <Briefcase className="w-4 h-4 mr-1.5" /> Submit Bulk Request
               </button>
@@ -374,13 +392,7 @@ export default function ContractorPage() {
           </div>
         </div>
       </div>
-
-      {/* Side Column: Account Quick Hub */}
-      <div className="space-y-6">
-        <AccountQuickHub />
-      </div>
-
     </div>
   </div>
-  );
+);
 }
