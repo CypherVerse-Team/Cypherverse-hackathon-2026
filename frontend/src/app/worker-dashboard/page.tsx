@@ -4,8 +4,9 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { fetchWithAuth } from '@/lib/api';
-import { ShieldAlert, ShieldCheck, Save, Clock, Phone } from 'lucide-react';
+import { ShieldAlert, ShieldCheck, Save, Clock, Phone, MapPin } from 'lucide-react';
 import AccountQuickHub from '@/components/AccountQuickHub';
+import WorkerLocationMap from '@/components/WorkerLocationMap';
 
 export default function WorkerDashboard() {
   const { user, isAuthenticated, isLoading } = useAuth();
@@ -27,7 +28,10 @@ export default function WorkerDashboard() {
     hourly_rate: 0,
     daily_rate: 0,
     short_description: '',
-    home_city: ''
+    home_city: '',
+    service_radius_km: 10,
+    latitude: 28.6139,
+    longitude: 77.2090
   });
 
   const [verifyDocType, setVerifyDocType] = useState('AADHAAR');
@@ -101,7 +105,10 @@ export default function WorkerDashboard() {
             hourly_rate: data.worker_profile.hourly_rate || 0,
             daily_rate: data.worker_profile.daily_rate || 0,
             short_description: data.worker_profile.short_description || '',
-            home_city: data.worker_profile.home_city || ''
+            home_city: data.worker_profile.home_city || '',
+            service_radius_km: data.worker_profile.service_radius_km || 10,
+            latitude: data.worker_profile.latitude ?? 28.6139,
+            longitude: data.worker_profile.longitude ?? 77.2090
           });
           if (data.worker_profile.skills) {
              setSelectedSkills(data.worker_profile.skills.map((s: any) => s.profession_id));
@@ -198,6 +205,7 @@ export default function WorkerDashboard() {
 
       <div className="flex space-x-4 border-b">
         <button onClick={() => setActiveTab('profile')} className={`pb-2 font-medium ${activeTab === 'profile' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-500'}`}>Profile & KYC</button>
+        <button onClick={() => setActiveTab('location')} className={`pb-2 font-medium ${activeTab === 'location' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-500'}`}>📍 Work Location & Map</button>
         <button onClick={() => setActiveTab('bookings')} className={`pb-2 font-medium ${activeTab === 'bookings' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-500'}`}>My Bookings</button>
         <button onClick={() => setActiveTab('earnings')} className={`pb-2 font-medium ${activeTab === 'earnings' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-500'}`}>Earnings</button>
         {isGroupLeader && (
@@ -346,6 +354,37 @@ export default function WorkerDashboard() {
             )}
           </div>
           </div>
+        </div>
+      )}
+
+      {activeTab === 'location' && (
+        <div className="space-y-6">
+          <WorkerLocationMap
+            latitude={formData.latitude}
+            longitude={formData.longitude}
+            city={formData.home_city}
+            address={formData.address}
+            serviceRadiusKm={formData.service_radius_km}
+            editable={true}
+            onSaveLocation={async (loc) => {
+              const updated = {
+                ...formData,
+                home_city: loc.home_city,
+                address: loc.address,
+                service_radius_km: loc.service_radius_km,
+                latitude: loc.latitude,
+                longitude: loc.longitude
+              };
+              setFormData(updated);
+              const res = await fetchWithAuth('/workers/me', {
+                method: 'PUT',
+                body: JSON.stringify(updated)
+              });
+              if (res.ok) {
+                loadProfile();
+              }
+            }}
+          />
         </div>
       )}
 
