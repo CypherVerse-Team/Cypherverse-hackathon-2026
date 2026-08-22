@@ -120,31 +120,21 @@ export default function CustomerDashboard() {
   if (isLoading) return <div className="text-center mt-20">Loading...</div>;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-4">
-      {/* Grid Layout starting immediately below top navbar header */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
-        
-        {/* Left Column: Account Quick Hub right below top header navbar */}
-        <div className="lg:col-span-1">
-          <AccountQuickHub />
+    <div className="space-y-6">
+      <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-3xl flex justify-between items-end">
+        <div>
+          <h1 className="text-2xl font-extrabold text-white tracking-tight">My Bookings & Service Requests</h1>
+          <p className="text-zinc-400 text-xs mt-0.5 font-medium">Track active worker assignments, service progress, and past work requests</p>
         </div>
-
-        {/* Right Column: Bookings Title & List Content */}
-        <div className="lg:col-span-3 space-y-6">
-          <div className="flex justify-between items-end pb-3 border-b border-slate-200">
-            <div>
-              <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">My Bookings</h1>
-              <p className="text-slate-500 text-xs mt-0.5 font-medium">Track active service bookings and past work requests</p>
-            </div>
-            {user?.account_type === 'CONTRACTOR' && (
-              <button 
-                onClick={() => setShowBulkModal(true)}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-xs font-extrabold shadow-sm transition-all"
-              >
-                + Create Bulk Workforce Request
-              </button>
-            )}
-          </div>
+        {user?.account_type === 'CONTRACTOR' && (
+          <button 
+            onClick={() => setShowBulkModal(true)}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-extrabold shadow-sm transition-all"
+          >
+            + Create Bulk Workforce Request
+          </button>
+        )}
+      </div>
           {bookings.length === 0 ? (
             <div className="bg-white rounded-2xl p-10 text-center border border-dashed border-gray-300">
               <p className="text-gray-500 mb-4">You haven't requested any services yet.</p>
@@ -272,15 +262,8 @@ export default function CustomerDashboard() {
               </div>
             </div>
           ))}
-            </div>
-          )}
         </div>
-
-        {/* Side Column: Account Quick Hub */}
-        <div className="space-y-6">
-          <AccountQuickHub />
-        </div>
-      </div>
+      )}
 
       {/* Modals */}
       {reviewBookingId && (

@@ -148,42 +148,31 @@ export default function ProfilePage() {
   }[user?.account_type || 'CUSTOMER'];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-4">
-      {/* Main Grid Layout starting immediately below top navbar header */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
-        
-        {/* Left Column: Account Quick Hub right below top header navbar */}
-        <div className="lg:col-span-1">
-          <AccountQuickHub />
-        </div>
-
-        {/* Right Column: Profile Header & Settings Content */}
-        <div className="lg:col-span-3 space-y-6">
-          
-          {/* Clean Profile Header Card (No Gradient) */}
-          <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-200/90">
-            <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6">
-              <div className="w-20 h-20 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-black text-2xl shadow-md ring-4 ring-indigo-50">
-                {user?.full_name?.charAt(0) || 'U'}
-              </div>
-              <div className="text-center sm:text-left flex-1">
-                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
-                  <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">{user?.full_name}</h1>
-                  <span className={`text-xs font-extrabold px-3 py-1 rounded-full border ${roleBadgeColor}`}>
-                    {user?.account_type}
-                  </span>
-                  {(user?.verification_status === 'VERIFIED' || user?.verification_status === true) && (
-                    <span className="inline-flex items-center text-xs font-bold px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                      <ShieldCheck className="w-3.5 h-3.5 mr-1 text-emerald-600" /> Verified User
-                    </span>
-                  )}
-                </div>
-                <p className="text-slate-500 text-xs mt-1.5 flex items-center justify-center sm:justify-start font-medium">
-                  <Phone className="w-3.5 h-3.5 mr-1 text-slate-400" /> Mobile: {user?.mobile_number}
-                </p>
-              </div>
-            </div>
+    <div className="space-y-6">
+      {/* Clean Profile Header Card (Drawoi Admin Style) */}
+      <div className="bg-zinc-900 rounded-3xl p-6 shadow-md border border-zinc-800">
+        <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6">
+          <div className="w-20 h-20 rounded-2xl bg-blue-600 text-white flex items-center justify-center font-black text-2xl shadow-lg ring-4 ring-blue-500/20">
+            {user?.full_name?.charAt(0) || 'U'}
           </div>
+          <div className="text-center sm:text-left flex-1">
+            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+              <h1 className="text-2xl font-extrabold text-white tracking-tight">{user?.full_name}</h1>
+              <span className={`text-xs font-extrabold px-3 py-1 rounded-full border ${roleBadgeColor}`}>
+                {user?.account_type}
+              </span>
+              {(user?.verification_status === 'VERIFIED' || user?.verification_status === true) && (
+                <span className="inline-flex items-center text-xs font-bold px-3 py-1 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-800">
+                  <ShieldCheck className="w-3.5 h-3.5 mr-1 text-emerald-400" /> Verified User
+                </span>
+              )}
+            </div>
+            <p className="text-zinc-400 text-xs mt-1.5 flex items-center justify-center sm:justify-start font-medium">
+              <Phone className="w-3.5 h-3.5 mr-1 text-zinc-500" /> Mobile: {user?.mobile_number}
+            </p>
+          </div>
+        </div>
+      </div>
 
           {msg && (
             <div className={`p-4 rounded-2xl flex items-center space-x-3 text-xs font-semibold ${msg.type === 'success' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-rose-50 text-rose-800 border border-rose-200'}`}>
@@ -322,8 +311,6 @@ export default function ProfilePage() {
           </form>
         </div>
 
-        </div>
-      </div>
     </div>
   );
 }

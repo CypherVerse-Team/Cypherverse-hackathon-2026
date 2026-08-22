@@ -194,39 +194,32 @@ export default function WorkerDashboard() {
   const isGroupLeader = user?.account_type === 'GROUP_LEADER';
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-4">
-      {/* Grid Layout starting immediately below top navbar header */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
-        
-        {/* Left Column: Account Quick Hub right below top header navbar */}
-        <div className="lg:col-span-1">
-          <AccountQuickHub />
+    <div className="space-y-6">
+      {/* Dashboard Top Header & Tabs */}
+      <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-3xl space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-zinc-800">
+          <div>
+            <h1 className="text-2xl font-extrabold text-white tracking-tight">Worker Operational Dashboard</h1>
+            <p className="text-xs text-zinc-400 font-medium">Manage incoming bookings, set work location & view payout earnings</p>
+          </div>
+          {isGroupLeader && (
+            <span className="bg-indigo-950 text-indigo-300 border border-indigo-800/80 text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wider self-start sm:self-auto">
+              Group Leader
+            </span>
+          )}
         </div>
 
-        {/* Right Column: Dashboard Header, Tab Controls & Content */}
-        <div className="lg:col-span-3 space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200">
-            <div>
-              <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Worker Dashboard</h1>
-              <p className="text-xs text-slate-500 font-medium">Manage job requests, work location, and earnings</p>
-            </div>
-            {isGroupLeader && (
-              <span className="bg-indigo-100 text-indigo-800 text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wider self-start sm:self-auto">
-                Group Leader
-              </span>
-            )}
-          </div>
-
-          {/* Navigation Tabs */}
-          <div className="flex space-x-2 border-b border-slate-200 overflow-x-auto pb-1 text-xs sm:text-sm">
-            <button onClick={() => setActiveTab('profile')} className={`pb-2.5 px-3 font-bold transition-all ${activeTab === 'profile' ? 'border-b-2 border-indigo-600 text-indigo-600' : 'text-slate-500 hover:text-slate-800'}`}>KYC & Profile Overview</button>
-            <button onClick={() => setActiveTab('location')} className={`pb-2.5 px-3 font-bold transition-all ${activeTab === 'location' ? 'border-b-2 border-indigo-600 text-indigo-600' : 'text-slate-500 hover:text-slate-800'}`}>📍 Work Location & Map</button>
-            <button onClick={() => setActiveTab('bookings')} className={`pb-2.5 px-3 font-bold transition-all ${activeTab === 'bookings' ? 'border-b-2 border-indigo-600 text-indigo-600' : 'text-slate-500 hover:text-slate-800'}`}>My Bookings</button>
-            <button onClick={() => setActiveTab('earnings')} className={`pb-2.5 px-3 font-bold transition-all ${activeTab === 'earnings' ? 'border-b-2 border-indigo-600 text-indigo-600' : 'text-slate-500 hover:text-slate-800'}`}>Earnings</button>
-            {isGroupLeader && (
-              <button onClick={() => setActiveTab('team')} className={`pb-2.5 px-3 font-bold transition-all ${activeTab === 'team' ? 'border-b-2 border-indigo-600 text-indigo-600' : 'text-slate-500 hover:text-slate-800'}`}>My Team</button>
-            )}
-          </div>
+        {/* Navigation Tabs */}
+        <div className="flex space-x-2 overflow-x-auto pb-1 text-xs sm:text-sm font-bold">
+          <button onClick={() => setActiveTab('profile')} className={`pb-2 px-4 rounded-xl transition-all ${activeTab === 'profile' ? 'bg-blue-600 text-white shadow-md' : 'text-zinc-400 hover:text-white hover:bg-zinc-800'}`}>KYC & Profile Overview</button>
+          <button onClick={() => setActiveTab('location')} className={`pb-2 px-4 rounded-xl transition-all ${activeTab === 'location' ? 'bg-blue-600 text-white shadow-md' : 'text-zinc-400 hover:text-white hover:bg-zinc-800'}`}>📍 Work Location & Map</button>
+          <button onClick={() => setActiveTab('bookings')} className={`pb-2 px-4 rounded-xl transition-all ${activeTab === 'bookings' ? 'bg-blue-600 text-white shadow-md' : 'text-zinc-400 hover:text-white hover:bg-zinc-800'}`}>My Bookings</button>
+          <button onClick={() => setActiveTab('earnings')} className={`pb-2 px-4 rounded-xl transition-all ${activeTab === 'earnings' ? 'bg-blue-600 text-white shadow-md' : 'text-zinc-400 hover:text-white hover:bg-zinc-800'}`}>Earnings</button>
+          {isGroupLeader && (
+            <button onClick={() => setActiveTab('team')} className={`pb-2 px-4 rounded-xl transition-all ${activeTab === 'team' ? 'bg-blue-600 text-white shadow-md' : 'text-zinc-400 hover:text-white hover:bg-zinc-800'}`}>My Team</button>
+          )}
+        </div>
+      </div>
 
           {activeTab === 'profile' && (
             <div className="space-y-6">
@@ -571,8 +564,6 @@ export default function WorkerDashboard() {
         </div>
       )}
 
-        </div>
-      </div>
     </div>
   );
 }

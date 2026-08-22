@@ -90,28 +90,18 @@ export default function VerificationPage() {
   const currentStatus = verStatus?.status || user?.verification_status || 'UNVERIFIED';
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-4">
-      {/* Main Grid Layout starting immediately below top navbar header */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
-        
-        {/* Left Column: Account Quick Hub right below top header navbar */}
-        <div className="lg:col-span-1">
-          <AccountQuickHub />
+    <div className="space-y-6">
+      <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-3xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <div>
+          <h1 className="text-2xl font-extrabold text-white tracking-tight">KYC & Skill Verification Portal</h1>
+          <p className="text-zinc-400 text-xs mt-0.5 font-medium">
+            Verified workers receive priority job listings, higher hourly rates, and the official ShramSetu Gold Badge.
+          </p>
         </div>
-
-        {/* Right Column: Title & Verification Content */}
-        <div className="lg:col-span-3 space-y-6">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-3 border-b border-slate-200">
-            <div>
-              <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">KYC & Skill Verification Portal</h1>
-              <p className="text-slate-500 text-xs mt-0.5 font-medium">
-                Verified workers receive priority job listings, higher hourly rates, and the official ShramSetu Gold Badge.
-              </p>
-            </div>
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
-              <Award className="w-3.5 h-3.5 mr-1 text-indigo-600" /> Status: {currentStatus}
-            </span>
-          </div>
+        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-indigo-950 text-indigo-300 border border-indigo-800">
+          <Award className="w-3.5 h-3.5 mr-1 text-indigo-400" /> Status: {currentStatus}
+        </span>
+      </div>
 
           {msg && (
             <div className={`p-4 rounded-2xl flex items-center space-x-3 text-xs font-semibold ${msg.type === 'success' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-rose-50 text-rose-800 border border-rose-200'}`}>
@@ -221,8 +211,6 @@ export default function VerificationPage() {
           </div>
         </div>
 
-        </div>
-      </div>
     </div>
   );
 }
