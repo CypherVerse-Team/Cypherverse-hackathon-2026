@@ -192,11 +192,36 @@ export function calculateSummaryStats(values: number[], isSampleVariance: boolea
   };
 }
 
+// ShramSetu domain column metadata mapping for realistic project integration
+const SHRAMSETU_COLUMN_META: Record<string, { label: string; unit: string; prefix?: string }> = {
+  hourly_rate: { label: 'Worker Hourly Wage', unit: '₹/hr', prefix: '₹' },
+  daily_rate: { label: 'Worker Daily Rate', unit: '₹/day', prefix: '₹' },
+  amount: { label: 'Escrow Booking Amount', unit: '₹', prefix: '₹' },
+  service_fee: { label: 'ShramSetu Platform Fee', unit: '₹', prefix: '₹' },
+  worker_rating: { label: 'Worker Star Rating', unit: '★' },
+  rating: { label: 'Average Worker Rating', unit: '★' },
+  average_rating: { label: 'Average Rating', unit: '★' },
+  jobs_completed: { label: 'Completed Labour Jobs', unit: 'jobs' },
+  completed_jobs: { label: 'Completed Jobs', unit: 'jobs' },
+  experience_years: { label: 'Trade Work Experience', unit: 'yrs' },
+  distance_km: { label: 'Site Proximity Distance', unit: 'km' },
+  duration_hours: { label: 'Job Booking Duration', unit: 'hrs' },
+  members_count: { label: 'Contractor Crew Members', unit: 'workers' },
+  team_capacity: { label: 'Crew Team Capacity', unit: 'workers' },
+  hourly_budget: { label: 'Project Hourly Budget', unit: '₹/hr', prefix: '₹' },
+  verification_score: { label: 'KYC & Skill Verification Score', unit: '%' },
+  safety_score: { label: 'Site Safety Audit Rating', unit: '%' },
+  total_revenue: { label: 'Platform Revenue Volume', unit: '₹', prefix: '₹' },
+  revenue: { label: 'Revenue Generated', unit: '₹', prefix: '₹' },
+  pending_kyc: { label: 'Pending KYC Verifications', unit: 'users' },
+  count: { label: 'Entity Observations Count', unit: 'items' },
+};
+
 export default function SummaryStatsCard({
   data = [],
   numericArray,
-  title = "Automated Column Summary Statistics",
-  subtitle = "Key descriptive metrics, variance, standard deviation & distribution overview",
+  title = "ShramSetu Skilled Labour & Booking Matrix Analytics",
+  subtitle = "Automated statistical analysis of worker wages, escrow payments, ratings & contractor metrics",
   defaultColumnKey,
   columns: providedColumns,
   className = "",
@@ -219,13 +244,14 @@ export default function SummaryStatsCard({
       });
 
       if (hasNumeric) {
-        // Pretty label formatting
-        const label = key
+        // Pretty label formatting with ShramSetu domain context
+        const domainMeta = SHRAMSETU_COLUMN_META[key];
+        const label = domainMeta?.label || key
           .replace(/_/g, ' ')
           .replace(/([A-Z])/g, ' $1')
           .replace(/^./, str => str.toUpperCase())
           .trim();
-        numericKeys.push({ key, label });
+        numericKeys.push({ key, label, unit: domainMeta?.unit });
       }
     });
 
@@ -282,14 +308,27 @@ export default function SummaryStatsCard({
     if (onColumnSelect) onColumnSelect(key);
   };
 
-  // Helper for formatting output numbers
-  const fmt = (val: number | undefined | null): string => {
+  const selectedColObj = detectedColumns.find(c => c.key === selectedColKey);
+  const domainMeta = SHRAMSETU_COLUMN_META[selectedColKey];
+  const selectedColLabel = domainMeta?.label || selectedColObj?.label || selectedColKey;
+  const colUnit = domainMeta?.unit || selectedColObj?.unit || '';
+  const colPrefix = domainMeta?.prefix || '';
+
+  // Helper for formatting output numbers with ShramSetu domain units
+  const fmt = (val: number | undefined | null, includeUnit: boolean = true): string => {
     if (val === undefined || val === null || isNaN(val)) return 'N/A';
-    if (Number.isInteger(val) && precision === 0) return val.toString();
-    return val.toLocaleString(undefined, {
-      minimumFractionDigits: precision,
-      maximumFractionDigits: precision
-    });
+    const formattedNum = (Number.isInteger(val) && precision === 0) 
+      ? val.toLocaleString() 
+      : val.toLocaleString(undefined, {
+          minimumFractionDigits: precision,
+          maximumFractionDigits: precision
+        });
+    if (!includeUnit || !colUnit) return formattedNum;
+    if (colPrefix && colPrefix === '₹') {
+      const unitSuffix = colUnit !== '₹' ? ` ${colUnit.replace('₹/', '')}` : '';
+      return `₹${formattedNum}${unitSuffix}`;
+    }
+    return `${formattedNum} ${colUnit}`;
   };
 
   // Copy value to clipboard
@@ -304,16 +343,13 @@ export default function SummaryStatsCard({
     if (statsRes.hasNoMode) return 'No Mode (All values unique)';
     if (statsRes.modes.length === 0) return 'N/A';
     if (statsRes.modes.length === 1) {
-      return `${fmt(statsRes.modes[0])} (freq: ${statsRes.modeFreq})`;
+      return `${fmt(statsRes.modes[0], true)} (freq: ${statsRes.modeFreq})`;
     }
     if (statsRes.modes.length <= 3) {
-      return `${statsRes.modes.map(m => fmt(m)).join(', ')} (freq: ${statsRes.modeFreq})`;
+      return `${statsRes.modes.map(m => fmt(m, true)).join(', ')} (freq: ${statsRes.modeFreq})`;
     }
-    return `${statsRes.modes.slice(0, 3).map(m => fmt(m)).join(', ')} +${statsRes.modes.length - 3} more (freq: ${statsRes.modeFreq})`;
+    return `${statsRes.modes.slice(0, 3).map(m => fmt(m, true)).join(', ')} +${statsRes.modes.length - 3} more (freq: ${statsRes.modeFreq})`;
   };
-
-  const selectedColObj = detectedColumns.find(c => c.key === selectedColKey);
-  const selectedColLabel = selectedColObj?.label || selectedColKey;
 
   return (
     <div className={`bg-white rounded-3xl border border-slate-200/90 shadow-xl overflow-hidden font-sans transition-all ${className}`}>

@@ -122,17 +122,17 @@ export default function AnalyticsPage() {
     <div className="max-w-7xl mx-auto space-y-8 py-4 sm:py-6 font-sans">
       
       {/* Page Title Header */}
-      <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-blue-900 text-white rounded-3xl p-8 sm:p-10 shadow-2xl relative overflow-hidden">
-        <div className="absolute right-0 top-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950 text-white rounded-3xl p-8 sm:p-10 shadow-2xl relative overflow-hidden border border-slate-800">
+        <div className="absolute right-0 top-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="relative z-10 max-w-3xl">
-          <div className="inline-flex items-center space-x-2 px-3 py-1 bg-white/10 text-indigo-200 rounded-full text-xs font-bold backdrop-blur-md mb-4 border border-white/10">
-            <Zap className="w-3.5 h-3.5 text-amber-400" /> Statistical Intelligence Engine
+          <div className="inline-flex items-center space-x-2 px-3.5 py-1 bg-blue-500/20 text-blue-300 rounded-full text-xs font-bold backdrop-blur-md mb-4 border border-blue-500/30">
+            <Zap className="w-3.5 h-3.5 text-amber-400" /> ShramSetu Intelligence & Wage Statistics
           </div>
           <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-white">
-            Automated Summary Statistics & Matrices
+            Worker Wage & Booking Summary Statistics
           </h1>
           <p className="text-slate-300 mt-2 text-sm sm:text-base leading-relaxed">
-            Select any numeric column from real platform datasets or upload your own CSV data. Instantly view key metrics (**Mean, Median, Mode, Variance, Standard Deviation, Min/Max**) with automated distribution visualizer and precision controls.
+            Analyze ShramSetu platform metrics across worker hourly rates, escrow booking amounts, star ratings, and contractor crew sizes. Select any numeric column to compute **Mean, Median, Mode, Variance, Standard Deviation, and Min/Max**.
           </p>
         </div>
       </div>
@@ -142,10 +142,10 @@ export default function AnalyticsPage() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-100">
           <div>
             <h2 className="text-lg font-extrabold text-slate-900 flex items-center gap-2">
-              <Database className="w-5 h-5 text-indigo-600" /> Select Data Source Dataset
+              <Database className="w-5 h-5 text-indigo-600" /> ShramSetu Platform Datasets
             </h2>
             <p className="text-xs text-slate-500 mt-0.5">
-              Choose from pre-loaded system datasets or import custom numeric columns
+              Select a live platform dataset or upload a custom CSV table
             </p>
           </div>
 
@@ -155,41 +155,41 @@ export default function AnalyticsPage() {
               onClick={() => setActiveDatasetTab('bookings')}
               className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                 activeDatasetTab === 'bookings' 
-                  ? 'bg-indigo-600 text-white shadow-md' 
+                  ? 'bg-blue-600 text-white shadow-md' 
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
               }`}
             >
-              💼 Bookings & Revenue
+              💼 Escrow Bookings & Revenue
             </button>
             <button
               onClick={() => setActiveDatasetTab('workers')}
               className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                 activeDatasetTab === 'workers' 
-                  ? 'bg-indigo-600 text-white shadow-md' 
+                  ? 'bg-blue-600 text-white shadow-md' 
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
               }`}
             >
-              👷 Worker Rates & Ratings
+              👷 Worker Wages & Ratings
             </button>
             <button
               onClick={() => setActiveDatasetTab('teams')}
               className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                 activeDatasetTab === 'teams' 
-                  ? 'bg-indigo-600 text-white shadow-md' 
+                  ? 'bg-blue-600 text-white shadow-md' 
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
               }`}
             >
-              🏢 Contractor Teams
+              🏢 Contractor Crew Metrics
             </button>
             <button
               onClick={() => setActiveDatasetTab('custom')}
               className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                 activeDatasetTab === 'custom' 
-                  ? 'bg-indigo-600 text-white shadow-md' 
+                  ? 'bg-blue-600 text-white shadow-md' 
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
               }`}
             >
-              📁 Custom CSV / Numbers
+              📁 Custom CSV / Wages
             </button>
           </div>
         </div>
@@ -209,7 +209,7 @@ export default function AnalyticsPage() {
                   setRawTextInput(e.target.value);
                   setCustomData([]);
                 }}
-                placeholder="e.g. 10.5, 20.2, 20.2, 35.0, 42.8, 50.1"
+                placeholder="e.g. 350, 400, 450, 280, 500, 320"
                 className="w-full text-xs font-mono p-3 bg-white rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
               />
               <div className="mt-2 flex items-center justify-between">
@@ -228,9 +228,9 @@ export default function AnalyticsPage() {
             {/* CSV File Upload Box */}
             <div className="flex flex-col justify-center items-center p-6 border-2 border-dashed border-slate-300 rounded-2xl bg-white text-center hover:border-indigo-400 transition-colors">
               <Upload className="w-10 h-10 text-indigo-500 mb-2" />
-              <h4 className="text-sm font-bold text-slate-800">Upload CSV File</h4>
+              <h4 className="text-sm font-bold text-slate-800">Upload ShramSetu CSV Dataset</h4>
               <p className="text-xs text-slate-500 mb-4 max-w-xs">
-                Upload any table CSV dataset to automatically parse all numerical columns.
+                Upload any worker wage or booking CSV dataset to automatically parse numerical columns.
               </p>
               <label className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl cursor-pointer shadow-sm transition-all inline-flex items-center gap-1.5">
                 <FileSpreadsheet className="w-4 h-4" /> Browse CSV File
@@ -254,8 +254,8 @@ export default function AnalyticsPage() {
       {/* AUTOMATED SUMMARY STATISTICS CARD (Main Feature) */}
       <SummaryStatsCard
         data={currentDataset}
-        title={`Automated Summary Statistics: ${activeDatasetTab.toUpperCase()}`}
-        subtitle={`Select any numeric column below to automatically calculate key metrics, variance, standard deviation & min/max`}
+        title={`ShramSetu Summary Statistics (${activeDatasetTab.toUpperCase()})`}
+        subtitle="Select any numeric column to compute exact mean, median, mode, variance, standard deviation & min/max boundaries"
       />
 
       {/* Dataset Preview Table */}
