@@ -1,6 +1,14 @@
 const configuredApiUrl = process.env.NEXT_PUBLIC_API_URL || process.env.VITE_API_URL;
 
-const rawBaseUrl = (configuredApiUrl || 'http://localhost:8000/api').replace(/\/$/, '');
+function cleanApiUrl(url: string | undefined): string | undefined {
+  if (!url) return undefined;
+  // Extract URL starting with http:// or https://, ignoring brackets, parentheses, or trailing symbols
+  const match = url.match(/(https?:\/\/[^\s\)\]\>]+)/);
+  return match ? match[1] : url;
+}
+
+const cleanedUrl = cleanApiUrl(configuredApiUrl);
+const rawBaseUrl = (cleanedUrl || 'http://localhost:8000/api').replace(/\/$/, '');
 export const API_BASE_URL = rawBaseUrl.endsWith('/api') ? rawBaseUrl : `${rawBaseUrl}/api`;
 export const API_ORIGIN = API_BASE_URL.endsWith('/api')
   ? API_BASE_URL.slice(0, -4)
