@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Hammer, Wrench, Paintbrush, Zap, HardHat, ShieldCheck, ArrowRight } from 'lucide-react';
-import { API_BASE_URL } from '@/lib/api';
+import { API_BASE_URL, cleanName } from '@/lib/api';
 
 async function getCategories() {
   try {
@@ -49,7 +49,8 @@ export default async function CategoriesPage() {
           </div>
         ) : (
           categories.map((cat: any) => {
-            const IconComponent = CATEGORY_ICONS[cat.name] || Wrench;
+            const name = cleanName(cat.name);
+            const IconComponent = CATEGORY_ICONS[name] || Wrench;
             return (
               <div 
                 key={cat.profession_id}
@@ -66,10 +67,10 @@ export default async function CategoriesPage() {
                   </div>
 
                   <h3 className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors mb-2">
-                    {cat.name}
+                    {name}
                   </h3>
                   <p className="text-sm text-gray-600 leading-relaxed mb-4">
-                    {cat.description || `Professional ${cat.name.toLowerCase()} services for residential, commercial, and industrial contract needs.`}
+                    {cat.description || `Professional ${name.toLowerCase()} services for residential, commercial, and industrial contract needs.`}
                   </p>
                 </div>
 

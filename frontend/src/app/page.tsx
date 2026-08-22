@@ -1,7 +1,7 @@
 import { Search, MapPin, Star, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 import LandingHero from '@/components/LandingHero';
-import { API_BASE_URL } from '@/lib/api';
+import { API_BASE_URL, cleanName } from '@/lib/api';
 
 async function getCategories() {
   try {
@@ -27,7 +27,7 @@ async function getWorkers(searchParams: any) {
     return data.map((worker: any) => ({
       id: worker.user_id,
       name: worker.full_name,
-      profession: worker.worker_profile?.skills?.length > 0 ? worker.worker_profile.skills[0].profession.name : (worker.worker_profile?.short_description || "Worker"),
+      profession: cleanName(worker.worker_profile?.skills?.length > 0 ? worker.worker_profile.skills[0].profession.name : (worker.worker_profile?.short_description || "Worker")),
       rating: worker.worker_profile?.average_rating || 0,
       jobs: worker.worker_profile?.completed_jobs || 0,
       distance: 5.0, 
@@ -68,16 +68,19 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
 
       {/* Categories */}
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-        {categories.slice(0, 6).map((cat: any) => (
-          <Link href={`/?${createQueryString('category', cat.profession_id)}`} key={cat.profession_id}>
-            <div className={`p-4 rounded-xl shadow-sm border text-center hover:border-blue-300 cursor-pointer transition-all ${resolvedSearchParams.category === cat.profession_id ? 'border-blue-500 bg-blue-50' : 'bg-white border-gray-100'}`}>
-              <div className="w-12 h-12 bg-blue-100 rounded-full mx-auto mb-3 flex items-center justify-center text-blue-600 font-bold text-xl">
-                {cat.name.charAt(0)}
+        {categories.slice(0, 6).map((cat: any) => {
+          const catName = cleanName(cat.name);
+          return (
+            <Link href={`/?${createQueryString('category', cat.profession_id)}`} key={cat.profession_id}>
+              <div className={`p-4 rounded-xl shadow-sm border text-center hover:border-blue-300 cursor-pointer transition-all ${resolvedSearchParams.category === cat.profession_id ? 'border-blue-500 bg-blue-50' : 'bg-white border-gray-100'}`}>
+                <div className="w-12 h-12 bg-blue-100 rounded-full mx-auto mb-3 flex items-center justify-center text-blue-600 font-bold text-xl">
+                  {catName.charAt(0)}
+                </div>
+                <h3 className="font-medium text-gray-800 text-sm">{catName}</h3>
               </div>
-              <h3 className="font-medium text-gray-800 text-sm">{cat.name}</h3>
-            </div>
-          </Link>
-        ))}
+            </Link>
+          );
+        })}
       </div>
 
       {/* Filters & Results Header */}

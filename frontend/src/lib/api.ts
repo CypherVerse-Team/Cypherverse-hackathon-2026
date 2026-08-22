@@ -32,3 +32,9 @@ export async function fetchWithAuth(endpoint: string, options: RequestInit = {})
 
   return response;
 }
+
+export function cleanName(name: string | undefined | null): string {
+  if (!name) return '';
+  return name.split(' (')[0].trim();
+}
+

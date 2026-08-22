@@ -8,10 +8,10 @@ from app.database import Base, SessionLocal, engine
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 categories = [
-    {"name": "Electrician (इलेक्ट्रीशियन)", "category": "Home Maintenance", "description": "Electrical repairs"},
-    {"name": "Plumber (प्लंबर)", "category": "Home Maintenance", "description": "Pipe fitting and leaks"},
-    {"name": "Painter (पेंटर)", "category": "Construction", "description": "House painting"},
-    {"name": "Carpenter (बढ़ई)", "category": "Woodwork", "description": "Furniture repair"}
+    {"name": "Electrician", "category": "Home Maintenance", "description": "Electrical repairs"},
+    {"name": "Plumber", "category": "Home Maintenance", "description": "Pipe fitting and leaks"},
+    {"name": "Painter", "category": "Construction", "description": "House painting"},
+    {"name": "Carpenter", "category": "Woodwork", "description": "Furniture repair"}
 ]
 
 def get_hash(password: str):
