@@ -6,6 +6,8 @@ import { fetchWithAuth } from '@/lib/api';
 import { Users, HardHat, Plus, CheckCircle, Briefcase, Calendar, UserPlus, AlertCircle, Building2 } from 'lucide-react';
 import Link from 'next/link';
 
+import AccountQuickHub from '@/components/AccountQuickHub';
+
 export default function ContractorPage() {
   const { user, isAuthenticated } = useAuth();
   
@@ -168,7 +170,10 @@ export default function ContractorPage() {
       )}
 
       {/* Main Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        {/* Main Content Column */}
+        <div className="lg:col-span-2 space-y-6">
         
         {/* TEAM MANAGEMENT SECTION */}
         <div className="space-y-6">
@@ -368,8 +373,14 @@ export default function ContractorPage() {
             </div>
           </div>
         </div>
-
       </div>
+
+      {/* Side Column: Account Quick Hub */}
+      <div className="space-y-6">
+        <AccountQuickHub />
+      </div>
+
     </div>
+  </div>
   );
 }

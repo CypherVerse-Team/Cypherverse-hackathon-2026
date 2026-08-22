@@ -5,6 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { fetchWithAuth } from '@/lib/api';
 import { ShieldAlert, ShieldCheck, Save, Clock, Phone } from 'lucide-react';
+import AccountQuickHub from '@/components/AccountQuickHub';
 
 export default function WorkerDashboard() {
   const { user, isAuthenticated, isLoading } = useAuth();
@@ -35,6 +36,7 @@ export default function WorkerDashboard() {
   const [isUploading, setIsUploading] = useState(false);
 
   const [earnings, setEarnings] = useState<any>(null);
+  const [activeTab, setActiveTab] = useState('profile');
 
   useEffect(() => {
     if (!isLoading && (!isAuthenticated || !['WORKER', 'GROUP_LEADER'].includes(user?.account_type || ''))) {
@@ -176,8 +178,6 @@ export default function WorkerDashboard() {
     }
   };
 
-  const [activeTab, setActiveTab] = useState('profile');
-
   if (isLoading || !profile) {
     return <div className="text-center mt-20">Loading Dashboard...</div>;
   }
@@ -205,8 +205,11 @@ export default function WorkerDashboard() {
         )}
       </div>
 
-      {activeTab === 'profile' && (
-        <div className="space-y-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Main Tab Content Column */}
+        <div className="lg:col-span-2">
+          {activeTab === 'profile' && (
+            <div className="space-y-8">
       
       {/* Verification Status Banner */}
       <div className={`p-4 rounded-xl border flex items-center ${
@@ -522,6 +525,13 @@ export default function WorkerDashboard() {
         </div>
       )}
 
+        </div>
+
+        {/* Side Column: Account Quick Hub */}
+        <div className="space-y-6">
+          <AccountQuickHub />
+        </div>
+      </div>
     </div>
   );
 }

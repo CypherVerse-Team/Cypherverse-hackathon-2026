@@ -10,6 +10,7 @@ import ReviewModal from '@/components/ReviewModal';
 import ComplaintModal from '@/components/ComplaintModal';
 import BulkRequestModal from '@/components/BulkRequestModal';
 import InvoiceModal from '@/components/InvoiceModal';
+import AccountQuickHub from '@/components/AccountQuickHub';
 
 export default function CustomerDashboard() {
   const { user, isAuthenticated, isLoading } = useAuth();
@@ -60,17 +61,18 @@ export default function CustomerDashboard() {
     try {
       const res = await fetchWithAuth(`/v1/bookings/${bookingId}/payments`, {
         method: 'POST',
-        body: JSON.stringify({ mode: mode.toUpperCase(), transaction_reference: 'FRONTEND_RECORD' })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode: mode.toUpperCase() })
       });
       if (res.ok) {
         alert('Payment recorded successfully!');
-        loadBookings(); // To refresh status (or we can assume payment updates the booking)
+        loadBookings();
       } else {
-        const error = await res.json();
-        alert('Error: ' + error.detail);
+        const err = await res.json();
+        alert(err.detail || 'Payment recording failed');
       }
     } catch (e) {
-      alert('Failed to record payment.');
+      console.error(e);
     }
   };
 
@@ -93,9 +95,8 @@ export default function CustomerDashboard() {
        return <div className="text-red-500 font-medium text-sm mt-4">Booking was {status.toLowerCase()}</div>;
     }
     
-    // Inject WAITING logic without breaking the main flow
     let activeIndex = steps.indexOf(status);
-    if (status === 'WAITING') activeIndex = 0; // Treat as pending logically in step count
+    if (status === 'WAITING') activeIndex = 0;
 
     return (
       <div className="mt-6 flex items-center w-full max-w-xl">
@@ -119,32 +120,35 @@ export default function CustomerDashboard() {
   if (isLoading) return <div className="text-center mt-20">Loading...</div>;
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8 p-4">
+    <div className="max-w-7xl mx-auto space-y-8 p-4">
       <div className="flex justify-between items-end">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">My Bookings</h1>
-          <p className="text-gray-500">Track and manage your service requests.</p>
+          <p className="text-gray-500 text-sm mt-1">Track active bookings and past requests</p>
         </div>
         {user?.account_type === 'CONTRACTOR' && (
           <button 
             onClick={() => setShowBulkModal(true)}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-6 rounded-lg"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-sm transition-colors"
           >
             Create Bulk Workforce Request
           </button>
         )}
       </div>
 
-      {bookings.length === 0 ? (
-        <div className="bg-white rounded-2xl p-10 text-center border border-dashed border-gray-300">
-          <p className="text-gray-500 mb-4">You haven't requested any services yet.</p>
-          <Link href="/" className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg">
-            Find Workers
-          </Link>
-        </div>
-      ) : (
-        <div className="space-y-6">
-          {bookings.map(b => (
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Main Bookings Column */}
+        <div className="lg:col-span-2 space-y-6">
+          {bookings.length === 0 ? (
+            <div className="bg-white rounded-2xl p-10 text-center border border-dashed border-gray-300">
+              <p className="text-gray-500 mb-4">You haven't requested any services yet.</p>
+              <Link href="/" className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg">
+                Find Workers
+              </Link>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {bookings.map(b => (
             <div key={b.booking_id} className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
                 <div>
@@ -262,8 +266,15 @@ export default function CustomerDashboard() {
               </div>
             </div>
           ))}
+            </div>
+          )}
         </div>
-      )}
+
+        {/* Side Column: Account Quick Hub */}
+        <div className="space-y-6">
+          <AccountQuickHub />
+        </div>
+      </div>
 
       {/* Modals */}
       {reviewBookingId && (

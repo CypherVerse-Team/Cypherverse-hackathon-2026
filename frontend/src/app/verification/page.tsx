@@ -5,6 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import { fetchWithAuth } from '@/lib/api';
 import { ShieldCheck, FileCheck, Upload, AlertCircle, CheckCircle2, Clock, XCircle, Award, UserCheck } from 'lucide-react';
 import Link from 'next/link';
+import AccountQuickHub from '@/components/AccountQuickHub';
 
 export default function VerificationPage() {
   const { user, isAuthenticated } = useAuth();
@@ -242,6 +243,8 @@ export default function VerificationPage() {
               </li>
             </ul>
           </div>
+
+          <AccountQuickHub />
         </div>
 
       </div>

@@ -5,6 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import { fetchWithAuth, API_BASE_URL, cleanName } from '@/lib/api';
 import { User, Phone, MapPin, ShieldCheck, Briefcase, DollarSign, Edit3, CheckCircle2, AlertCircle, Building, Award, Settings, ArrowRight, Lock } from 'lucide-react';
 import Link from 'next/link';
+import AccountQuickHub from '@/components/AccountQuickHub';
 
 export default function ProfilePage() {
   const { user, isAuthenticated, login } = useAuth();
@@ -313,69 +314,9 @@ export default function ProfilePage() {
           </form>
         </div>
 
-        {/* Account Quick Links & Hubs */}
+        {/* Account Quick Links & Hubs Side Column */}
         <div className="space-y-6">
-          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-gray-100 shadow-sm space-y-4">
-            <h3 className="text-base font-bold text-gray-900 mb-2">Account Quick Hubs</h3>
-
-            <Link href="/verification" className="p-3.5 rounded-2xl bg-gray-50 border border-gray-100 hover:border-blue-200 transition-all flex items-center justify-between group">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-xs">
-                  <ShieldCheck className="w-4 h-4" />
-                </div>
-                <span className="text-xs font-bold text-gray-800 group-hover:text-blue-600">KYC Verification</span>
-              </div>
-              <ArrowRight className="w-3.5 h-3.5 text-gray-400 group-hover:translate-x-1 transition-transform" />
-            </Link>
-
-            <Link href="/payments" className="p-3.5 rounded-2xl bg-gray-50 border border-gray-100 hover:border-blue-200 transition-all flex items-center justify-between group">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold text-xs">
-                  <DollarSign className="w-4 h-4" />
-                </div>
-                <span className="text-xs font-bold text-gray-800 group-hover:text-blue-600">Payments & Invoices</span>
-              </div>
-              <ArrowRight className="w-3.5 h-3.5 text-gray-400 group-hover:translate-x-1 transition-transform" />
-            </Link>
-
-            <Link href="/support" className="p-3.5 rounded-2xl bg-gray-50 border border-gray-100 hover:border-blue-200 transition-all flex items-center justify-between group">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center font-bold text-xs">
-                  <Settings className="w-4 h-4" />
-                </div>
-                <span className="text-xs font-bold text-gray-800 group-hover:text-blue-600">Support & Disputes</span>
-              </div>
-              <ArrowRight className="w-3.5 h-3.5 text-gray-400 group-hover:translate-x-1 transition-transform" />
-            </Link>
-
-            {user?.account_type === 'WORKER' && (
-              <Link href="/worker-dashboard" className="p-3.5 rounded-2xl bg-blue-50 border border-blue-100 hover:bg-blue-100 transition-all flex items-center justify-between group">
-                <span className="text-xs font-bold text-blue-700">Open Worker Dashboard</span>
-                <ArrowRight className="w-3.5 h-3.5 text-blue-600 group-hover:translate-x-1 transition-transform" />
-              </Link>
-            )}
-
-            {user?.account_type === 'CONTRACTOR' && (
-              <Link href="/contractor" className="p-3.5 rounded-2xl bg-amber-50 border border-amber-100 hover:bg-amber-100 transition-all flex items-center justify-between group">
-                <span className="text-xs font-bold text-amber-800">Open Contractor Hub</span>
-                <ArrowRight className="w-3.5 h-3.5 text-amber-700 group-hover:translate-x-1 transition-transform" />
-              </Link>
-            )}
-
-            {user?.account_type === 'CUSTOMER' && (
-              <Link href="/dashboard" className="p-3.5 rounded-2xl bg-purple-50 border border-purple-100 hover:bg-purple-100 transition-all flex items-center justify-between group">
-                <span className="text-xs font-bold text-purple-700">Open Customer Dashboard</span>
-                <ArrowRight className="w-3.5 h-3.5 text-purple-600 group-hover:translate-x-1 transition-transform" />
-              </Link>
-            )}
-
-            {user?.account_type === 'ADMIN' && (
-              <Link href="/admin" className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-100 hover:bg-emerald-100 transition-all flex items-center justify-between group">
-                <span className="text-xs font-bold text-emerald-700">Open Admin Panel</span>
-                <ArrowRight className="w-3.5 h-3.5 text-emerald-600 group-hover:translate-x-1 transition-transform" />
-              </Link>
-            )}
-          </div>
+          <AccountQuickHub />
         </div>
 
       </div>

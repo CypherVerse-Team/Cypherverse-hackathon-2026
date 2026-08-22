@@ -5,6 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import { fetchWithAuth } from '@/lib/api';
 import { HelpCircle, AlertTriangle, CheckCircle, FileText, Upload, Clock, MessageSquare, ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
+import AccountQuickHub from '@/components/AccountQuickHub';
 
 export default function SupportPage() {
   const { user, isAuthenticated } = useAuth();
@@ -240,6 +241,8 @@ export default function SupportPage() {
               </div>
             </div>
           )}
+
+          <AccountQuickHub />
         </div>
 
       </div>

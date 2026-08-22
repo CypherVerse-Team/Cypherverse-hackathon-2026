@@ -5,6 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import { fetchWithAuth } from '@/lib/api';
 import { CreditCard, DollarSign, Receipt, TrendingUp, ShieldCheck, Download, ArrowUpRight, CheckCircle2, Lock, Building, FileText } from 'lucide-react';
 import Link from 'next/link';
+import AccountQuickHub from '@/components/AccountQuickHub';
 import InvoiceModal from '@/components/InvoiceModal';
 
 export default function PaymentsPage() {
@@ -179,7 +180,7 @@ export default function PaymentsPage() {
         )}
       </div>
 
-      {/* Main Grid: Transactions & Payouts */}
+      {/* Main Grid: Transactions & Payouts & Quick Hub */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Bookings & Invoice Records */}
         <div className="lg:col-span-2 space-y-6">
@@ -234,9 +235,9 @@ export default function PaymentsPage() {
           </div>
         </div>
 
-        {/* Worker Payout Account Setup */}
-        {isWorker && (
-          <div className="space-y-6">
+        {/* Side Column: Payout Account & Account Quick Hub */}
+        <div className="space-y-6">
+          {isWorker && (
             <div className="bg-white rounded-3xl p-6 sm:p-8 border border-gray-100 shadow-sm">
               <div className="flex items-center space-x-3 mb-6">
                 <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
@@ -284,8 +285,10 @@ export default function PaymentsPage() {
                 </button>
               </form>
             </div>
-          </div>
-        )}
+          )}
+
+          <AccountQuickHub />
+        </div>
       </div>
 
       {/* Invoice Modal Component */}
