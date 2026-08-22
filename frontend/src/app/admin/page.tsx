@@ -280,46 +280,8 @@ function AdminDashboardContent() {
         ))}
       </div>
 
-      {/* Main Container: Left Management Menu + Content Canvas */}
-      <div className="flex flex-col lg:flex-row gap-5">
-
-        {/* Left Management Tabs */}
-        <div className="w-full lg:w-52 flex-shrink-0 space-y-0.5 bg-white p-2 border border-gray-200 rounded-xl">
-          <div className="px-2 py-1.5 text-[11px] font-bold text-gray-400 uppercase tracking-wider">
-            Management Control
-          </div>
-          {TABS.map((tab) => {
-            const Icon = tab.icon;
-            const isActive = activeTab === tab.id;
-            const badgeCount =
-              tab.id === 'verifications' ? verifications.length :
-              tab.id === 'complaints' ? complaints.filter(c => c.complaint_status === 'SUBMITTED').length :
-              tab.id === 'matchmaking' ? bulkRequests.filter(r => r.status === 'PENDING').length : 0;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => {
-                  setActiveTab(tab.id);
-                  setSearchQuery('');
-                }}
-                className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-all text-left ${
-                  isActive ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                }`}
-              >
-                <Icon size={15} className={isActive ? 'text-blue-600 flex-shrink-0' : 'text-gray-400 flex-shrink-0'} strokeWidth={isActive ? 2.5 : 1.75} />
-                <span className="truncate flex-1">{tab.label}</span>
-                {badgeCount > 0 && (
-                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0 ${isActive ? 'bg-blue-600 text-white' : 'bg-red-100 text-red-700'}`}>
-                    {badgeCount}
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Right Content Canvas */}
-        <div className="flex-1 min-w-0 bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+      {/* Main Content Canvas */}
+      <div className="w-full bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
 
           {/* ── 1. OVERVIEW ── */}
           {activeTab === 'overview' && (
@@ -890,7 +852,6 @@ function AdminDashboardContent() {
           )}
 
         </div>
-      </div>
 
       {/* Document Preview Modal */}
       {previewDoc && (
