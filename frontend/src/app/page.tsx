@@ -111,7 +111,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-          {categories.slice(0, 6).map((cat: any, idx: number) => {
+          {categories.slice(0, 10).map((cat: any, idx: number) => {
             const catName = cleanName(cat.name);
             const isSelected = resolvedSearchParams.category === cat.profession_id;
 

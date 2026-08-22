@@ -29,7 +29,7 @@ export default function SearchFilters() {
     router.push(`/?${params.toString()}`);
   };
 
-  const quickTags = ['Electrician', 'Plumber', 'Carpenter', 'Painter', 'Mason'];
+  const quickTags = ['Electrician', 'Plumber', 'Carpenter', 'Construction Worker', 'Tractor Driver', 'House Help / Maid', 'Cleaner / Sweeper', 'Daily Wage Labourer'];
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-4">

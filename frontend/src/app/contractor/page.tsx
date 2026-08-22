@@ -260,6 +260,11 @@ export default function ContractorPage() {
                       <option value="Plumber">Plumber</option>
                       <option value="Painter">Painter</option>
                       <option value="Carpenter">Carpenter</option>
+                      <option value="Tractor Driver">Tractor Driver</option>
+                      <option value="Cleaner / Sweeper">Cleaner / Sweeper</option>
+                      <option value="House Help / Maid">House Help / Maid</option>
+                      <option value="Daily Wage Labourer">Daily Wage Labourer</option>
+                      <option value="Construction Worker">Construction Worker</option>
                     </select>
                   </div>
                   <div>
@@ -321,6 +326,11 @@ export default function ContractorPage() {
                     <option value="Carpenter">Carpenter</option>
                     <option value="Mason">Mason</option>
                     <option value="Welder">Welder</option>
+                    <option value="Tractor Driver">Tractor Driver</option>
+                    <option value="Cleaner / Sweeper">Cleaner / Sweeper</option>
+                    <option value="House Help / Maid">House Help / Maid</option>
+                    <option value="Daily Wage Labourer">Daily Wage Labourer</option>
+                    <option value="Construction Worker">Construction Worker</option>
                   </select>
                 </div>
 

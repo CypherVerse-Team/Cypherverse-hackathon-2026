@@ -39,11 +39,13 @@ def run_tests():
     print("Worker profile updated.")
 
     # 4. Submit Verification
-    verification_data = {
-        "document_type": "AADHAAR",
-        "storage_reference": "1234-5678-9012"
+    files = {
+        "file": ("test_doc.png", b"fake file content", "image/png")
     }
-    res = requests.post(f"{BASE_URL}/api/workers/me/verification", json=verification_data, headers=headers)
+    data = {
+        "document_type": "AADHAAR"
+    }
+    res = requests.post(f"{BASE_URL}/api/v1/verification/upload", data=data, files=files, headers=headers)
     assert res.status_code == 200, res.text
     request_id = res.json()["request_id"]
     print("Verification submitted.")
@@ -63,14 +65,14 @@ def run_tests():
     admin_headers = {"Authorization": f"Bearer {admin_token}"}
     
     # 7. Get Pending Verifications
-    res = requests.get(f"{BASE_URL}/api/admin/verifications", headers=admin_headers)
+    res = requests.get(f"{BASE_URL}/api/v1/admin/verification/queue", headers=admin_headers)
     assert res.status_code == 200, res.text
     verifications = res.json()
     assert len(verifications) > 0
     print("Admin fetched verifications.")
 
     # 8. Reject Verification
-    res = requests.patch(f"{BASE_URL}/api/admin/verifications/{request_id}?verify=false&reason=Blurry+Document", headers=admin_headers)
+    res = requests.patch(f"{BASE_URL}/api/v1/admin/verification/{request_id}/review?status=REJECTED&reason=Blurry+Document", headers=admin_headers)
     assert res.status_code == 200, res.text
     print("Admin rejected verification.")
 

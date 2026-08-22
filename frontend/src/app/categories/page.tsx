@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Hammer, Wrench, Paintbrush, Zap, HardHat, ShieldCheck, ArrowRight } from 'lucide-react';
+import { Hammer, Wrench, Paintbrush, Zap, HardHat, ShieldCheck, ArrowRight, Truck, Sparkles, Home, Users } from 'lucide-react';
 import { API_BASE_URL, cleanName } from '@/lib/api';
 
 async function getCategories() {
@@ -19,6 +19,11 @@ const CATEGORY_ICONS: { [key: string]: any } = {
   Painter: Paintbrush,
   Mason: HardHat,
   Construction: HardHat,
+  "Tractor Driver": Truck,
+  "Cleaner / Sweeper": Sparkles,
+  "House Help / Maid": Home,
+  "Daily Wage Labourer": Users,
+  "Construction Worker": HardHat,
 };
 
 export default async function CategoriesPage() {
