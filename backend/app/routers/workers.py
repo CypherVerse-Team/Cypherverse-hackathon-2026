@@ -67,8 +67,11 @@ def get_workers(
 ):
     query = db.query(models.User).join(models.WorkerProfile)
     
-    if verified_only:
-        query = query.filter(models.User.verification_status == models.VerificationStatusEnum.VERIFIED)
+    # Filter so it only returns workers where is_available == True and user is verified
+    query = query.filter(
+        models.WorkerProfile.is_available == True,
+        models.User.verification_status == models.VerificationStatusEnum.VERIFIED
+    )
         
     if city:
         query = query.filter(models.WorkerProfile.home_city == city)
@@ -107,3 +110,31 @@ def update_availability(user_id: str, status: models.AvailabilityStatusEnum, db:
     db.commit()
     db.refresh(profile)
     return {"message": "Availability updated", "status": status}
+
+@router.patch("/{worker_id}", response_model=schemas.WorkerProfileResponse)
+def update_worker_profile(
+    worker_id: str,
+    profile_data: schemas.WorkerProfileUpdate,
+    db: Session = Depends(get_db)
+):
+    profile = db.query(models.WorkerProfile).filter(
+        (models.WorkerProfile.user_id == worker_id) | 
+        (models.WorkerProfile.worker_profile_id == worker_id)
+    ).first()
+    if not profile:
+        raise HTTPException(status_code=404, detail="Worker profile not found")
+        
+    for key, value in profile_data.model_dump(exclude_unset=True).items():
+        setattr(profile, key, value)
+        
+    db.commit()
+    db.refresh(profile)
+    return profile
+
+@router.put("/{worker_id}", response_model=schemas.WorkerProfileResponse)
+def update_worker_profile_put(
+    worker_id: str,
+    profile_data: schemas.WorkerProfileUpdate,
+    db: Session = Depends(get_db)
+):
+    return update_worker_profile(worker_id, profile_data, db)

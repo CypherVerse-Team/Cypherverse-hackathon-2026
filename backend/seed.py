@@ -63,6 +63,7 @@ def seed():
             worker_profile_id=str(uuid.uuid4()), user=worker, years_of_experience=5,
             hourly_rate=200, daily_rate=1500, home_city="Delhi",
             availability_status=models.AvailabilityStatusEnum.AVAILABLE_NOW,
+            is_available=True,
             created_at=now, updated_at=now,
         )
         customer_profile = models.CustomerProfile(

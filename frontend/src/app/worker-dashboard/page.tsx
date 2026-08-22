@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { fetchWithAuth } from '@/lib/api';
 import { ShieldAlert, ShieldCheck, Save, Clock, Phone } from 'lucide-react';
 import AccountQuickHub from '@/components/AccountQuickHub';
+import WorkerAvailabilityToggle from '@/components/WorkerAvailabilityToggle';
 
 export default function WorkerDashboard() {
   const { user, isAuthenticated, isLoading } = useAuth();
@@ -215,9 +216,18 @@ export default function WorkerDashboard() {
         <div className="lg:col-span-2">
           {activeTab === 'profile' && (
             <div className="space-y-8">
+              
+              {/* Availability Toggle */}
+              {profile?.worker_profile && (
+                <WorkerAvailabilityToggle
+                  workerId={profile.user_id}
+                  initialAvailability={profile.worker_profile.is_available}
+                  onUpdate={loadProfile}
+                />
+              )}
       
-      {/* Verification Status Banner */}
-      <div className={`p-4 rounded-xl border flex items-center ${
+              {/* Verification Status Banner */}
+              <div className={`p-4 rounded-xl border flex items-center ${
         vStatus === 'VERIFIED' ? 'bg-green-50 border-green-200 text-green-800' : 
         vStatus === 'PENDING' ? 'bg-yellow-50 border-yellow-200 text-yellow-800' :
         vStatus === 'REJECTED' ? 'bg-red-50 border-red-200 text-red-800' :

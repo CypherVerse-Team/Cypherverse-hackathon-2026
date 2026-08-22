@@ -72,26 +72,26 @@ def run_tests():
     
     # 8. Create Booking
     print("8. Create Booking")
-    res = requests.post(f"{BASE_URL}/api/bookings/?customer_user_id={customer_id}", json={
+    res = requests.post(f"{BASE_URL}/api/v1/bookings/", json={
         "worker_id": worker_id,
         "scheduled_date": "2026-08-25T10:00:00",
         "agreed_amount": 500,
         "currency": "INR",
         "service_address_id": "test_address_123"
-    })
+    }, headers={"Authorization": f"Bearer {customer_token}"})
     print(res.status_code, res.text)
     assert res.status_code == 200
     booking_id = res.json()["booking_id"]
 
     # 9. Get Customer Bookings
     print("9. Get Customer Bookings")
-    res = requests.get(f"{BASE_URL}/api/bookings/customer/{customer_id}")
+    res = requests.get(f"{BASE_URL}/api/v1/bookings/me", headers={"Authorization": f"Bearer {customer_token}"})
     print(res.status_code, res.text)
     assert res.status_code == 200
 
     # 10. Update Booking Status
     print("10. Update Booking Status")
-    res = requests.patch(f"{BASE_URL}/api/bookings/{booking_id}/status?status=ACCEPTED&role=WORKER")
+    res = requests.patch(f"{BASE_URL}/api/v1/bookings/{booking_id}/status?status=ACCEPTED", headers={"Authorization": f"Bearer {worker_token}"})
     print(res.status_code, res.text)
     assert res.status_code == 200
 
