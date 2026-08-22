@@ -45,10 +45,9 @@ class WorkerProfileBase(BaseModel):
     hourly_rate: Optional[float] = None
     daily_rate: Optional[float] = None
     short_description: Optional[str] = None
-    is_available: Optional[bool] = True
 
 class WorkerProfileUpdate(WorkerProfileBase):
-    is_available: Optional[bool] = None
+    pass
 
 class ProfessionBase(BaseModel):
     name: str

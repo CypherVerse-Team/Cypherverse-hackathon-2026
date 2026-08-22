@@ -122,7 +122,6 @@ class WorkerProfile(Base, TimestampMixin):
     daily_rate = Column(Float, nullable=True)
     short_description = Column(Text, nullable=True)
     verification_badge = Column(Boolean, default=False)
-    is_available = Column(Boolean, default=True)
 
     user = relationship("User", back_populates="worker_profile")
     skills = relationship("WorkerSkill", back_populates="worker")
