@@ -19,6 +19,13 @@ app = FastAPI(
 os.makedirs("uploads", exist_ok=True)
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
+configured_origins = [
+    origin.strip()
+    for origin in os.getenv("FRONTEND_ORIGINS", "*").split(",")
+    if origin.strip()
+]
+allow_all_origins = "*" in configured_origins
+
 app.include_router(auth.router)
 app.include_router(workers.router)
 app.include_router(bookings.router)
@@ -34,9 +41,9 @@ app.include_router(notifications.router)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
+    allow_origins=["*"] if allow_all_origins else configured_origins,
+    allow_credentials=not allow_all_origins,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 

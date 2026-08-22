@@ -1,10 +1,11 @@
 import { Search, MapPin, Star, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 import LandingHero from '@/components/LandingHero';
+import { API_BASE_URL } from '@/lib/api';
 
 async function getCategories() {
   try {
-    const res = await fetch('http://localhost:8000/api/categories', { cache: 'no-store' });
+    const res = await fetch(`${API_BASE_URL}/categories`, { cache: 'no-store' });
     if (!res.ok) return [];
     return await res.json();
   } catch (error) {
@@ -20,7 +21,7 @@ async function getWorkers(searchParams: any) {
     if (searchParams.city) params.append('city', searchParams.city);
     if (searchParams.verified === 'true') params.append('verified_only', 'true');
     
-    const res = await fetch(`http://localhost:8000/api/workers?${params.toString()}`, { cache: 'no-store' });
+    const res = await fetch(`${API_BASE_URL}/workers?${params.toString()}`, { cache: 'no-store' });
     if (!res.ok) return [];
     const data = await res.json();
     return data.map((worker: any) => ({

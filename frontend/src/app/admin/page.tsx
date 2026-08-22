@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
-import { fetchWithAuth } from '@/lib/api';
+import { API_ORIGIN, fetchWithAuth } from '@/lib/api';
 import { Users, Briefcase, IndianRupee, ShieldAlert, CheckCircle, XCircle, Eye } from 'lucide-react';
 
 export default function AdminDashboard() {
@@ -402,9 +402,9 @@ export default function AdminDashboard() {
             </div>
             <div className="p-4 flex-1 overflow-auto flex justify-center bg-gray-100">
               {previewDoc.endsWith('.pdf') ? (
-                <iframe src={`http://localhost:8000${previewDoc}`} className="w-full h-[600px] border-0" />
+                <iframe src={`${API_ORIGIN}${previewDoc}`} className="w-full h-[600px] border-0" />
               ) : (
-                <img src={`http://localhost:8000${previewDoc}`} alt="Document Preview" className="max-w-full object-contain" />
+                <img src={`${API_ORIGIN}${previewDoc}`} alt="Document Preview" className="max-w-full object-contain" />
               )}
             </div>
           </div>

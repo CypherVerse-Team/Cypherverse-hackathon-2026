@@ -1,10 +1,11 @@
 import { Star, MapPin, ShieldCheck, CheckCircle2, Clock, Phone, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import BookingModal from '@/components/BookingModal';
+import { API_BASE_URL } from '@/lib/api';
 
 async function getWorker(id: string) {
   try {
-    const res = await fetch(`http://localhost:8000/api/workers/${id}/profile`, { cache: 'no-store' });
+    const res = await fetch(`${API_BASE_URL}/workers/${id}/profile`, { cache: 'no-store' });
     if (!res.ok) return null;
     const data = await res.json();
     return {
