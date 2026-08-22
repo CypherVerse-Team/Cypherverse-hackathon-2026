@@ -7,7 +7,7 @@ import { useAuth } from '@/context/AuthContext';
 import { 
   LayoutDashboard, User, Briefcase, Building, CreditCard, 
   ShieldCheck, HelpCircle, Bell, BarChart2, Grid, Home, 
-  Shield, LogOut, ChevronDown, Menu, X
+  Shield, LogOut, ChevronDown, Menu, X, Search
 } from 'lucide-react';
 
 export default function DrawoiAdminLayout({ children }: { children: React.ReactNode }) {
@@ -36,7 +36,6 @@ export default function DrawoiAdminLayout({ children }: { children: React.ReactN
     router.push('/login');
   };
 
-  // Flat nav list — no section headers, just icons + labels
   const navItems = [
     ...( ['CUSTOMER', 'CONTRACTOR'].includes(user?.account_type || '') 
         ? [{ label: 'Customer Dashboard', href: '/dashboard', icon: LayoutDashboard }] 
@@ -78,7 +77,7 @@ export default function DrawoiAdminLayout({ children }: { children: React.ReactN
   };
 
   return (
-    <div className="min-h-screen bg-white flex font-sans antialiased text-gray-900">
+    <div className="min-h-screen bg-gray-50 flex font-sans antialiased text-gray-900">
 
       {/* Mobile Overlay */}
       {isMobileOpen && (
@@ -88,25 +87,25 @@ export default function DrawoiAdminLayout({ children }: { children: React.ReactN
         />
       )}
 
-      {/* Sidebar — exact Drawoi Admin style */}
+      {/* Sidebar — wider, clean Drawoi Admin style */}
       <aside className={`
-        fixed top-0 left-0 z-50 h-screen w-[152px] bg-white border-r border-gray-200 flex flex-col transition-transform duration-300 ease-in-out
+        fixed top-0 left-0 z-50 h-screen w-56 bg-white border-r border-gray-200 flex flex-col transition-transform duration-300 ease-in-out shadow-sm
         ${isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
 
-        {/* Logo */}
-        <div className="flex items-center gap-2.5 px-4 h-[56px] border-b border-gray-100 flex-shrink-0">
-          <div className="w-7 h-7 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+        {/* Logo / Brand Header */}
+        <div className="flex items-center gap-3 px-5 h-[60px] border-b border-gray-100 flex-shrink-0">
+          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-sm flex-shrink-0 shadow-sm">
             S
           </div>
-          <span className="text-[15px] font-bold text-gray-900 leading-tight">ShramSetu</span>
-          <button onClick={() => setIsMobileOpen(false)} className="ml-auto lg:hidden text-gray-400">
+          <span className="text-[15px] font-bold text-gray-900 tracking-tight leading-tight">ShramSetu</span>
+          <button onClick={() => setIsMobileOpen(false)} className="ml-auto lg:hidden text-gray-400 hover:text-gray-600">
             <X size={16} />
           </button>
         </div>
 
-        {/* Nav Items — flat list, no group headers */}
-        <nav className="flex-1 px-2 py-3 overflow-y-auto space-y-0.5">
+        {/* Nav Items */}
+        <nav className="flex-1 px-3 py-3 overflow-y-auto space-y-0.5">
           {navItems.map((item) => {
             const isActive = pathname === item.href;
             const IconComponent = item.icon;
@@ -116,32 +115,35 @@ export default function DrawoiAdminLayout({ children }: { children: React.ReactN
                 href={item.href}
                 onClick={() => setIsMobileOpen(false)}
                 className={`
-                  flex items-center gap-2.5 px-2.5 py-[7px] rounded-lg text-[13px] font-medium transition-all w-full
+                  flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all w-full
                   ${isActive
-                    ? 'bg-blue-50 text-blue-600 font-semibold'
+                    ? 'bg-blue-50 text-blue-600'
                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                   }
                 `}
               >
                 <IconComponent
                   size={16}
-                  className={isActive ? 'text-blue-600' : 'text-gray-400'}
+                  className={isActive ? 'text-blue-600 flex-shrink-0' : 'text-gray-400 flex-shrink-0'}
                   strokeWidth={isActive ? 2.5 : 1.75}
                 />
-                <span className="truncate leading-tight">{item.label}</span>
+                <span className="truncate">{item.label}</span>
               </Link>
             );
           })}
         </nav>
 
-        {/* Bottom — email + chevron exactly like Drawoi Admin */}
-        <div className="p-2 border-t border-gray-100 flex-shrink-0 user-dropdown-container relative">
+        {/* Bottom — user info + dropdown */}
+        <div className="p-3 border-t border-gray-100 flex-shrink-0 user-dropdown-container relative">
           <button
             onClick={() => setShowUserDropdown(!showUserDropdown)}
-            className="flex items-center gap-1.5 w-full px-2.5 py-2 rounded-lg hover:bg-gray-50 transition-all text-left"
+            className="flex items-center gap-2 w-full px-3 py-2 rounded-lg hover:bg-gray-50 transition-all text-left"
           >
-            <span className="text-[11px] text-gray-500 truncate flex-1 font-medium">
-              {user?.mobile_number || user?.full_name}
+            <div className="w-6 h-6 rounded-md bg-blue-600 text-white flex items-center justify-center font-bold text-xs flex-shrink-0">
+              {user?.full_name?.charAt(0) || 'U'}
+            </div>
+            <span className="text-sm text-gray-500 truncate flex-1 font-medium">
+              {user?.full_name || user?.mobile_number}
             </span>
             <ChevronDown size={13} className="text-gray-400 flex-shrink-0" />
           </button>
@@ -149,22 +151,22 @@ export default function DrawoiAdminLayout({ children }: { children: React.ReactN
           {showUserDropdown && (
             <div className="absolute bottom-full left-2 right-2 mb-1 bg-white border border-gray-200 rounded-xl shadow-xl p-1.5 space-y-0.5 z-50">
               <div className="px-3 py-2 border-b border-gray-100">
-                <div className="font-semibold text-xs text-gray-900">{user?.full_name}</div>
-                <div className="text-[11px] text-gray-400 mt-0.5 uppercase font-medium">{user?.account_type}</div>
+                <div className="font-semibold text-sm text-gray-900">{user?.full_name}</div>
+                <div className="text-xs text-gray-400 mt-0.5 uppercase font-medium">{user?.account_type}</div>
               </div>
               <Link
                 href="/profile"
                 onClick={() => setShowUserDropdown(false)}
-                className="flex items-center gap-2 px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 rounded-lg transition-all w-full font-medium"
+                className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-all w-full font-medium"
               >
-                <User size={13} className="text-gray-400" />
+                <User size={14} className="text-gray-400" />
                 <span>My Profile</span>
               </Link>
               <button
                 onClick={() => { setShowUserDropdown(false); handleLogout(); }}
-                className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-red-500 hover:bg-red-50 rounded-lg transition-all w-full"
+                className="flex items-center gap-2 px-3 py-2 text-sm font-semibold text-red-500 hover:bg-red-50 rounded-lg transition-all w-full"
               >
-                <LogOut size={13} />
+                <LogOut size={14} />
                 <span>Sign Out</span>
               </button>
             </div>
@@ -173,40 +175,52 @@ export default function DrawoiAdminLayout({ children }: { children: React.ReactN
       </aside>
 
       {/* Main Content Area */}
-      <div className="flex-1 lg:ml-[152px] flex flex-col min-h-screen bg-white overflow-hidden">
+      <div className="flex-1 lg:ml-56 flex flex-col min-h-screen overflow-hidden">
 
-        {/* Minimal Top Bar */}
-        <header className="sticky top-0 z-30 h-[56px] bg-white border-b border-gray-100 px-6 flex items-center justify-between">
+        {/* Top Header Bar — clean, full-width, properly aligned */}
+        <header className="sticky top-0 z-30 h-[60px] bg-white border-b border-gray-200 px-6 flex items-center justify-between shadow-sm">
+          
+          {/* Left: Mobile menu + Page title */}
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsMobileOpen(true)}
-              className="lg:hidden p-1.5 rounded-lg text-gray-400 hover:bg-gray-100"
+              className="lg:hidden p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 focus:outline-none"
             >
               <Menu size={18} />
             </button>
-            <h1 className="text-[15px] font-semibold text-gray-900">{getPageTitle()}</h1>
+            <div className="flex items-center gap-2 text-sm text-gray-500">
+              <span className="text-gray-400">ShramSetu</span>
+              <span className="text-gray-300">/</span>
+              <span className="font-semibold text-gray-900">{getPageTitle()}</span>
+            </div>
           </div>
 
+          {/* Right: User badge + notifications */}
           <div className="flex items-center gap-2">
             <Link
               href="/notifications"
               className="relative p-2 rounded-lg text-gray-400 hover:bg-gray-50 hover:text-gray-700 transition-all"
+              title="Notifications"
             >
               <Bell size={17} />
-              <span className="absolute top-2 right-2 w-1.5 h-1.5 bg-blue-500 rounded-full" />
+              <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-blue-500 rounded-full" />
             </Link>
-            <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 px-3 py-1.5 rounded-lg">
-              <div className="w-5 h-5 rounded-md bg-blue-600 text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0">
+
+            <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 pl-2 pr-3 py-1.5 rounded-lg">
+              <div className="w-6 h-6 rounded-md bg-blue-600 text-white flex items-center justify-center text-xs font-bold flex-shrink-0">
                 {user?.full_name?.charAt(0) || 'U'}
               </div>
-              <span className="text-xs font-semibold text-gray-700 uppercase">{user?.account_type}</span>
+              <div className="leading-tight">
+                <div className="text-xs font-semibold text-gray-900 truncate max-w-[100px]">{user?.full_name}</div>
+                <div className="text-[10px] text-gray-400 uppercase font-medium">{user?.account_type}</div>
+              </div>
             </div>
           </div>
         </header>
 
-        {/* Page Canvas */}
-        <main className="flex-1 p-6 overflow-y-auto bg-white">
-          <div className="max-w-6xl mx-auto space-y-6">
+        {/* Page Content */}
+        <main className="flex-1 p-6 overflow-y-auto bg-gray-50">
+          <div className="max-w-6xl mx-auto">
             {children}
           </div>
         </main>
