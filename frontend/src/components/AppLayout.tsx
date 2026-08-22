@@ -2,11 +2,19 @@
 
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import DrawoiAdminLayout from '@/components/DrawoiAdminLayout';
+import { useAuth } from '@/context/AuthContext';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated } = useAuth();
+
+  if (isAuthenticated) {
+    return <DrawoiAdminLayout>{children}</DrawoiAdminLayout>;
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-between">
-      {/* Main Top Header Navbar */}
+    <div className="min-h-screen bg-gray-50 flex flex-col justify-between font-sans">
+      {/* Main Top Header Navbar for Public Visitors */}
       <Navbar />
 
       {/* Main Page Content Area */}

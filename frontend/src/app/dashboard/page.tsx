@@ -120,30 +120,21 @@ export default function CustomerDashboard() {
   if (isLoading) return <div className="text-center mt-20">Loading...</div>;
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8 p-4">
-      <div className="flex justify-between items-end">
+    <div className="space-y-5">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-4 border-b border-gray-100">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">My Bookings</h1>
-          <p className="text-gray-500 text-sm mt-1">Track active bookings and past requests</p>
+          <h1 className="text-xl font-semibold text-gray-900">My Bookings & Service Requests</h1>
+          <p className="text-gray-500 text-sm mt-0.5">Track active worker assignments, service progress, and past work requests</p>
         </div>
         {user?.account_type === 'CONTRACTOR' && (
           <button 
             onClick={() => setShowBulkModal(true)}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-sm transition-colors"
+            className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg text-sm transition-all cursor-pointer"
           >
-            Create Bulk Workforce Request
+            + Bulk Workforce Request
           </button>
         )}
       </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-        {/* Left Column: Account Quick Hub */}
-        <div>
-          <AccountQuickHub />
-        </div>
-
-        {/* Right Column: Main Bookings */}
-        <div className="lg:col-span-2 space-y-6">
           {bookings.length === 0 ? (
             <div className="bg-white rounded-2xl p-10 text-center border border-dashed border-gray-300">
               <p className="text-gray-500 mb-4">You haven't requested any services yet.</p>
@@ -271,15 +262,8 @@ export default function CustomerDashboard() {
               </div>
             </div>
           ))}
-            </div>
-          )}
         </div>
-
-        {/* Side Column: Account Quick Hub */}
-        <div className="space-y-6">
-          <AccountQuickHub />
-        </div>
-      </div>
+      )}
 
       {/* Modals */}
       {reviewBookingId && (

@@ -83,20 +83,9 @@ export default function Navbar() {
                 Contractors
               </Link>
               {isAuthenticated && (
-                <>
-                  <Link href="/profile" className="border-transparent text-gray-600 hover:text-blue-600 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                    Profile
-                  </Link>
-                  <Link href="/payments" className="border-transparent text-gray-600 hover:text-blue-600 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                    Payments
-                  </Link>
-                  <Link href="/verification" className="border-transparent text-gray-600 hover:text-blue-600 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                    Verification
-                  </Link>
-                  <Link href="/analytics" className="border-transparent text-gray-600 hover:text-blue-600 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                    Stats 📊
-                  </Link>
-                </>
+                <Link href="/analytics" className="border-transparent text-gray-600 hover:text-blue-600 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                  Stats 📊
+                </Link>
               )}
               <Link href="/support" className="border-transparent text-gray-600 hover:text-blue-600 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                 Support
@@ -245,29 +234,13 @@ export default function Navbar() {
               Contractor Hub
             </Link>
             {isAuthenticated && (
-              <>
-                <Link 
-                  href="/payments" 
-                  onClick={() => setIsMenuOpen(false)}
-                  className="block px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 transition-all"
-                >
-                  Payments
-                </Link>
-                <Link 
-                  href="/verification" 
-                  onClick={() => setIsMenuOpen(false)}
-                  className="block px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 transition-all"
-                >
-                  KYC Verification
-                </Link>
-                <Link 
-                  href="/notifications" 
-                  onClick={() => setIsMenuOpen(false)}
-                  className="block px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 transition-all"
-                >
-                  Notifications
-                </Link>
-              </>
+              <Link 
+                href="/analytics" 
+                onClick={() => setIsMenuOpen(false)}
+                className="block px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 transition-all"
+              >
+                Stats 📊
+              </Link>
             )}
             <Link 
               href="/support" 
