@@ -50,7 +50,7 @@ function DrawoiAdminLayoutContent({ children }: { children: React.ReactNode }) {
     { label: 'Manage Contractors', href: '/admin?tab=contractors', tab: 'contractors', icon: Building },
     { label: 'Manage Works / Jobs', href: '/admin?tab=works', tab: 'works', icon: CheckCircle },
     { label: 'Worker KYC Status', href: '/admin?tab=verifications', tab: 'verifications', icon: ShieldCheck },
-    { label: 'Manage Categories', href: '/categories', tab: 'categories', icon: Grid },
+    { label: 'Manage Categories', href: '/admin?tab=categories', tab: 'categories', icon: Grid },
     { label: 'Disputes & Complaints', href: '/admin?tab=complaints', tab: 'complaints', icon: MessageSquareWarning },
     { label: 'Bulk Matchmaking', href: '/admin?tab=matchmaking', tab: 'matchmaking', icon: Layers },
     { label: 'Financials & Invoices', href: '/admin?tab=financials', tab: 'financials', icon: CreditCard },

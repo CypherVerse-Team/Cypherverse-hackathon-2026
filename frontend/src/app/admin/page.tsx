@@ -73,6 +73,12 @@ function AdminDashboardContent() {
   const [newCatGroup, setNewCatGroup] = useState('Home Maintenance');
   const [newCatDesc, setNewCatDesc] = useState('');
 
+  // Edit Category State
+  const [editingCat, setEditingCat] = useState<any | null>(null);
+  const [editCatName, setEditCatName] = useState('');
+  const [editCatGroup, setEditCatGroup] = useState('');
+  const [editCatDesc, setEditCatDesc] = useState('');
+
   // Add Admin State
   const [showAddAdminModal, setShowAddAdminModal] = useState(false);
   const [newAdminName, setNewAdminName] = useState('');
@@ -239,6 +245,47 @@ function AdminDashboardContent() {
         showToast(err.detail || 'Failed to create category', 'error');
       }
     } catch { showToast('Network error', 'error'); }
+  };
+
+  const handleDeleteCategory = async (professionId: string, name: string) => {
+    if (!confirm(`Are you sure you want to delete category "${name}"?`)) return;
+    try {
+      const res = await fetchWithAuth(`/categories/${professionId}`, { method: 'DELETE' });
+      if (res.ok) {
+        showToast(`Category "${name}" deleted!`, 'success');
+        loadAll();
+      } else {
+        const err = await res.json();
+        showToast(err.detail || 'Failed to delete category', 'error');
+      }
+    } catch {
+      showToast('Network error', 'error');
+    }
+  };
+
+  const handleUpdateCategory = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingCat || !editCatName.trim()) return;
+    try {
+      const res = await fetchWithAuth(`/categories/${editingCat.profession_id}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          name: editCatName.trim(),
+          category: editCatGroup.trim(),
+          description: editCatDesc.trim()
+        })
+      });
+      if (res.ok) {
+        showToast(`Category "${editCatName}" updated!`, 'success');
+        setEditingCat(null);
+        loadAll();
+      } else {
+        const err = await res.json();
+        showToast(err.detail || 'Failed to update category', 'error');
+      }
+    } catch {
+      showToast('Network error', 'error');
+    }
   };
 
   if (isLoading || !stats) {
@@ -782,19 +829,31 @@ function AdminDashboardContent() {
             <div className="p-5 space-y-6">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                 <div>
-                  <h2 className="text-base font-semibold text-gray-900">Manage Service Categories & Professions</h2>
-                  <p className="text-xs text-gray-500">Define available skills, professions, and workforce domains</p>
+                  <h2 className="text-base font-semibold text-gray-900">Manage Service Categories & Professions ({categories.length})</h2>
+                  <p className="text-xs text-gray-500">Define, edit and remove available skill domains and workforce professions</p>
+                </div>
+                <div className="relative w-full sm:w-64">
+                  <Search size={14} className="absolute left-3 top-2.5 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search categories..."
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                    className="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-gray-200 focus:outline-none focus:border-blue-500"
+                  />
                 </div>
               </div>
 
               {/* Add Category Form */}
               <form onSubmit={handleAddCategory} className="bg-gray-50 p-4 rounded-xl border border-gray-200 space-y-3">
-                <div className="text-xs font-bold text-gray-700 uppercase tracking-wider">Add New Skill Profession</div>
+                <div className="text-xs font-bold text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
+                  <Plus size={14} className="text-blue-600" /> Add New Skill Profession
+                </div>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <input
                     type="text"
                     required
-                    placeholder="Profession Name (e.g. Mason)"
+                    placeholder="Profession Name (e.g. Mason, Welder)"
                     value={newCatName}
                     onChange={e => setNewCatName(e.target.value)}
                     className="px-3 py-2 text-xs rounded-lg border border-gray-200 bg-white focus:outline-none focus:border-blue-500"
@@ -809,29 +868,61 @@ function AdminDashboardContent() {
                     <option value="Woodwork">Woodwork</option>
                     <option value="Cleaning & Sanitation">Cleaning & Sanitation</option>
                     <option value="Automotive">Automotive</option>
+                    <option value="Logistics & Delivery">Logistics & Delivery</option>
+                    <option value="Personal & Domestic Care">Personal & Domestic Care</option>
                   </select>
                   <button
                     type="submit"
                     className="flex items-center justify-center gap-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition-all shadow-sm"
                   >
-                    <Plus size={14} /> Add Category
+                    <Plus size={14} /> Create Category
                   </button>
                 </div>
               </form>
 
               {/* Category Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                {categories.map((cat: any) => (
-                  <div key={cat.profession_id} className="p-3.5 rounded-xl border border-gray-200 bg-white hover:border-blue-200 transition-all flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs flex-shrink-0">
-                      {cat.name.charAt(0)}
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5">
+                {categories
+                  .filter((cat: any) =>
+                    cat.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    cat.category?.toLowerCase().includes(searchQuery.toLowerCase())
+                  )
+                  .map((cat: any) => (
+                    <div key={cat.profession_id} className="p-4 rounded-xl border border-gray-200 bg-white hover:border-gray-300 transition-all flex flex-col justify-between group shadow-sm">
+                      <div>
+                        <div className="flex items-start justify-between gap-2 mb-2">
+                          <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs flex-shrink-0">
+                            {cat.name.charAt(0)}
+                          </div>
+                          <span className="text-[10px] font-semibold text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
+                            {cat.category}
+                          </span>
+                        </div>
+                        <div className="text-sm font-bold text-gray-900 mb-1">{cat.name}</div>
+                        <div className="text-xs text-gray-500 line-clamp-2">{cat.description || `Professional ${cat.name} services`}</div>
+                      </div>
+
+                      <div className="pt-3 mt-3 border-t border-gray-100 flex items-center justify-end gap-1.5">
+                        <button
+                          onClick={() => {
+                            setEditingCat(cat);
+                            setEditCatName(cat.name);
+                            setEditCatGroup(cat.category || 'Home Maintenance');
+                            setEditCatDesc(cat.description || '');
+                          }}
+                          className="px-2.5 py-1 text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDeleteCategory(cat.profession_id, cat.name)}
+                          className="px-2.5 py-1 text-xs font-medium text-red-700 bg-red-50 hover:bg-red-100 rounded-md transition-colors"
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="text-sm font-semibold text-gray-900 truncate">{cat.name}</div>
-                      <div className="text-[11px] text-gray-500">{cat.category}</div>
-                    </div>
-                  </div>
-                ))}
+                  ))}
               </div>
             </div>
           )}
@@ -1138,6 +1229,84 @@ function AdminDashboardContent() {
                 >
                   <Plus size={15} />
                   {isProcessing ? 'Creating...' : 'Create Admin'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Category Modal */}
+      {editingCat && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setEditingCat(null)}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between pb-3 border-b border-gray-100 mb-4">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-sm">
+                  ✏️
+                </div>
+                <div>
+                  <h3 className="font-bold text-gray-900 text-base">Edit Skill Category</h3>
+                  <p className="text-xs text-gray-500">Update profession details and group</p>
+                </div>
+              </div>
+              <button onClick={() => setEditingCat(null)} className="p-1.5 text-gray-400 hover:bg-gray-100 rounded-lg">
+                <X size={16} />
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdateCategory} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Profession Name</label>
+                <input
+                  type="text"
+                  required
+                  value={editCatName}
+                  onChange={e => setEditCatName(e.target.value)}
+                  className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Category Group</label>
+                <select
+                  value={editCatGroup}
+                  onChange={e => setEditCatGroup(e.target.value)}
+                  className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
+                >
+                  <option value="Home Maintenance">Home Maintenance</option>
+                  <option value="Construction">Construction</option>
+                  <option value="Woodwork">Woodwork</option>
+                  <option value="Cleaning & Sanitation">Cleaning & Sanitation</option>
+                  <option value="Automotive">Automotive</option>
+                  <option value="Logistics & Delivery">Logistics & Delivery</option>
+                  <option value="Personal & Domestic Care">Personal & Domestic Care</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Description</label>
+                <textarea
+                  rows={3}
+                  value={editCatDesc}
+                  onChange={e => setEditCatDesc(e.target.value)}
+                  className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none resize-none"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-3 border-t border-gray-100">
+                <button
+                  type="button"
+                  onClick={() => setEditingCat(null)}
+                  className="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-xl font-medium"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold shadow-md shadow-blue-500/20 transition-all"
+                >
+                  Save Changes
                 </button>
               </div>
             </form>
