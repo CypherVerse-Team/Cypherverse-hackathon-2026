@@ -3,30 +3,35 @@
 import { useLanguage } from '@/context/LanguageContext';
 import SearchFilters from './SearchFilters';
 import { Suspense } from 'react';
-import { ShieldCheck, Lock, Zap, Star, Award } from 'lucide-react';
+import { ShieldCheck, Lock, Star, Award } from 'lucide-react';
 
 export default function LandingHero() {
   const { t } = useLanguage();
   return (
-    <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-[#030712] text-white shadow-2xl text-center">
+    <div
+      className="group relative overflow-hidden rounded-3xl border border-white/10 bg-[#030712] text-white shadow-2xl text-center before:pointer-events-none before:absolute before:inset-[-28px] before:z-0 before:bg-[url('https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=2200&q=80')] before:bg-cover before:bg-center before:grayscale before:blur-[12px] before:content-['']"
+    >
+      {/* Cool grayscale image layer; the overlay and content remain sharp above it. */}
+      <div className="absolute inset-0 z-[1] bg-slate-950/75 pointer-events-none" />
+
       {/* 1. Deep Indigo/Blue base gradient */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(30,58,138,0.35)_0%,rgba(15,23,42,0.8)_60%,rgba(3,7,18,1)_100%)] pointer-events-none" />
+      <div className="absolute inset-0 z-[2] bg-[radial-gradient(ellipse_at_top,rgba(30,58,138,0.35)_0%,rgba(15,23,42,0.8)_60%,rgba(3,7,18,1)_100%)] pointer-events-none" />
       
       {/* 2. Top-center Spotlight Glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[400px] bg-[radial-gradient(circle_at_50%_0%,rgba(59,130,246,0.18),transparent_65%)] pointer-events-none" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[400px] z-[3] bg-[radial-gradient(circle_at_50%_0%,rgba(59,130,246,0.18),transparent_65%)] pointer-events-none" />
       
       {/* 3. Left Ambient Cyan/Blue Blur */}
-      <div className="absolute -top-40 -left-40 w-[600px] h-[600px] rounded-full bg-cyan-600/10 blur-[130px] mix-blend-screen pointer-events-none animate-[pulse_8s_infinite]" />
+      <div className="absolute -top-40 -left-40 w-[600px] h-[600px] z-[3] rounded-full bg-cyan-600/10 blur-[130px] mix-blend-screen pointer-events-none animate-[pulse_8s_infinite]" />
       
       {/* 4. Right Ambient Indigo/Purple Blur */}
-      <div className="absolute -bottom-40 -right-40 w-[600px] h-[600px] rounded-full bg-indigo-600/15 blur-[130px] mix-blend-screen pointer-events-none animate-[pulse_10s_infinite_1s]" />
+      <div className="absolute -bottom-40 -right-40 w-[600px] h-[600px] z-[3] rounded-full bg-indigo-600/15 blur-[130px] mix-blend-screen pointer-events-none animate-[pulse_10s_infinite_1s]" />
 
       {/* 5. Central horizontal ambient accent line */}
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[85%] h-[1px] bg-gradient-to-r from-transparent via-blue-500/25 to-transparent pointer-events-none" />
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[85%] h-[1px] z-[3] bg-gradient-to-r from-transparent via-blue-500/25 to-transparent pointer-events-none" />
 
       {/* 6. Subtle background grid pattern with radial fading mask */}
       <div 
-        className="absolute inset-0 pointer-events-none opacity-30 mix-blend-overlay"
+        className="absolute inset-0 z-[3] pointer-events-none opacity-30 mix-blend-overlay"
         style={{
           backgroundImage: `
             linear-gradient(to right, rgba(99, 102, 241, 0.08) 1px, transparent 1px),
@@ -48,7 +53,7 @@ export default function LandingHero() {
           </span>
           <span className="text-blue-300 font-semibold tracking-wide uppercase text-[10px]">Verify & Trust</span>
           <span className="text-slate-600">|</span>
-          <span className="text-slate-300 font-medium">India's Premier Skilled Labour & Contractor Platform</span>
+          <span className="text-slate-300 font-medium">India&apos;s Premier Skilled Labour &amp; Contractor Platform</span>
         </div>
 
         {/* Hero Title */}
