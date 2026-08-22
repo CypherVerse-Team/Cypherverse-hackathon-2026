@@ -33,7 +33,7 @@ export default function SupportPage() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const bRes = await fetchWithAuth('/v1/bookings/my-bookings');
+      const bRes = await fetchWithAuth('/v1/bookings/me');
       if (bRes.ok) {
         const data = await bRes.json();
         setBookings(data);
@@ -46,8 +46,9 @@ export default function SupportPage() {
       }
     } catch (e) {
       console.error(e);
-    } flex: true;
-    setLoading(false);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSubmitComplaint = async (e: React.FormEvent) => {

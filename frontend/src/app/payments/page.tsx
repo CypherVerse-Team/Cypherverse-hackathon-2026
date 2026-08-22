@@ -35,13 +35,10 @@ export default function PaymentsPage() {
       if (user?.account_type === 'WORKER' || user?.account_type === 'GROUP_LEADER') {
         const res = await fetchWithAuth('/v1/worker/earnings');
         if (res.ok) setEarnings(await res.json());
-
-        const bRes = await fetchWithAuth('/v1/bookings/my-jobs');
-        if (bRes.ok) setBookings(await bRes.json());
-      } else {
-        const bRes = await fetchWithAuth('/v1/bookings/my-bookings');
-        if (bRes.ok) setBookings(await bRes.json());
       }
+
+      const bRes = await fetchWithAuth('/v1/bookings/me');
+      if (bRes.ok) setBookings(await bRes.json());
     } catch (e) {
       console.error(e);
     } finally {
