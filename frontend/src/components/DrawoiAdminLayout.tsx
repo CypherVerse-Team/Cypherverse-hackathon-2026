@@ -37,6 +37,10 @@ export default function DrawoiAdminLayout({ children }: { children: React.ReactN
   };
 
   const navItems = [
+    ...( user?.account_type === 'ADMIN' 
+        ? [{ label: 'Admin Control Panel', href: '/admin', icon: Shield }] 
+        : []
+    ),
     ...( ['CUSTOMER', 'CONTRACTOR'].includes(user?.account_type || '') 
         ? [{ label: 'Customer Dashboard', href: '/dashboard', icon: LayoutDashboard }] 
         : []
@@ -54,10 +58,6 @@ export default function DrawoiAdminLayout({ children }: { children: React.ReactN
     { label: 'Support', href: '/support', icon: HelpCircle },
     { label: 'Categories', href: '/categories', icon: Grid },
     { label: 'Worker Directory', href: '/', icon: Home },
-    ...( user?.account_type === 'ADMIN' 
-        ? [{ label: 'Admin Panel', href: '/admin', icon: Shield }] 
-        : []
-    ),
   ];
 
   const getPageTitle = () => {
