@@ -126,13 +126,13 @@ export default function AnalyticsPage() {
         <div className="absolute right-0 top-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="relative z-10 max-w-3xl">
           <div className="inline-flex items-center space-x-2 px-3.5 py-1 bg-blue-500/20 text-blue-300 rounded-full text-xs font-bold backdrop-blur-md mb-4 border border-blue-500/30">
-            <Zap className="w-3.5 h-3.5 text-amber-400" /> ShramSetu Intelligence & Wage Statistics
+            <Zap className="w-3.5 h-3.5 text-amber-400" /> Platform Insights & Wage Benchmarks
           </div>
           <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-white">
-            Worker Wage & Booking Summary Statistics
+            Market Analytics & Pricing Intelligence
           </h1>
           <p className="text-slate-300 mt-2 text-sm sm:text-base leading-relaxed">
-            Analyze ShramSetu platform metrics across worker hourly rates, escrow booking amounts, star ratings, and contractor crew sizes. Select any numeric column to compute **Mean, Median, Mode, Variance, Standard Deviation, and Min/Max**.
+            Understand typical job pricing, worker hourly rates, and contractor crew budgets in plain language. Easily view average costs, middle 50% benchmarks, and rate consistency across trades.
           </p>
         </div>
       </div>
@@ -254,8 +254,8 @@ export default function AnalyticsPage() {
       {/* AUTOMATED SUMMARY STATISTICS CARD (Main Feature) */}
       <SummaryStatsCard
         data={currentDataset}
-        title={`ShramSetu Summary Statistics (${activeDatasetTab.toUpperCase()})`}
-        subtitle="Select any numeric column to compute exact mean, median, mode, variance, standard deviation & min/max boundaries"
+        title={`${activeDatasetTab === 'bookings' ? 'Escrow Bookings & Revenue' : activeDatasetTab === 'workers' ? 'Worker Wages & Ratings' : activeDatasetTab === 'teams' ? 'Contractor Crew Metrics' : 'Custom Data'} Overview`}
+        subtitle="Automatic plain-language breakdown of typical pricing, middle range, and market spread"
       />
 
       {/* Dataset Preview Table */}

@@ -2,12 +2,8 @@
 
 import React, { useState, useMemo } from 'react';
 import { 
-  Calculator, 
   BarChart2, 
-  Hash, 
   TrendingUp, 
-  Layers, 
-  Sliders, 
   Copy, 
   Check, 
   Maximize2, 
@@ -15,9 +11,15 @@ import {
   ChevronDown, 
   Sparkles,
   Info,
+  Layers,
   HelpCircle,
-  Download,
-  RotateCcw
+  Award,
+  CheckCircle2,
+  Sliders,
+  Calculator,
+  ArrowUpRight,
+  ArrowDownRight,
+  Target
 } from 'lucide-react';
 
 export interface ColumnSummaryOption {
@@ -27,21 +29,13 @@ export interface ColumnSummaryOption {
 }
 
 export interface SummaryStatsCardProps {
-  /** Array of row objects (e.g. [{ price: 100, count: 2 }, ...]) */
   data?: Record<string, any>[];
-  /** Direct numeric array if no row objects */
   numericArray?: number[];
-  /** Optional title for the card */
   title?: string;
-  /** Subtitle or description */
   subtitle?: string;
-  /** Pre-selected column key */
   defaultColumnKey?: string;
-  /** Available numeric columns list (auto-detected if omitted) */
   columns?: ColumnSummaryOption[];
-  /** Class name overrides */
   className?: string;
-  /** Callback when column selection changes */
   onColumnSelect?: (columnKey: string) => void;
 }
 
@@ -71,9 +65,6 @@ export interface StatsResult {
   histogramBins: { binMin: number; binMax: number; count: number; percentage: number }[];
 }
 
-/**
- * Computes exact statistical metrics from a numeric array
- */
 export function calculateSummaryStats(values: number[], isSampleVariance: boolean = true): StatsResult | null {
   const valid = values.filter(v => typeof v === 'number' && !isNaN(v) && isFinite(v));
   if (valid.length === 0) return null;
@@ -87,7 +78,6 @@ export function calculateSummaryStats(values: number[], isSampleVariance: boolea
   const sum = sorted.reduce((acc, v) => acc + v, 0);
   const mean = sum / count;
 
-  // Median calculation
   let median: number;
   const mid = Math.floor(count / 2);
   if (count % 2 === 1) {
@@ -96,7 +86,6 @@ export function calculateSummaryStats(values: number[], isSampleVariance: boolea
     median = (sorted[mid - 1] + sorted[mid]) / 2;
   }
 
-  // Mode calculation
   const freqMap: Record<number, number> = {};
   let maxFreq = 0;
   sorted.forEach(v => {
@@ -104,30 +93,26 @@ export function calculateSummaryStats(values: number[], isSampleVariance: boolea
     if (freqMap[v] > maxFreq) maxFreq = freqMap[v];
   });
 
-  const modes: number[] = [];
-  Object.entries(freqMap).forEach(([valStr, freq]) => {
-    if (freq === maxFreq) {
-      modes.push(Number(valStr));
-    }
-  });
+  const modes = Object.keys(freqMap)
+    .filter(k => freqMap[Number(k)] === maxFreq && maxFreq > 1)
+    .map(Number)
+    .sort((a, b) => a - b);
 
-  const hasNoMode = maxFreq === 1 && count > 1;
+  const hasNoMode = maxFreq <= 1 || (modes.length === count && count > 1);
   const isMultimodal = modes.length > 1 && !hasNoMode;
 
-  // Variance & Standard Deviation
-  const ss = sorted.reduce((acc, v) => acc + Math.pow(v - mean, 2), 0);
-  const sampleVariance = count > 1 ? ss / (count - 1) : 0;
-  const popVariance = ss / count;
+  const sumSquaredDiffs = sorted.reduce((acc, v) => acc + Math.pow(v - mean, 2), 0);
+  const popVariance = sumSquaredDiffs / count;
+  const sampleVariance = count > 1 ? sumSquaredDiffs / (count - 1) : 0;
   const variance = isSampleVariance ? sampleVariance : popVariance;
 
-  const sampleStdDev = Math.sqrt(sampleVariance);
   const popStdDev = Math.sqrt(popVariance);
+  const sampleStdDev = Math.sqrt(sampleVariance);
   const stdDev = isSampleVariance ? sampleStdDev : popStdDev;
 
-  // Percentiles Q1 & Q3
-  const getPercentile = (p: number) => {
+  const getPercentile = (p: number): number => {
     if (count === 1) return sorted[0];
-    const index = p * (count - 1);
+    const index = (count - 1) * p;
     const lower = Math.floor(index);
     const upper = Math.ceil(index);
     const weight = index - lower;
@@ -138,31 +123,43 @@ export function calculateSummaryStats(values: number[], isSampleVariance: boolea
   const q3 = getPercentile(0.75);
   const iqr = q3 - q1;
 
-  // Pearson Median Skewness
-  const skewness = stdDev > 0 ? (3 * (mean - median)) / stdDev : 0;
+  let skewness = 0;
+  if (count > 2 && sampleStdDev > 0) {
+    const sumCubed = sorted.reduce((acc, v) => acc + Math.pow((v - mean) / sampleStdDev, 3), 0);
+    skewness = (count / ((count - 1) * (count - 2))) * sumCubed;
+  }
   let skewType: 'Symmetric' | 'Right-skewed' | 'Left-skewed' = 'Symmetric';
-  if (skewness > 0.3) skewType = 'Right-skewed';
-  else if (skewness < -0.3) skewType = 'Left-skewed';
+  if (skewness > 0.5) skewType = 'Right-skewed';
+  else if (skewness < -0.5) skewType = 'Left-skewed';
 
-  // Histogram Binning
-  const numBins = Math.min(10, Math.max(5, Math.ceil(Math.sqrt(count))));
-  const binWidth = range === 0 ? 1 : range / numBins;
-  const bins = Array.from({ length: numBins }, (_, i) => ({
-    binMin: min + i * binWidth,
-    binMax: i === numBins - 1 ? max : min + (i + 1) * binWidth,
-    count: 0,
-    percentage: 0
-  }));
+  const numBins = Math.min(6, Math.max(3, Math.round(Math.sqrt(count))));
+  const binWidth = range > 0 ? range / numBins : 1;
+  const bins: { binMin: number; binMax: number; count: number; percentage: number }[] = [];
+
+  for (let i = 0; i < numBins; i++) {
+    const bMin = min + i * binWidth;
+    const bMax = i === numBins - 1 ? max : min + (i + 1) * binWidth;
+    bins.push({ binMin: bMin, binMax: bMax, count: 0, percentage: 0 });
+  }
 
   sorted.forEach(v => {
-    let binIdx = Math.floor((v - min) / binWidth);
-    if (binIdx >= numBins) binIdx = numBins - 1;
-    if (binIdx < 0) binIdx = 0;
-    bins[binIdx].count++;
+    for (let i = 0; i < bins.length; i++) {
+      if (i === bins.length - 1) {
+        if (v >= bins[i].binMin && v <= bins[i].binMax) {
+          bins[i].count++;
+          break;
+        }
+      } else {
+        if (v >= bins[i].binMin && v < bins[i].binMax) {
+          bins[i].count++;
+          break;
+        }
+      }
+    }
   });
 
   bins.forEach(b => {
-    b.percentage = (b.count / count) * 100;
+    b.percentage = count > 0 ? (b.count / count) * 100 : 0;
   });
 
   return {
@@ -192,96 +189,63 @@ export function calculateSummaryStats(values: number[], isSampleVariance: boolea
   };
 }
 
-// ShramSetu domain column metadata mapping for realistic project integration
-const SHRAMSETU_COLUMN_META: Record<string, { label: string; unit: string; prefix?: string }> = {
-  hourly_rate: { label: 'Worker Hourly Wage', unit: '₹/hr', prefix: '₹' },
-  daily_rate: { label: 'Worker Daily Rate', unit: '₹/day', prefix: '₹' },
-  amount: { label: 'Escrow Booking Amount', unit: '₹', prefix: '₹' },
-  service_fee: { label: 'ShramSetu Platform Fee', unit: '₹', prefix: '₹' },
-  worker_rating: { label: 'Worker Star Rating', unit: '★' },
-  rating: { label: 'Average Worker Rating', unit: '★' },
-  average_rating: { label: 'Average Rating', unit: '★' },
-  jobs_completed: { label: 'Completed Labour Jobs', unit: 'jobs' },
-  completed_jobs: { label: 'Completed Jobs', unit: 'jobs' },
-  experience_years: { label: 'Trade Work Experience', unit: 'yrs' },
-  distance_km: { label: 'Site Proximity Distance', unit: 'km' },
-  duration_hours: { label: 'Job Booking Duration', unit: 'hrs' },
-  members_count: { label: 'Contractor Crew Members', unit: 'workers' },
-  team_capacity: { label: 'Crew Team Capacity', unit: 'workers' },
-  hourly_budget: { label: 'Project Hourly Budget', unit: '₹/hr', prefix: '₹' },
-  verification_score: { label: 'KYC & Skill Verification Score', unit: '%' },
-  safety_score: { label: 'Site Safety Audit Rating', unit: '%' },
-  total_revenue: { label: 'Platform Revenue Volume', unit: '₹', prefix: '₹' },
-  revenue: { label: 'Revenue Generated', unit: '₹', prefix: '₹' },
-  pending_kyc: { label: 'Pending KYC Verifications', unit: 'users' },
-  count: { label: 'Entity Observations Count', unit: 'items' },
+const SHRAMSETU_COLUMN_META: Record<string, { label: string; unit: string; prefix?: string; tip: string }> = {
+  amount: { label: 'Booking Payout Amount', unit: '₹', prefix: '₹', tip: 'Total agreed transaction price per job' },
+  hourly_rate: { label: 'Hourly Labour Wage', unit: '₹/hr', prefix: '₹', tip: 'Hourly rate charged by skilled worker' },
+  service_fee: { label: 'Platform Protection Fee', unit: '₹', prefix: '₹', tip: 'Platform escrow & dispute insurance fee' },
+  worker_rating: { label: 'Customer Satisfaction Score', unit: '★', tip: 'Worker average customer feedback out of 5 stars' },
+  experience_years: { label: 'Trade Experience', unit: 'Years', tip: 'Years of professional field work' },
+  jobs_completed: { label: 'Completed Jobs Count', unit: 'Jobs', tip: 'Total verified jobs successfully delivered' },
+  distance_km: { label: 'Dispatch Distance', unit: 'km', tip: 'Distance between worker and site' },
+  duration_hours: { label: 'Job Duration', unit: 'Hours', tip: 'Total active work hours spent on site' },
+  hourly_budget: { label: 'Contractor Team Budget', unit: '₹/hr', prefix: '₹', tip: 'Hourly rate for complete crew' },
+  safety_score: { label: 'Safety & Quality Score', unit: '%', tip: 'Compliance and job safety adherence score' },
+  members_count: { label: 'Crew Team Size', unit: 'Workers', tip: 'Number of active tradespeople in crew' },
+  verification_score: { label: 'KYC Trust Index', unit: '/100', tip: 'Document and skill background score' },
 };
 
 export default function SummaryStatsCard({
-  data = [],
+  data,
   numericArray,
-  title = "ShramSetu Skilled Labour & Booking Matrix Analytics",
-  subtitle = "Automated statistical analysis of worker wages, escrow payments, ratings & contractor metrics",
+  title = "Business Analytics & Summary Insights",
+  subtitle = "Key performance indicators, typical pricing benchmarks, and predictability metrics",
   defaultColumnKey,
-  columns: providedColumns,
-  className = "",
+  columns,
+  className = '',
   onColumnSelect
 }: SummaryStatsCardProps) {
-  
-  // Auto-detect numeric columns if dataset is provided
-  const detectedColumns = useMemo(() => {
-    if (providedColumns && providedColumns.length > 0) return providedColumns;
-    if (!data || data.length === 0) return [];
-
-    const keys = Object.keys(data[0] || {});
-    const numericKeys: ColumnSummaryOption[] = [];
-
-    keys.forEach(key => {
-      // Check if at least one row has a valid numeric value for this key
-      const hasNumeric = data.some(row => {
-        const val = row[key];
-        return typeof val === 'number' || (!isNaN(Number(val)) && val !== '' && val !== null && typeof val !== 'boolean');
-      });
-
-      if (hasNumeric) {
-        // Pretty label formatting with ShramSetu domain context
-        const domainMeta = SHRAMSETU_COLUMN_META[key];
-        const label = domainMeta?.label || key
-          .replace(/_/g, ' ')
-          .replace(/([A-Z])/g, ' $1')
-          .replace(/^./, str => str.toUpperCase())
-          .trim();
-        numericKeys.push({ key, label, unit: domainMeta?.unit });
-      }
-    });
-
-    return numericKeys;
-  }, [data, providedColumns]);
-
-  // Selected column state
-  const [selectedColKey, setSelectedColKey] = useState<string>(() => {
-    if (defaultColumnKey) return defaultColumnKey;
-    if (detectedColumns.length > 0) return detectedColumns[0].key;
-    return 'values';
-  });
-
-  // Variance formula toggle: sample (n-1) vs population (n)
-  const [isSampleVariance, setIsSampleVariance] = useState<boolean>(true);
-
-  // Decimal precision selector (0, 2, 4)
-  const [precision, setPrecision] = useState<number>(2);
-
-  // Copy notification toast
+  const [viewMode, setViewMode] = useState<'plain' | 'technical'>('plain');
+  const [isExpanded, setIsExpanded] = useState(true);
+  const [precision, setPrecision] = useState<number>(1);
   const [copiedMetric, setCopiedMetric] = useState<string | null>(null);
 
-  // Expand / collapse detailed view
-  const [isExpanded, setIsExpanded] = useState<boolean>(true);
+  const detectedColumns = useMemo<ColumnSummaryOption[]>(() => {
+    if (columns && columns.length > 0) return columns;
+    if (!data || data.length === 0) return [];
+    
+    const sampleRow = data[0];
+    const keys: ColumnSummaryOption[] = [];
+    Object.keys(sampleRow).forEach(key => {
+      const val = sampleRow[key];
+      const isNum = typeof val === 'number' || (!isNaN(Number(val)) && val !== '' && val !== null && typeof val !== 'boolean');
+      if (isNum && !key.toLowerCase().includes('id') && key !== 'index') {
+        const meta = SHRAMSETU_COLUMN_META[key];
+        keys.push({
+          key,
+          label: meta?.label || key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+          unit: meta?.unit || ''
+        });
+      }
+    });
+    return keys;
+  }, [data, columns]);
 
-  // Extract raw numbers based on selected column key or numericArray
+  const [selectedColKey, setSelectedColKey] = useState<string>(
+    defaultColumnKey || (detectedColumns.length > 0 ? detectedColumns[0].key : 'amount')
+  );
+
   const extractedNumbers = useMemo(() => {
-    if (numericArray && numericArray.length > 0) {
-      return numericArray;
-    }
+    if (numericArray && numericArray.length > 0) return numericArray;
     if (!data || data.length === 0) return [];
 
     return data
@@ -297,12 +261,10 @@ export default function SummaryStatsCard({
       .filter(v => !isNaN(v));
   }, [data, numericArray, selectedColKey]);
 
-  // Calculate statistics
   const stats = useMemo(() => {
-    return calculateSummaryStats(extractedNumbers, isSampleVariance);
-  }, [extractedNumbers, isSampleVariance]);
+    return calculateSummaryStats(extractedNumbers, true);
+  }, [extractedNumbers]);
 
-  // Handle column dropdown switch
   const handleColumnChange = (key: string) => {
     setSelectedColKey(key);
     if (onColumnSelect) onColumnSelect(key);
@@ -314,9 +276,8 @@ export default function SummaryStatsCard({
   const colUnit = domainMeta?.unit || selectedColObj?.unit || '';
   const colPrefix = domainMeta?.prefix || '';
 
-  // Helper for formatting output numbers with ShramSetu domain units
   const fmt = (val: number | undefined | null, includeUnit: boolean = true): string => {
-    if (val === undefined || val === null || isNaN(val)) return 'N/A';
+    if (val === undefined || val === null || isNaN(val)) return '—';
     const formattedNum = (Number.isInteger(val) && precision === 0) 
       ? val.toLocaleString() 
       : val.toLocaleString(undefined, {
@@ -331,42 +292,43 @@ export default function SummaryStatsCard({
     return `${formattedNum} ${colUnit}`;
   };
 
-  // Copy value to clipboard
   const handleCopy = (label: string, value: string) => {
     navigator.clipboard.writeText(value);
     setCopiedMetric(label);
     setTimeout(() => setCopiedMetric(null), 2000);
   };
 
-  // Format mode string display
-  const formatModeDisplay = (statsRes: StatsResult) => {
-    if (statsRes.hasNoMode) return 'No Mode (All values unique)';
-    if (statsRes.modes.length === 0) return 'N/A';
-    if (statsRes.modes.length === 1) {
-      return `${fmt(statsRes.modes[0], true)} (freq: ${statsRes.modeFreq})`;
+  // Predictability / Variation score
+  const getVariationInsight = (statsRes: StatsResult) => {
+    if (!statsRes || statsRes.mean === 0) return { label: 'Stable', color: 'text-green-600 bg-green-50 border-green-200', desc: 'Consistent pricing across records' };
+    const cv = (statsRes.stdDev / statsRes.mean) * 100;
+    if (cv < 25) {
+      return { label: 'High Consistency', color: 'text-emerald-700 bg-emerald-50 border-emerald-200', desc: 'Prices are very steady and predictable.' };
+    } else if (cv < 60) {
+      return { label: 'Moderate Range', color: 'text-blue-700 bg-blue-50 border-blue-200', desc: 'Normal variation based on worker seniority or project scope.' };
+    } else {
+      return { label: 'Wide Spread', color: 'text-amber-700 bg-amber-50 border-amber-200', desc: 'Covers small quick tasks up to major high-end contracts.' };
     }
-    if (statsRes.modes.length <= 3) {
-      return `${statsRes.modes.map(m => fmt(m, true)).join(', ')} (freq: ${statsRes.modeFreq})`;
-    }
-    return `${statsRes.modes.slice(0, 3).map(m => fmt(m, true)).join(', ')} +${statsRes.modes.length - 3} more (freq: ${statsRes.modeFreq})`;
   };
 
+  const varInsight = stats ? getVariationInsight(stats) : null;
+
   return (
-    <div className={`bg-white rounded-3xl border border-slate-200/90 shadow-xl overflow-hidden font-sans transition-all ${className}`}>
+    <div className={`bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden font-sans ${className}`}>
       
       {/* Header Bar */}
       <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white p-6 sm:p-7">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           
           <div className="flex items-start space-x-3.5">
-            <div className="p-3 bg-indigo-500/20 text-indigo-400 rounded-2xl border border-indigo-500/30 shadow-inner">
-              <Calculator className="w-6 h-6" />
+            <div className="p-3 bg-indigo-500/20 text-indigo-400 rounded-2xl border border-indigo-500/30">
+              <BarChart2 className="w-6 h-6" />
             </div>
             <div>
               <div className="flex items-center space-x-2">
-                <h3 className="text-xl font-extrabold tracking-tight text-white">{title}</h3>
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-                  <Sparkles className="w-3 h-3 mr-1 text-indigo-400" /> Automated Analysis
+                <h3 className="text-xl font-bold tracking-tight text-white">{title}</h3>
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                  <Sparkles className="w-3 h-3 mr-1 text-blue-400" /> Human-Friendly Insights
                 </span>
               </div>
               <p className="text-sm text-slate-300 mt-1">{subtitle}</p>
@@ -376,17 +338,34 @@ export default function SummaryStatsCard({
           {/* Action Buttons & Column Selector */}
           <div className="flex flex-wrap items-center gap-3">
             
+            {/* View Mode Toggle */}
+            <div className="bg-slate-800/90 p-1 rounded-xl border border-slate-700 flex items-center gap-1 text-xs">
+              <button
+                onClick={() => setViewMode('plain')}
+                className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
+                  viewMode === 'plain' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                Simple Overview
+              </button>
+              <button
+                onClick={() => setViewMode('technical')}
+                className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
+                  viewMode === 'technical' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                Detailed Math
+              </button>
+            </div>
+
             {/* Column Selector Dropdown */}
             {detectedColumns.length > 0 && (
-              <div className="relative inline-block min-w-[200px]">
-                <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
-                  Select Numeric Column
-                </label>
+              <div className="relative inline-block min-w-[190px]">
                 <div className="relative">
                   <select
                     value={selectedColKey}
                     onChange={(e) => handleColumnChange(e.target.value)}
-                    className="w-full appearance-none bg-slate-800/90 hover:bg-slate-800 text-white text-sm font-semibold py-2.5 px-4 pr-10 rounded-xl border border-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors cursor-pointer"
+                    className="w-full appearance-none bg-slate-800 text-white text-xs font-bold py-2.5 px-3.5 pr-8 rounded-xl border border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
                   >
                     {detectedColumns.map(col => (
                       <option key={col.key} value={col.key} className="bg-slate-900 text-white">
@@ -402,7 +381,7 @@ export default function SummaryStatsCard({
             {/* Expand / Collapse Button */}
             <button
               onClick={() => setIsExpanded(!isExpanded)}
-              className="p-2.5 bg-slate-800/80 hover:bg-slate-800 text-slate-300 hover:text-white rounded-xl border border-slate-700 transition-colors self-end"
+              className="p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl border border-slate-700 transition-colors"
               title={isExpanded ? "Collapse Card" : "Expand Card"}
             >
               {isExpanded ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
@@ -411,392 +390,235 @@ export default function SummaryStatsCard({
           </div>
         </div>
 
-        {/* Selected Column Indicator Sub-bar */}
-        <div className="mt-4 pt-4 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-300">
+        {/* Selected Column Sub-bar */}
+        <div className="mt-4 pt-4 border-t border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-300">
           <div className="flex items-center space-x-2">
-            <span className="font-semibold text-slate-400">Current Column:</span>
-            <span className="px-2.5 py-1 bg-indigo-900/50 text-indigo-200 font-bold rounded-lg border border-indigo-700/50">
-              {selectedColLabel} ({selectedColKey})
+            <span className="text-slate-400">Analyzing:</span>
+            <span className="px-2.5 py-0.5 bg-blue-900/60 text-blue-200 font-bold rounded-lg border border-blue-700/50">
+              {selectedColLabel}
             </span>
             {stats && (
-              <span className="text-slate-400">
-                • {stats.count} valid numerical observations
-              </span>
+              <span className="text-slate-400">• {stats.count} total records</span>
             )}
           </div>
 
-          {/* Controls: Precision & Variance Mode */}
-          <div className="flex items-center space-x-4">
-            
-            {/* Decimal Precision Control */}
-            <div className="flex items-center space-x-1.5 bg-slate-800/70 px-2.5 py-1 rounded-lg border border-slate-700/60">
-              <span className="text-slate-400 text-[11px] font-medium">Decimals:</span>
-              {[0, 2, 4].map(p => (
-                <button
-                  key={p}
-                  onClick={() => setPrecision(p)}
-                  className={`px-2 py-0.5 rounded text-[11px] font-bold transition-all ${
-                    precision === p 
-                      ? 'bg-indigo-600 text-white shadow-xs' 
-                      : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
-                  }`}
-                >
-                  .{p}
-                </button>
-              ))}
-            </div>
-
-            {/* Variance Formula Toggle */}
-            <div className="flex items-center space-x-1.5 bg-slate-800/70 px-2.5 py-1 rounded-lg border border-slate-700/60">
-              <span className="text-slate-400 text-[11px] font-medium">Variance:</span>
-              <button
-                onClick={() => setIsSampleVariance(true)}
-                className={`px-2 py-0.5 rounded text-[11px] font-bold transition-all ${
-                  isSampleVariance 
-                    ? 'bg-indigo-600 text-white shadow-xs' 
-                    : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
-                }`}
-                title="Sample Variance (n-1 degrees of freedom)"
-              >
-                Sample (n-1)
-              </button>
-              <button
-                onClick={() => setIsSampleVariance(false)}
-                className={`px-2 py-0.5 rounded text-[11px] font-bold transition-all ${
-                  !isSampleVariance 
-                    ? 'bg-indigo-600 text-white shadow-xs' 
-                    : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
-                }`}
-                title="Population Variance (n degrees of freedom)"
-              >
-                Pop (n)
-              </button>
-            </div>
-
+          <div className="text-xs text-slate-400 font-medium">
+            {domainMeta?.tip || 'Statistically calculated across verified database records'}
           </div>
         </div>
       </div>
 
       {/* Main Body */}
       {isExpanded && (
-        <div className="p-6 sm:p-8 space-y-8 bg-slate-50/50">
+        <div className="p-6 sm:p-8 space-y-6 bg-slate-50/50">
           
           {!stats ? (
             <div className="text-center py-12 bg-white rounded-2xl border border-dashed border-slate-300 p-8">
-              <Info className="w-12 h-12 text-amber-500 mx-auto mb-3" />
-              <h4 className="text-lg font-bold text-slate-800">No Valid Numeric Data Found</h4>
-              <p className="text-sm text-slate-500 max-w-md mx-auto mt-1">
-                The selected column "{selectedColLabel}" does not contain valid numerical values. Please select another numeric column from the dropdown above.
+              <Info className="w-10 h-10 text-amber-500 mx-auto mb-2" />
+              <h4 className="text-base font-bold text-slate-800">No Numeric Records Found</h4>
+              <p className="text-xs text-slate-500 mt-1">
+                Please choose another category or column from the dropdown above.
               </p>
             </div>
           ) : (
             <>
-              {/* Toast message if metric copied */}
+              {/* Copied notification */}
               {copiedMetric && (
-                <div className="bg-emerald-600 text-white text-xs font-semibold px-4 py-2 rounded-xl shadow-lg flex items-center justify-between transition-all animate-bounce">
+                <div className="bg-emerald-600 text-white text-xs font-semibold px-4 py-2 rounded-xl shadow-md flex items-center justify-between">
                   <span>Copied <strong>{copiedMetric}</strong> to clipboard!</span>
                   <Check className="w-4 h-4 ml-2" />
                 </div>
               )}
 
-              {/* ----------------- CORE REQ: 6 MAIN STATISTICAL METRICS GRID ----------------- */}
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-                    <TrendingUp className="w-4 h-4 text-indigo-600" /> Key Descriptive Statistics
-                  </h4>
-                  <span className="text-xs text-slate-400">Click any card to copy metric</span>
+              {/* ----------------- 1. PLAIN LANGUAGE EXECUTIVE INSIGHTS ----------------- */}
+              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs">
+                      💡
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-slate-900">Plain-English Summary</h4>
+                      <p className="text-[11px] text-slate-500">What these numbers mean in simple everyday terms</p>
+                    </div>
+                  </div>
+                  {varInsight && (
+                    <span className={`px-3 py-1 rounded-full text-xs font-bold border ${varInsight.color}`}>
+                      {varInsight.label}
+                    </span>
+                  )}
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                  
-                  {/* 1. MEAN */}
-                  <div 
-                    onClick={() => handleCopy('Mean', fmt(stats.mean))}
-                    className="group bg-white p-5 rounded-2xl border border-slate-200/90 shadow-sm hover:shadow-md hover:border-indigo-300 transition-all cursor-pointer relative overflow-hidden"
-                  >
-                    <div className="absolute top-0 right-0 w-24 h-24 -mr-6 -mt-6 bg-blue-50 rounded-full group-hover:scale-110 transition-transform -z-0" />
-                    <div className="relative z-10 flex flex-col justify-between h-full">
-                      <div>
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-xs font-bold uppercase tracking-wider text-slate-500">1. Mean (Average)</span>
-                          <span className="p-1.5 bg-blue-100 text-blue-700 rounded-lg text-xs font-semibold group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                            <Copy className="w-3.5 h-3.5" />
-                          </span>
-                        </div>
-                        <div className="text-3xl font-black text-slate-900 tracking-tight">
-                          {fmt(stats.mean)}
-                        </div>
-                      </div>
-                      <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-                        <span>Arithmetic Mean (x̄)</span>
-                        <span className="font-mono bg-slate-100 px-1.5 py-0.5 rounded text-[11px]">Σx / N</span>
-                      </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-slate-700">
+                  <div className="p-3.5 bg-blue-50/60 rounded-xl border border-blue-100/80 space-y-1">
+                    <div className="font-bold text-blue-900 flex items-center gap-1.5">
+                      <Target size={14} className="text-blue-600" />
+                      Typical / Average Value
                     </div>
-                  </div>
-
-                  {/* 2. MEDIAN */}
-                  <div 
-                    onClick={() => handleCopy('Median', fmt(stats.median))}
-                    className="group bg-white p-5 rounded-2xl border border-slate-200/90 shadow-sm hover:shadow-md hover:border-indigo-300 transition-all cursor-pointer relative overflow-hidden"
-                  >
-                    <div className="absolute top-0 right-0 w-24 h-24 -mr-6 -mt-6 bg-indigo-50 rounded-full group-hover:scale-110 transition-transform -z-0" />
-                    <div className="relative z-10 flex flex-col justify-between h-full">
-                      <div>
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-xs font-bold uppercase tracking-wider text-slate-500">2. Median (50th Percentile)</span>
-                          <span className="p-1.5 bg-indigo-100 text-indigo-700 rounded-lg text-xs font-semibold group-hover:bg-indigo-600 group-hover:text-white transition-colors">
-                            <Copy className="w-3.5 h-3.5" />
-                          </span>
-                        </div>
-                        <div className="text-3xl font-black text-slate-900 tracking-tight">
-                          {fmt(stats.median)}
-                        </div>
-                      </div>
-                      <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-                        <span>Middle Value</span>
-                        <span className="font-mono bg-slate-100 px-1.5 py-0.5 rounded text-[11px]">Q2 (50%)</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* 3. MODE */}
-                  <div 
-                    onClick={() => handleCopy('Mode', formatModeDisplay(stats))}
-                    className="group bg-white p-5 rounded-2xl border border-slate-200/90 shadow-sm hover:shadow-md hover:border-indigo-300 transition-all cursor-pointer relative overflow-hidden"
-                  >
-                    <div className="absolute top-0 right-0 w-24 h-24 -mr-6 -mt-6 bg-purple-50 rounded-full group-hover:scale-110 transition-transform -z-0" />
-                    <div className="relative z-10 flex flex-col justify-between h-full">
-                      <div>
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-xs font-bold uppercase tracking-wider text-slate-500">3. Mode (Most Frequent)</span>
-                          <span className="p-1.5 bg-purple-100 text-purple-700 rounded-lg text-xs font-semibold group-hover:bg-purple-600 group-hover:text-white transition-colors">
-                            <Copy className="w-3.5 h-3.5" />
-                          </span>
-                        </div>
-                        <div className="text-2xl font-extrabold text-slate-900 tracking-tight line-clamp-2">
-                          {formatModeDisplay(stats)}
-                        </div>
-                      </div>
-                      <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-                        <span>{stats.isMultimodal ? 'Multimodal' : stats.hasNoMode ? 'No Mode' : 'Unimodal'}</span>
-                        <span className="font-mono bg-slate-100 px-1.5 py-0.5 rounded text-[11px]">Max Freq: {stats.modeFreq}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* 4. VARIANCE */}
-                  <div 
-                    onClick={() => handleCopy('Variance', fmt(stats.variance))}
-                    className="group bg-white p-5 rounded-2xl border border-slate-200/90 shadow-sm hover:shadow-md hover:border-indigo-300 transition-all cursor-pointer relative overflow-hidden"
-                  >
-                    <div className="absolute top-0 right-0 w-24 h-24 -mr-6 -mt-6 bg-amber-50 rounded-full group-hover:scale-110 transition-transform -z-0" />
-                    <div className="relative z-10 flex flex-col justify-between h-full">
-                      <div>
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                            4. Variance ({isSampleVariance ? 's² Sample' : 'σ² Population'})
-                          </span>
-                          <span className="p-1.5 bg-amber-100 text-amber-700 rounded-lg text-xs font-semibold group-hover:bg-amber-600 group-hover:text-white transition-colors">
-                            <Copy className="w-3.5 h-3.5" />
-                          </span>
-                        </div>
-                        <div className="text-3xl font-black text-slate-900 tracking-tight">
-                          {fmt(stats.variance)}
-                        </div>
-                      </div>
-                      <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-                        <span>Squared Spread</span>
-                        <span className="font-mono bg-slate-100 px-1.5 py-0.5 rounded text-[11px]">
-                          {isSampleVariance ? 'SS / (N-1)' : 'SS / N'}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* 5. STANDARD DEVIATION */}
-                  <div 
-                    onClick={() => handleCopy('Standard Deviation', fmt(stats.stdDev))}
-                    className="group bg-white p-5 rounded-2xl border border-slate-200/90 shadow-sm hover:shadow-md hover:border-indigo-300 transition-all cursor-pointer relative overflow-hidden"
-                  >
-                    <div className="absolute top-0 right-0 w-24 h-24 -mr-6 -mt-6 bg-emerald-50 rounded-full group-hover:scale-110 transition-transform -z-0" />
-                    <div className="relative z-10 flex flex-col justify-between h-full">
-                      <div>
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                            5. Standard Deviation ({isSampleVariance ? 's' : 'σ'})
-                          </span>
-                          <span className="p-1.5 bg-emerald-100 text-emerald-700 rounded-lg text-xs font-semibold group-hover:bg-emerald-600 group-hover:text-white transition-colors">
-                            <Copy className="w-3.5 h-3.5" />
-                          </span>
-                        </div>
-                        <div className="text-3xl font-black text-slate-900 tracking-tight">
-                          {fmt(stats.stdDev)}
-                        </div>
-                      </div>
-                      <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-                        <span>Mean Deviation</span>
-                        <span className="font-mono bg-slate-100 px-1.5 py-0.5 rounded text-[11px]">√Variance</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* 6. MIN & MAX (Boundaries) */}
-                  <div 
-                    onClick={() => handleCopy('Min/Max Range', `Min: ${fmt(stats.min)}, Max: ${fmt(stats.max)}`)}
-                    className="group bg-white p-5 rounded-2xl border border-slate-200/90 shadow-sm hover:shadow-md hover:border-indigo-300 transition-all cursor-pointer relative overflow-hidden"
-                  >
-                    <div className="absolute top-0 right-0 w-24 h-24 -mr-6 -mt-6 bg-rose-50 rounded-full group-hover:scale-110 transition-transform -z-0" />
-                    <div className="relative z-10 flex flex-col justify-between h-full">
-                      <div>
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-xs font-bold uppercase tracking-wider text-slate-500">6. Min / Max (Boundaries)</span>
-                          <span className="p-1.5 bg-rose-100 text-rose-700 rounded-lg text-xs font-semibold group-hover:bg-rose-600 group-hover:text-white transition-colors">
-                            <Copy className="w-3.5 h-3.5" />
-                          </span>
-                        </div>
-                        <div className="flex items-baseline space-x-3 text-slate-900">
-                          <div>
-                            <span className="text-[10px] font-bold text-slate-400 uppercase block">Min</span>
-                            <span className="text-2xl font-black">{fmt(stats.min)}</span>
-                          </div>
-                          <span className="text-slate-300 text-xl font-bold">/</span>
-                          <div>
-                            <span className="text-[10px] font-bold text-slate-400 uppercase block">Max</span>
-                            <span className="text-2xl font-black text-rose-600">{fmt(stats.max)}</span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-                        <span>Total Range</span>
-                        <span className="font-mono bg-slate-100 px-1.5 py-0.5 rounded text-[11px]">Δ = {fmt(stats.range)}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                </div>
-              </div>
-
-              {/* ----------------- VISUAL DISTRIBUTION HISTOGRAM CHART ----------------- */}
-              <div className="bg-white p-6 rounded-3xl border border-slate-200/90 shadow-sm">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
-                  <div>
-                    <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                      <BarChart2 className="w-4 h-4 text-indigo-600" /> Empirical Data Binned Distribution (Histogram)
-                    </h4>
-                    <p className="text-xs text-slate-500 mt-0.5">
-                      Bins frequency across [{fmt(stats.min)} to {fmt(stats.max)}] with mean & median indicators
+                    <div className="text-lg font-black text-blue-950">{fmt(stats.mean)}</div>
+                    <p className="text-[11px] text-blue-800/80">
+                      The average {selectedColLabel.toLowerCase()} across all jobs.
                     </p>
                   </div>
-                  <div className="flex items-center space-x-3 text-xs">
-                    <span className="inline-flex items-center text-slate-600 font-semibold">
-                      <span className="w-2.5 h-2.5 bg-blue-500 rounded-full mr-1.5 inline-block" /> Mean ({fmt(stats.mean)})
-                    </span>
-                    <span className="inline-flex items-center text-slate-600 font-semibold">
-                      <span className="w-2.5 h-2.5 bg-indigo-500 rounded-full mr-1.5 inline-block" /> Median ({fmt(stats.median)})
-                    </span>
-                    <span className="px-2 py-0.5 bg-slate-100 rounded text-slate-600 font-medium">
-                      Shape: <strong>{stats.skewType}</strong> ({fmt(stats.skewness)})
-                    </span>
+
+                  <div className="p-3.5 bg-indigo-50/60 rounded-xl border border-indigo-100/80 space-y-1">
+                    <div className="font-bold text-indigo-900 flex items-center gap-1.5">
+                      <TrendingUp size={14} className="text-indigo-600" />
+                      Typical Middle 50% Range
+                    </div>
+                    <div className="text-lg font-black text-indigo-950">{fmt(stats.q1)} – {fmt(stats.q3)}</div>
+                    <p className="text-[11px] text-indigo-800/80">
+                      Half of all jobs naturally fall between these two numbers.
+                    </p>
                   </div>
-                </div>
 
-                {/* Histogram Bars */}
-                <div className="h-44 flex items-end justify-between gap-2 pt-6 pb-2 px-2 border-b border-slate-200 relative">
-                  
-                  {stats.histogramBins.map((bin, idx) => {
-                    const maxBinCount = Math.max(...stats.histogramBins.map(b => b.count), 1);
-                    const barHeightPct = (bin.count / maxBinCount) * 100;
-                    
-                    return (
-                      <div key={idx} className="flex-1 flex flex-col items-center h-full justify-end group relative">
-                        {/* Tooltip on hover */}
-                        <div className="opacity-0 group-hover:opacity-100 pointer-events-none absolute -top-10 bg-slate-900 text-white text-[11px] font-semibold py-1 px-2.5 rounded-lg shadow-xl z-20 whitespace-nowrap transition-opacity">
-                          [{fmt(bin.binMin)} - {fmt(bin.binMax)}]: {bin.count} items ({bin.percentage.toFixed(1)}%)
-                        </div>
-
-                        {/* Bar Count label */}
-                        <span className="text-[10px] font-bold text-slate-400 mb-1 group-hover:text-indigo-600 transition-colors">
-                          {bin.count > 0 ? bin.count : ''}
-                        </span>
-
-                        {/* Bar rectangle */}
-                        <div 
-                          style={{ height: `${Math.max(barHeightPct, 4)}%` }}
-                          className={`w-full rounded-t-lg transition-all duration-300 ${
-                            bin.count > 0 
-                              ? 'bg-gradient-to-t from-indigo-600 to-indigo-400 group-hover:from-indigo-700 group-hover:to-indigo-500 shadow-xs' 
-                              : 'bg-slate-100'
-                          }`}
-                        />
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* Axis Labels */}
-                <div className="flex justify-between text-[11px] font-semibold text-slate-400 mt-2 px-1">
-                  <span>Min: {fmt(stats.min)}</span>
-                  <span>Q1: {fmt(stats.q1)}</span>
-                  <span>Median: {fmt(stats.median)}</span>
-                  <span>Q3: {fmt(stats.q3)}</span>
-                  <span>Max: {fmt(stats.max)}</span>
+                  <div className="p-3.5 bg-purple-50/60 rounded-xl border border-purple-100/80 space-y-1">
+                    <div className="font-bold text-purple-900 flex items-center gap-1.5">
+                      <Award size={14} className="text-purple-600" />
+                      Lowest to Highest Gap
+                    </div>
+                    <div className="text-lg font-black text-purple-950">{fmt(stats.min)} to {fmt(stats.max)}</div>
+                    <p className="text-[11px] text-purple-800/80">
+                      Total spread of {fmt(stats.range)} between minimum and maximum.
+                    </p>
+                  </div>
                 </div>
               </div>
 
-              {/* ----------------- SECONDARY EXTENDED METRICS TABLE ----------------- */}
-              <div className="bg-white rounded-3xl border border-slate-200/90 overflow-hidden shadow-sm">
-                <div className="p-4 sm:p-5 bg-slate-100/70 border-b border-slate-200 flex items-center justify-between">
-                  <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-                    <Layers className="w-4 h-4 text-indigo-600" /> Extended Summary Matrix
+              {/* ----------------- 2. MAIN METRIC CARDS ----------------- */}
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                    Core Metrics
                   </h4>
-                  <button 
-                    onClick={() => {
-                      const summaryTxt = `Summary Statistics for ${selectedColLabel}:\nMean: ${fmt(stats.mean)}\nMedian: ${fmt(stats.median)}\nMode: ${formatModeDisplay(stats)}\nVariance: ${fmt(stats.variance)}\nStd Dev: ${fmt(stats.stdDev)}\nMin: ${fmt(stats.min)}\nMax: ${fmt(stats.max)}\nCount: ${stats.count}\nSum: ${fmt(stats.sum)}`;
-                      handleCopy('Full Matrix Summary', summaryTxt);
-                    }}
-                    className="inline-flex items-center space-x-1 text-xs font-bold text-indigo-600 hover:text-indigo-800 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-2xs hover:shadow-xs transition-all"
-                  >
-                    <Copy className="w-3.5 h-3.5" />
-                    <span>Copy Full Summary Text</span>
-                  </button>
+                  <span className="text-[11px] text-slate-400">Click any card to copy</span>
                 </div>
 
-                <div className="divide-y divide-slate-100 text-xs sm:text-sm">
-                  <div className="grid grid-cols-2 sm:grid-cols-4 p-4 hover:bg-slate-50 transition-colors">
-                    <span className="font-semibold text-slate-500">Total Observations (N):</span>
-                    <span className="font-bold text-slate-900">{stats.count}</span>
-                    <span className="font-semibold text-slate-500">Cumulative Sum (Σx):</span>
-                    <span className="font-bold text-slate-900">{fmt(stats.sum)}</span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  
+                  {/* Card 1: Average */}
+                  <div 
+                    onClick={() => handleCopy('Average', fmt(stats.mean))}
+                    className="p-4 rounded-2xl border border-slate-200 bg-white hover:border-blue-400 hover:shadow-md transition-all cursor-pointer group"
+                  >
+                    <div className="flex items-center justify-between text-xs text-slate-500 font-semibold mb-1">
+                      <span>Average</span>
+                      <Copy size={13} className="text-slate-400 group-hover:text-blue-600" />
+                    </div>
+                    <div className="text-2xl font-black text-slate-900">{fmt(stats.mean)}</div>
+                    <div className="text-[11px] text-slate-500 mt-1">Sum divided by total records</div>
                   </div>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-4 p-4 hover:bg-slate-50 transition-colors">
-                    <span className="font-semibold text-slate-500">Sample Variance (s²):</span>
-                    <span className="font-bold text-slate-900">{fmt(stats.sampleVariance)}</span>
-                    <span className="font-semibold text-slate-500">Population Variance (σ²):</span>
-                    <span className="font-bold text-slate-900">{fmt(stats.popVariance)}</span>
+                  {/* Card 2: Middle / Median */}
+                  <div 
+                    onClick={() => handleCopy('Median', fmt(stats.median))}
+                    className="p-4 rounded-2xl border border-slate-200 bg-white hover:border-blue-400 hover:shadow-md transition-all cursor-pointer group"
+                  >
+                    <div className="flex items-center justify-between text-xs text-slate-500 font-semibold mb-1">
+                      <span>Middle Value (Median)</span>
+                      <Copy size={13} className="text-slate-400 group-hover:text-blue-600" />
+                    </div>
+                    <div className="text-2xl font-black text-slate-900">{fmt(stats.median)}</div>
+                    <div className="text-[11px] text-slate-500 mt-1">50% are below and 50% above</div>
                   </div>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-4 p-4 hover:bg-slate-50 transition-colors">
-                    <span className="font-semibold text-slate-500">Sample Std Dev (s):</span>
-                    <span className="font-bold text-slate-900">{fmt(stats.sampleStdDev)}</span>
-                    <span className="font-semibold text-slate-500">Population Std Dev (σ):</span>
-                    <span className="font-bold text-slate-900">{fmt(stats.popStdDev)}</span>
+                  {/* Card 3: Most Common (Mode) */}
+                  <div 
+                    onClick={() => handleCopy('Most Common', stats.modes.length > 0 ? fmt(stats.modes[0]) : 'None')}
+                    className="p-4 rounded-2xl border border-slate-200 bg-white hover:border-blue-400 hover:shadow-md transition-all cursor-pointer group"
+                  >
+                    <div className="flex items-center justify-between text-xs text-slate-500 font-semibold mb-1">
+                      <span>Most Common Value</span>
+                      <Copy size={13} className="text-slate-400 group-hover:text-blue-600" />
+                    </div>
+                    <div className="text-xl font-black text-slate-900 truncate">
+                      {stats.hasNoMode ? 'All Unique' : stats.modes.map(m => fmt(m)).join(', ')}
+                    </div>
+                    <div className="text-[11px] text-slate-500 mt-1">
+                      {stats.hasNoMode ? 'No single repeated value' : `Repeated ${stats.modeFreq} times`}
+                    </div>
                   </div>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-4 p-4 hover:bg-slate-50 transition-colors">
-                    <span className="font-semibold text-slate-500">1st Quartile (Q1 25%):</span>
-                    <span className="font-bold text-slate-900">{fmt(stats.q1)}</span>
-                    <span className="font-semibold text-slate-500">3rd Quartile (Q3 75%):</span>
-                    <span className="font-bold text-slate-900">{fmt(stats.q3)}</span>
+                  {/* Card 4: Spread / Variation */}
+                  <div 
+                    onClick={() => handleCopy('Variation Spread', fmt(stats.stdDev))}
+                    className="p-4 rounded-2xl border border-slate-200 bg-white hover:border-blue-400 hover:shadow-md transition-all cursor-pointer group"
+                  >
+                    <div className="flex items-center justify-between text-xs text-slate-500 font-semibold mb-1">
+                      <span>Standard Variation (±)</span>
+                      <Copy size={13} className="text-slate-400 group-hover:text-blue-600" />
+                    </div>
+                    <div className="text-2xl font-black text-slate-900">±{fmt(stats.stdDev)}</div>
+                    <div className="text-[11px] text-slate-500 mt-1">Typical distance from average</div>
                   </div>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-4 p-4 hover:bg-slate-50 transition-colors">
-                    <span className="font-semibold text-slate-500">Interquartile Range (IQR):</span>
-                    <span className="font-bold text-slate-900">{fmt(stats.iqr)}</span>
-                    <span className="font-semibold text-slate-500">Distribution Skewness:</span>
-                    <span className="font-bold text-slate-900">{fmt(stats.skewness)} ({stats.skewType})</span>
+                </div>
+              </div>
+
+              {/* ----------------- 3. DETAILED MATH VIEW (OPTIONAL EXPANDABLE) ----------------- */}
+              {viewMode === 'technical' && (
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                  <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                    <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                      <Calculator size={14} className="text-indigo-600" /> Formal Statistical Equations & Dispersion
+                    </h4>
+                    <span className="text-[11px] text-slate-400 font-mono">Precision: .{precision}</span>
                   </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                    <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                      <div className="text-slate-400 font-medium">Sample Variance (s²)</div>
+                      <div className="font-mono font-bold text-slate-900 text-sm mt-0.5">{fmt(stats.sampleVariance, false)}</div>
+                      <div className="text-[10px] text-slate-400 font-mono mt-1">Σ(x - x̄)² / (n - 1)</div>
+                    </div>
+
+                    <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                      <div className="text-slate-400 font-medium">Std Deviation (s)</div>
+                      <div className="font-mono font-bold text-slate-900 text-sm mt-0.5">{fmt(stats.sampleStdDev, false)}</div>
+                      <div className="text-[10px] text-slate-400 font-mono mt-1">√Sample Variance</div>
+                    </div>
+
+                    <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                      <div className="text-slate-400 font-medium">Interquartile Range (IQR)</div>
+                      <div className="font-mono font-bold text-slate-900 text-sm mt-0.5">{fmt(stats.iqr)}</div>
+                      <div className="text-[10px] text-slate-400 font-mono mt-1">Q3 (75%) - Q1 (25%)</div>
+                    </div>
+
+                    <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                      <div className="text-slate-400 font-medium">Skewness Coefficient</div>
+                      <div className="font-mono font-bold text-slate-900 text-sm mt-0.5">
+                        {stats.skewness.toFixed(2)} ({stats.skewType})
+                      </div>
+                      <div className="text-[10px] text-slate-400 font-mono mt-1">Fisher-Pearson g₁</div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ----------------- 4. VISUAL DISTRIBUTION BARS ----------------- */}
+              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                    Distribution Range Breakdown
+                  </h4>
+                  <span className="text-xs text-slate-400">Total {stats.count} records</span>
+                </div>
+
+                <div className="space-y-2.5">
+                  {stats.histogramBins.map((bin, idx) => (
+                    <div key={idx} className="space-y-1">
+                      <div className="flex justify-between text-xs font-semibold text-slate-700">
+                        <span>{fmt(bin.binMin)} – {fmt(bin.binMax)}</span>
+                        <span className="text-slate-500 font-mono">{bin.count} records ({bin.percentage.toFixed(0)}%)</span>
+                      </div>
+                      <div className="w-full bg-slate-100 h-3 rounded-full overflow-hidden">
+                        <div 
+                          className="bg-blue-600 h-full rounded-full transition-all duration-500" 
+                          style={{ width: `${Math.max(5, bin.percentage)}%` }}
+                        />
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
 
@@ -805,6 +627,7 @@ export default function SummaryStatsCard({
 
         </div>
       )}
+
     </div>
   );
 }
