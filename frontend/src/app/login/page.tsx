@@ -19,7 +19,7 @@ function AuthForm() {
   const [mobileNumber, setMobileNumber] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [accountType, setAccountType] = useState<'CUSTOMER' | 'WORKER' | 'CONTRACTOR'>('CUSTOMER');
+  const [accountType, setAccountType] = useState<'CUSTOMER' | 'WORKER' | 'CONTRACTOR' | 'ADMIN'>('CUSTOMER');
 
   // Post-Signin / Signup Required Details Fields
   const [homeCity, setHomeCity] = useState('');
@@ -85,8 +85,13 @@ function AuthForm() {
         login(loginData.access_token, loginData.user);
         setSavedUser(loginData.user);
         
-        // Move to Step 2: Details Form
-        setStep('DETAILS');
+        if (loginData.user.account_type === 'ADMIN') {
+          router.push('/admin');
+        } else if (loginData.user.account_type === 'WORKER' || loginData.user.account_type === 'CONTRACTOR') {
+          setStep('DETAILS');
+        } else {
+          router.push('/dashboard');
+        }
       } else {
         // Submit Login
         const res = await fetchWithAuth('/auth/login', {
@@ -104,7 +109,9 @@ function AuthForm() {
         setSavedUser(data.user);
 
         // Prompt details step or redirect
-        if (data.user.account_type === 'WORKER' || data.user.account_type === 'CONTRACTOR') {
+        if (data.user.account_type === 'ADMIN') {
+          router.push('/admin');
+        } else if (data.user.account_type === 'WORKER' || data.user.account_type === 'CONTRACTOR') {
           setStep('DETAILS');
         } else {
           router.push('/dashboard');

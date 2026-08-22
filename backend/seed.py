@@ -13,26 +13,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 categories = [
-    {
-        "name": "Electrician",
-        "category": "Home Maintenance",
-        "description": "Electrical repairs"
-    },
-    {
-        "name": "Plumber",
-        "category": "Home Maintenance",
-        "description": "Pipe fitting and leaks"
-    },
-    {
-        "name": "Painter",
-        "category": "Construction",
-        "description": "House painting"
-    },
-    {
-        "name": "Carpenter",
-        "category": "Woodwork",
-        "description": "Furniture repair"
-    }
+
 ]
 
 
@@ -112,6 +93,7 @@ def seed():
         # ==========================================
 
         worker_data = [
+
 
     # =====================================================
     # CHANDIGARH — 10 WORKERS

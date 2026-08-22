@@ -17,8 +17,13 @@ async function getWorkers(searchParams: any) {
   try {
     const params = new URLSearchParams();
     if (searchParams.category) params.append('category_id', searchParams.category);
-    if (searchParams.q) params.append('skill_name', searchParams.q);
-    if (searchParams.city) params.append('city', searchParams.city);
+    const searchTerm = searchParams.q || searchParams.keyword || searchParams.skill_name;
+    if (searchTerm) {
+      params.append('q', searchTerm);
+      params.append('skill_name', searchTerm);
+    }
+    const locationTerm = searchParams.city || searchParams.location;
+    if (locationTerm) params.append('city', locationTerm);
     if (searchParams.verified === 'true') params.append('verified_only', 'true');
     
     const res = await fetch(`${API_BASE_URL}/workers?${params.toString()}`, { cache: 'no-store' });
@@ -106,7 +111,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-          {categories.slice(0, 6).map((cat: any, idx: number) => {
+          {categories.slice(0, 10).map((cat: any, idx: number) => {
             const catName = cleanName(cat.name);
             const isSelected = resolvedSearchParams.category === cat.profession_id;
 

@@ -7,7 +7,7 @@ export const en = {
   home: {
     heroTitle: "Find Trusted Blue-Collar Workers",
     heroSub: "Connecting skilled workers directly with customers in their area.",
-    searchPlaceholder: "Search for Plumber, Electrician...",
+    searchPlaceholder: "Search for Plumber, Driver, Cleaner...",
     locationPlaceholder: "Enter location or pincode",
     searchBtn: "Search Workers",
     bookNow: "Book Now",
@@ -43,7 +43,7 @@ export const hi = {
   home: {
     heroTitle: "विश्वसनीय ब्लू-कॉलर वर्कर खोजें",
     heroSub: "कुशल कारीगरों को सीधे उनके क्षेत्र के ग्राहकों से जोड़ना।",
-    searchPlaceholder: "प्लंबर, इलेक्ट्रीशियन खोजें...",
+    searchPlaceholder: "प्लंबर, ड्राइवर, क्लीनर खोजें...",
     locationPlaceholder: "स्थान या पिनकोड दर्ज करें",
     searchBtn: "वर्कर खोजें",
     bookNow: "अभी बुक करें",

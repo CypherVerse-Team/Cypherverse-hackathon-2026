@@ -90,43 +90,25 @@ export default function VerificationPage() {
   const currentStatus = verStatus?.status || user?.verification_status || 'UNVERIFIED';
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto">
-      {/* Header Banner */}
-      <div className="bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-800 text-white rounded-3xl p-8 sm:p-10 shadow-xl">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-          <div>
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-white/20 text-white backdrop-blur-md mb-3">
-              <Award className="w-3.5 h-3.5 mr-1 text-yellow-300" /> ShramSetu Trust & Safety Standard
-            </span>
-            <h1 className="text-3xl font-extrabold tracking-tight">KYC & Skill Verification Portal</h1>
-            <p className="text-blue-100 text-sm mt-1">
-              Verified workers receive priority job listings, higher hourly rates, and the official ShramSetu Gold Badge.
-            </p>
-          </div>
-          <div className="bg-white/10 backdrop-blur-md px-5 py-3 rounded-2xl border border-white/20 text-right">
-            <span className="text-xs text-blue-200 block">Current Status</span>
-            <span className="text-base font-extrabold text-white uppercase">{currentStatus}</span>
-          </div>
+    <div className="space-y-5">
+      <div className="pb-4 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <div>
+          <h1 className="text-xl font-semibold text-gray-900">KYC & Skill Verification</h1>
+          <p className="text-gray-500 text-sm">Verified workers get priority listings, higher rates, and the ShramSetu Gold Badge</p>
         </div>
+        <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-100">
+          <Award className="w-3 h-3 mr-1" /> Status: {currentStatus}
+        </span>
       </div>
 
-      {msg && (
-        <div className={`p-4 rounded-2xl flex items-center space-x-3 text-sm font-medium ${msg.type === 'success' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-red-50 text-red-800 border border-red-200'}`}>
-          {msg.type === 'success' ? <CheckCircle2 className="w-5 h-5 text-emerald-600" /> : <AlertCircle className="w-5 h-5 text-red-600" />}
-          <span>{msg.text}</span>
-        </div>
-      )}
-
-      {/* Grid Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-        
-        {/* Left Column: Account Quick Hub */}
-        <div>
-          <AccountQuickHub />
-        </div>
-
-        {/* Right Column: Verification Form & Status */}
-        <div className="lg:col-span-2 space-y-6">
+          {msg && (
+            <div className={`p-4 rounded-2xl flex items-center space-x-3 text-xs font-semibold ${msg.type === 'success' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-rose-50 text-rose-800 border border-rose-200'}`}>
+              {msg.type === 'success' ? <CheckCircle2 className="w-4 h-4 text-emerald-600" /> : <AlertCircle className="w-4 h-4 text-rose-600" />}
+              <span>{msg.text}</span>
+            </div>
+          )}
+          {/* Verification Form & Status */}
+          <div className="space-y-6">
           <div className="bg-white rounded-3xl p-6 sm:p-8 border border-gray-100 shadow-sm">
             <div className="flex items-center space-x-3 mb-6">
               <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
@@ -227,7 +209,6 @@ export default function VerificationPage() {
           </div>
         </div>
 
-      </div>
     </div>
   );
 }
