@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { fetchWithAuth } from '@/lib/api';
-import { ShieldAlert, ShieldCheck, Save, Clock, Phone, MapPin } from 'lucide-react';
+import Link from 'next/link';
+import { ShieldAlert, ShieldCheck, Save, Clock, Phone, MapPin, Edit3, ExternalLink, User } from 'lucide-react';
 import AccountQuickHub from '@/components/AccountQuickHub';
 import WorkerLocationMap from '@/components/WorkerLocationMap';
 
@@ -244,74 +245,69 @@ export default function WorkerDashboard() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         
-        {/* Profile Editor */}
-        <div className="md:col-span-2 bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">Edit Profile</h2>
-          {saveMsg && <div className="mb-4 text-sm font-medium text-blue-600">{saveMsg}</div>}
-          <form onSubmit={handleSaveProfile} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
-                <input type="text" className="w-full px-3 py-2 border rounded-lg" value={formData.home_city} onChange={e => setFormData({...formData, home_city: e.target.value})} />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Age</label>
-                <input type="number" className="w-full px-3 py-2 border rounded-lg" value={formData.age} onChange={e => setFormData({...formData, age: e.target.value})} />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Years of Experience</label>
-                <input type="number" className="w-full px-3 py-2 border rounded-lg" value={formData.years_of_experience} onChange={e => setFormData({...formData, years_of_experience: Number(e.target.value)})} />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Gender</label>
-                <select className="w-full px-3 py-2 border rounded-lg" value={formData.gender} onChange={e => setFormData({...formData, gender: e.target.value})}>
-                  <option value="">Select...</option>
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                  <option value="Other">Other</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Hourly Rate (₹)</label>
-                <input type="number" className="w-full px-3 py-2 border rounded-lg" value={formData.hourly_rate} onChange={e => setFormData({...formData, hourly_rate: Number(e.target.value)})} />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Daily Rate (₹)</label>
-                <input type="number" className="w-full px-3 py-2 border rounded-lg" value={formData.daily_rate} onChange={e => setFormData({...formData, daily_rate: Number(e.target.value)})} />
-              </div>
+        {/* Worker Profile Overview Card */}
+        <div className="md:col-span-2 bg-white rounded-3xl p-6 shadow-sm border border-slate-200/90 space-y-6">
+          <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+            <div>
+              <h2 className="text-xl font-extrabold text-slate-900 flex items-center gap-2">
+                <User className="w-5 h-5 text-indigo-600" /> Worker Profile Overview
+              </h2>
+              <p className="text-xs text-slate-500 mt-0.5">
+                To update your full profile info, rates, experience, or skills, use your Profile Settings page.
+              </p>
             </div>
             
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Full Address</label>
-              <input type="text" className="w-full px-3 py-2 border rounded-lg" value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} />
+            <Link
+              href="/profile"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs px-4 py-2.5 rounded-xl shadow-sm transition-all inline-flex items-center space-x-1.5 active:scale-95 cursor-pointer"
+            >
+              <Edit3 className="w-3.5 h-3.5" />
+              <span>Edit Profile & Skills ↗</span>
+            </Link>
+          </div>
+
+          {/* Profile Quick Read-Only Summary */}
+          <div className="grid grid-cols-2 gap-4 text-xs">
+            <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 space-y-1">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Home City & Locality</span>
+              <p className="font-extrabold text-slate-900 text-sm truncate">{formData.home_city || 'Delhi NCR'}</p>
+              <p className="text-slate-500 text-[11px] truncate">{formData.address || 'Address not specified'}</p>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Short Description</label>
-              <textarea className="w-full px-3 py-2 border rounded-lg" rows={3} value={formData.short_description} onChange={e => setFormData({...formData, short_description: e.target.value})} />
+            <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 space-y-1">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Hourly / Daily Rates</span>
+              <p className="font-extrabold text-indigo-600 text-sm">
+                ₹{formData.hourly_rate || 350}/hr <span className="text-slate-400 font-normal">| ₹{formData.daily_rate || 2500}/day</span>
+              </p>
+              <p className="text-slate-500 text-[11px]">{formData.years_of_experience || 0} years experience</p>
             </div>
+          </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">My Services & Skills</label>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {categories.map(cat => (
-                  <label key={cat.profession_id} className="flex items-center space-x-2 border p-2 rounded-lg cursor-pointer hover:bg-gray-50">
-                    <input 
-                      type="checkbox" 
-                      className="rounded text-blue-600 focus:ring-blue-500" 
-                      checked={selectedSkills.includes(cat.profession_id)}
-                      onChange={() => toggleSkill(cat.profession_id)}
-                    />
-                    <span className="text-sm text-gray-700">{cat.name}</span>
-                  </label>
-                ))}
+          {formData.short_description && (
+            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1">About / Bio</span>
+              <p className="text-xs text-slate-700 leading-relaxed font-medium">{formData.short_description}</p>
+            </div>
+          )}
+
+          {/* Active Skills Pills */}
+          <div>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-2">Registered Trade Skills</span>
+            {selectedSkills.length === 0 ? (
+              <p className="text-xs text-slate-400 italic">No skills selected yet. Click Edit Profile to add skills.</p>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {selectedSkills.map(id => {
+                  const cat = categories.find(c => c.profession_id === id);
+                  return (
+                    <span key={id} className="bg-indigo-50 text-indigo-700 px-3 py-1 rounded-xl text-xs font-extrabold border border-indigo-100">
+                      ✓ {cat?.name || 'Skill'}
+                    </span>
+                  );
+                })}
               </div>
-            </div>
-
-            <button type="submit" disabled={isSaving} className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition-colors flex items-center">
-              <Save className="w-4 h-4 mr-2" /> {isSaving ? 'Saving...' : 'Save Profile'}
-            </button>
-          </form>
+            )}
+          </div>
         </div>
 
         {/* Verification Submit */}
