@@ -88,6 +88,9 @@ export default function Navbar() {
               </Link>
               {isAuthenticated && (
                 <>
+                  <Link href="/profile" className="border-transparent text-gray-600 hover:text-blue-600 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                    Profile
+                  </Link>
                   <Link href="/payments" className="border-transparent text-gray-600 hover:text-blue-600 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                     Payments
                   </Link>
@@ -164,19 +167,19 @@ export default function Navbar() {
             {isAuthenticated ? (
               <>
                 {/* Desktop User profile info */}
-                <div className="hidden sm:flex items-center space-x-3 ml-2">
+                <Link href="/profile" className="hidden sm:flex items-center space-x-3 ml-2 hover:opacity-80 transition-opacity" title="Edit Profile Details">
                   <div className="text-sm text-right">
-                    <div className="font-medium text-gray-900">{user?.full_name}</div>
-                    <div className="text-gray-500 text-xs">{user?.account_type}</div>
+                    <div className="font-bold text-gray-900 leading-tight">{user?.full_name}</div>
+                    <div className="text-blue-600 text-xs font-semibold">{user?.account_type}</div>
                   </div>
-                  <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                  <div className="h-9 w-9 rounded-full bg-blue-100 ring-2 ring-blue-500/20 flex items-center justify-center text-blue-600">
                     <User className="h-5 w-5" />
                   </div>
-                </div>
+                </Link>
                 {/* Mobile User avatar */}
-                <div className="sm:hidden h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 cursor-pointer" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+                <Link href="/profile" className="sm:hidden h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 cursor-pointer">
                   <User className="h-5 w-5" />
-                </div>
+                </Link>
                 <button onClick={handleLogout} className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all duration-150 active:scale-95 hidden sm:block" title="Logout">
                   <LogOut className="h-5 w-5" />
                 </button>

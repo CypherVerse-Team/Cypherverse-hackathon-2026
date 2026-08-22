@@ -58,6 +58,11 @@ export default function Footer() {
             </h4>
             <ul className="space-y-2.5 text-sm">
               <li>
+                <Link href="/profile" className="hover:text-blue-400 transition-colors flex items-center">
+                  <ChevronRight className="w-3 h-3 mr-1 text-slate-500" /> My Profile & Settings
+                </Link>
+              </li>
+              <li>
                 <Link href="/dashboard" className="hover:text-blue-400 transition-colors flex items-center">
                   <ChevronRight className="w-3 h-3 mr-1 text-slate-500" /> Customer Dashboard
                 </Link>

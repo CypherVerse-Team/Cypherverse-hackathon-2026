@@ -5,8 +5,9 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 type User = {
   user_id: string;
   full_name: string;
+  mobile_number?: string;
   account_type: string;
-  verification_status: boolean;
+  verification_status?: string | boolean;
 };
 
 type AuthContextType = {

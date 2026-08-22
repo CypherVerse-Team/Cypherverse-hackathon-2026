@@ -1,0 +1,384 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useAuth } from '@/context/AuthContext';
+import { fetchWithAuth, API_BASE_URL, cleanName } from '@/lib/api';
+import { User, Phone, MapPin, ShieldCheck, Briefcase, DollarSign, Edit3, CheckCircle2, AlertCircle, Building, Award, Settings, ArrowRight, Lock } from 'lucide-react';
+import Link from 'next/link';
+
+export default function ProfilePage() {
+  const { user, isAuthenticated, login } = useAuth();
+
+  const [fullName, setFullName] = useState('');
+  const [mobileNumber, setMobileNumber] = useState('');
+  const [homeCity, setHomeCity] = useState('');
+  const [hourlyRate, setHourlyRate] = useState<number | string>(350);
+  const [yearsExperience, setYearsExperience] = useState<number | string>(3);
+  const [shortDesc, setShortDesc] = useState('');
+  const [companyName, setCompanyName] = useState('');
+
+  const [categories, setCategories] = useState<any[]>([]);
+  const [selectedProfessionId, setSelectedProfessionId] = useState('');
+  const [userSkills, setUserSkills] = useState<any[]>([]);
+
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [msg, setMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadProfileData();
+    } else {
+      setIsLoading(false);
+    }
+  }, [isAuthenticated]);
+
+  const loadProfileData = async () => {
+    setIsLoading(true);
+    try {
+      // Load current user full profile details
+      const res = await fetchWithAuth('/auth/me');
+      if (res.ok) {
+        const data = await res.json();
+        setFullName(data.full_name || '');
+        setMobileNumber(data.mobile_number || '');
+
+        if (data.worker_profile) {
+          setHomeCity(data.worker_profile.home_city || '');
+          setHourlyRate(data.worker_profile.hourly_rate || 350);
+          setYearsExperience(data.worker_profile.years_of_experience || 0);
+          setShortDesc(data.worker_profile.short_description || '');
+        }
+
+        if (data.contractor_profile) {
+          setCompanyName(data.contractor_profile.company_name || '');
+        }
+      }
+
+      // Load skill categories
+      const catRes = await fetch(`${API_BASE_URL}/categories`);
+      if (catRes.ok) {
+        const cats = await catRes.json();
+        setCategories(cats);
+        if (cats.length > 0) setSelectedProfessionId(cats[0].profession_id);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleUpdateProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setMsg(null);
+    setIsSaving(true);
+
+    try {
+      const res = await fetchWithAuth('/auth/me', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          full_name: fullName,
+          mobile_number: mobileNumber,
+          home_city: homeCity,
+          hourly_rate: Number(hourlyRate),
+          years_of_experience: Number(yearsExperience),
+          short_description: shortDesc,
+          company_name: companyName
+        })
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.detail || 'Failed to update profile');
+      }
+
+      const data = await res.json();
+      
+      // Update primary skill if worker selected a trade
+      if (user?.account_type === 'WORKER' && selectedProfessionId) {
+        await fetchWithAuth('/workers/me/skills', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify([
+            {
+              profession_id: selectedProfessionId,
+              skill_level: 'INTERMEDIATE',
+              is_primary_skill: true
+            }
+          ])
+        });
+      }
+
+      // Refresh Auth context
+      if (typeof window !== 'undefined') {
+        const token = localStorage.getItem('token');
+        if (token && data.user) login(token, data.user);
+      }
+
+      setMsg({ type: 'success', text: 'Profile details modified and saved successfully!' });
+    } catch (err: any) {
+      setMsg({ type: 'error', text: err.message || 'Error updating profile' });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="max-w-xl mx-auto py-16 text-center bg-white rounded-3xl p-8 border border-gray-100 shadow-sm">
+        <User className="w-16 h-16 text-blue-600 mx-auto mb-4" />
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">User Profile & Settings</h2>
+        <p className="text-gray-600 mb-6">Please log in to view and modify your account details, skills, and settings.</p>
+        <Link href="/login" className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold text-sm inline-block">
+          Log In Now
+        </Link>
+      </div>
+    );
+  }
+
+  const roleBadgeColor = {
+    CUSTOMER: 'bg-purple-100 text-purple-800 border-purple-200',
+    WORKER: 'bg-blue-100 text-blue-800 border-blue-200',
+    GROUP_LEADER: 'bg-indigo-100 text-indigo-800 border-indigo-200',
+    CONTRACTOR: 'bg-amber-100 text-amber-800 border-amber-200',
+    ADMIN: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+  }[user?.account_type || 'CUSTOMER'];
+
+  return (
+    <div className="space-y-8 max-w-5xl mx-auto">
+      {/* Profile Header Banner */}
+      <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-3xl p-8 sm:p-10 shadow-xl border border-slate-800">
+        <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6">
+          <div className="w-24 h-24 rounded-full bg-blue-600 text-white flex items-center justify-center font-extrabold text-3xl shadow-lg ring-4 ring-white/10">
+            {user?.full_name?.charAt(0) || 'U'}
+          </div>
+          <div className="text-center sm:text-left flex-1">
+            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+              <h1 className="text-3xl font-extrabold tracking-tight">{user?.full_name}</h1>
+              <span className={`text-xs font-extrabold px-3 py-1 rounded-full border ${roleBadgeColor}`}>
+                {user?.account_type}
+              </span>
+              {(user?.verification_status === 'VERIFIED' || user?.verification_status === true) && (
+                <span className="inline-flex items-center text-xs font-bold px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                  <ShieldCheck className="w-3.5 h-3.5 mr-1" /> Verified User
+                </span>
+              )}
+            </div>
+            <p className="text-slate-400 text-sm mt-1 flex items-center justify-center sm:justify-start">
+              <Phone className="w-3.5 h-3.5 mr-1 text-slate-500" /> {user?.mobile_number}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {msg && (
+        <div className={`p-4 rounded-2xl flex items-center space-x-3 text-sm font-medium ${msg.type === 'success' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-red-50 text-red-800 border border-red-200'}`}>
+          {msg.type === 'success' ? <CheckCircle2 className="w-5 h-5 text-emerald-600" /> : <AlertCircle className="w-5 h-5 text-red-600" />}
+          <span>{msg.text}</span>
+        </div>
+      )}
+
+      {/* Main Settings & Modify Form */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        {/* Profile Modification Form */}
+        <div className="lg:col-span-2 bg-white rounded-3xl p-6 sm:p-8 border border-gray-100 shadow-sm">
+          <div className="flex items-center space-x-3 mb-6 pb-4 border-b border-gray-100">
+            <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+              <Edit3 className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-gray-900">Modify Account Details</h2>
+              <p className="text-xs text-gray-500">Update your contact details, skills, location, and rates</p>
+            </div>
+          </div>
+
+          <form onSubmit={handleUpdateProfile} className="space-y-5">
+            {/* Basic Information */}
+            <div className="space-y-4">
+              <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Basic Information</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 mb-1">Full Name</label>
+                  <input
+                    type="text"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 mb-1">Mobile Number</label>
+                  <input
+                    type="text"
+                    value={mobileNumber}
+                    onChange={(e) => setMobileNumber(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Role Specific Details */}
+            {user?.account_type === 'WORKER' && (
+              <div className="space-y-4 pt-4 border-t border-gray-100">
+                <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Worker Profile Details</h3>
+
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 mb-1">Primary Skill Trade</label>
+                  <select
+                    value={selectedProfessionId}
+                    onChange={(e) => setSelectedProfessionId(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                  >
+                    {categories.map((c: any) => (
+                      <option key={c.profession_id} value={c.profession_id}>
+                        {cleanName(c.name)} ({c.category || 'Trade'})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 mb-1">Hourly Rate (₹/hr)</label>
+                    <input
+                      type="number"
+                      value={hourlyRate}
+                      onChange={(e) => setHourlyRate(e.target.value)}
+                      className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 mb-1">Years of Experience</label>
+                    <input
+                      type="number"
+                      value={yearsExperience}
+                      onChange={(e) => setYearsExperience(e.target.value)}
+                      className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 mb-1">Home City / Location</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Delhi NCR, Mumbai"
+                    value={homeCity}
+                    onChange={(e) => setHomeCity(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 mb-1">Short Description / Bio</label>
+                  <textarea
+                    rows={3}
+                    placeholder="Describe your skills and experience..."
+                    value={shortDesc}
+                    onChange={(e) => setShortDesc(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                  />
+                </div>
+              </div>
+            )}
+
+            {user?.account_type === 'CONTRACTOR' && (
+              <div className="space-y-4 pt-4 border-t border-gray-100">
+                <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Contractor Business Details</h3>
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 mb-1">Company / Firm Name</label>
+                  <input
+                    type="text"
+                    value={companyName}
+                    onChange={(e) => setCompanyName(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                  />
+                </div>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={isSaving}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-2xl text-sm transition-all shadow-md mt-6"
+            >
+              {isSaving ? 'Saving Changes...' : 'Save & Update Profile'}
+            </button>
+          </form>
+        </div>
+
+        {/* Account Quick Links & Hubs */}
+        <div className="space-y-6">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-gray-100 shadow-sm space-y-4">
+            <h3 className="text-base font-bold text-gray-900 mb-2">Account Quick Hubs</h3>
+
+            <Link href="/verification" className="p-3.5 rounded-2xl bg-gray-50 border border-gray-100 hover:border-blue-200 transition-all flex items-center justify-between group">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-xs">
+                  <ShieldCheck className="w-4 h-4" />
+                </div>
+                <span className="text-xs font-bold text-gray-800 group-hover:text-blue-600">KYC Verification</span>
+              </div>
+              <ArrowRight className="w-3.5 h-3.5 text-gray-400 group-hover:translate-x-1 transition-transform" />
+            </Link>
+
+            <Link href="/payments" className="p-3.5 rounded-2xl bg-gray-50 border border-gray-100 hover:border-blue-200 transition-all flex items-center justify-between group">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold text-xs">
+                  <DollarSign className="w-4 h-4" />
+                </div>
+                <span className="text-xs font-bold text-gray-800 group-hover:text-blue-600">Payments & Invoices</span>
+              </div>
+              <ArrowRight className="w-3.5 h-3.5 text-gray-400 group-hover:translate-x-1 transition-transform" />
+            </Link>
+
+            <Link href="/support" className="p-3.5 rounded-2xl bg-gray-50 border border-gray-100 hover:border-blue-200 transition-all flex items-center justify-between group">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center font-bold text-xs">
+                  <Settings className="w-4 h-4" />
+                </div>
+                <span className="text-xs font-bold text-gray-800 group-hover:text-blue-600">Support & Disputes</span>
+              </div>
+              <ArrowRight className="w-3.5 h-3.5 text-gray-400 group-hover:translate-x-1 transition-transform" />
+            </Link>
+
+            {user?.account_type === 'WORKER' && (
+              <Link href="/worker-dashboard" className="p-3.5 rounded-2xl bg-blue-50 border border-blue-100 hover:bg-blue-100 transition-all flex items-center justify-between group">
+                <span className="text-xs font-bold text-blue-700">Open Worker Dashboard</span>
+                <ArrowRight className="w-3.5 h-3.5 text-blue-600 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            )}
+
+            {user?.account_type === 'CONTRACTOR' && (
+              <Link href="/contractor" className="p-3.5 rounded-2xl bg-amber-50 border border-amber-100 hover:bg-amber-100 transition-all flex items-center justify-between group">
+                <span className="text-xs font-bold text-amber-800">Open Contractor Hub</span>
+                <ArrowRight className="w-3.5 h-3.5 text-amber-700 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            )}
+
+            {user?.account_type === 'CUSTOMER' && (
+              <Link href="/dashboard" className="p-3.5 rounded-2xl bg-purple-50 border border-purple-100 hover:bg-purple-100 transition-all flex items-center justify-between group">
+                <span className="text-xs font-bold text-purple-700">Open Customer Dashboard</span>
+                <ArrowRight className="w-3.5 h-3.5 text-purple-600 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            )}
+
+            {user?.account_type === 'ADMIN' && (
+              <Link href="/admin" className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-100 hover:bg-emerald-100 transition-all flex items-center justify-between group">
+                <span className="text-xs font-bold text-emerald-700">Open Admin Panel</span>
+                <ArrowRight className="w-3.5 h-3.5 text-emerald-600 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            )}
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+}
