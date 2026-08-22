@@ -35,7 +35,7 @@ export default function SearchFilters() {
     <div className="w-full max-w-4xl mx-auto space-y-4">
       <form 
         onSubmit={handleSearch} 
-        className="bg-white/95 backdrop-blur-xl p-3 sm:p-4 rounded-2xl sm:rounded-3xl shadow-2xl border border-white/20 flex flex-col md:flex-row gap-3 items-center transition-all duration-300 hover:shadow-indigo-500/10"
+        className="flex flex-col items-center gap-3 rounded-2xl border border-white/20 bg-white/95 p-3 shadow-2xl backdrop-blur-xl transition-all duration-300 hover:shadow-indigo-500/10 focus-within:ring-2 focus-within:ring-blue-500/80 focus-within:shadow-blue-500/25 sm:rounded-3xl sm:p-4 md:flex-row"
       >
         {/* Keyword Search Input */}
         <div className="relative flex-1 w-full">
