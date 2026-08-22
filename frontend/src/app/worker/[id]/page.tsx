@@ -1,7 +1,7 @@
 import { Star, MapPin, ShieldCheck, CheckCircle2, Clock, Phone, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import BookingModal from '@/components/BookingModal';
-import { API_BASE_URL } from '@/lib/api';
+import { API_BASE_URL, cleanName } from '@/lib/api';
 
 async function getWorker(id: string) {
   try {
@@ -11,8 +11,8 @@ async function getWorker(id: string) {
     return {
       id: data.user.user_id,
       name: data.user.full_name,
-      profession: data.profile.skills?.length > 0 ? data.profile.skills[0].profession.name : (data.profile.short_description || "Worker"),
-      skills: data.profile.skills?.map((s: any) => s.profession.name) || [],
+      profession: cleanName(data.profile.skills?.length > 0 ? data.profile.skills[0].profession.name : (data.profile.short_description || "Worker")),
+      skills: data.profile.skills?.map((s: any) => cleanName(s.profession.name)) || [],
       rating: data.profile.average_rating || 0,
       jobs: data.profile.completed_jobs || 0,
       distance: 5.0,
@@ -30,11 +30,12 @@ async function getWorker(id: string) {
   }
 }
 
-export default async function WorkerProfile({ params }: { params: { id: string } }) {
-  const worker = await getWorker(params.id);
+export default async function WorkerProfile({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params;
+  const worker = await getWorker(resolvedParams.id);
 
   if (!worker) {
-    return <div className="text-center mt-20">Worker not found</div>;
+    return <div className="text-center py-20 text-gray-500 font-medium">Worker profile not found</div>;
   }
 
   return (
