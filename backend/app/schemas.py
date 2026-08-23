@@ -105,12 +105,14 @@ class VerificationRequestResponse(TimestampSchema):
 
 class BookingCreate(BaseModel):
     worker_id: str
-    scheduled_date: datetime
+    scheduled_date: Optional[datetime] = None
     duration_type: str = "<2hrs"
     agreed_amount: float
     currency: str = "INR"
-    service_address_id: str
+    service_address_id: Optional[str] = None
+    service_address: Optional[str] = None
     estimated_start_time: Optional[datetime] = None
+    work_description: Optional[str] = None
 
 class BookingUserResponse(BaseModel):
     name: str

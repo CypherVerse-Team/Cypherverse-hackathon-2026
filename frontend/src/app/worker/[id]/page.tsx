@@ -1,6 +1,6 @@
 import { Star, MapPin, ShieldCheck, CheckCircle2, Clock, Phone, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
-import BookingModal from '@/components/BookingModal';
+import WorkerProfileBooking from '@/components/WorkerProfileBooking';
 import WorkerLocationMap from '@/components/WorkerLocationMap';
 import { API_BASE_URL, cleanName } from '@/lib/api';
 
@@ -131,7 +131,17 @@ export default async function WorkerProfile({ params }: { params: Promise<{ id: 
               <p className="font-medium">Direct phone call & messaging are unlocked automatically after your booking request is accepted.</p>
             </div>
 
-            <BookingModal workerId={worker.id} basePrice={worker.price} />
+            <WorkerProfileBooking
+              worker={{
+                id: worker.id,
+                name: worker.name,
+                profession: worker.profession,
+                hourly_rate: worker.price,
+                home_city: worker.home_city,
+                rating: worker.rating,
+                verified: worker.verified
+              }}
+            />
             
           </div>
         </div>
