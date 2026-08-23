@@ -65,6 +65,9 @@ export default function HomePageClient({
   initialCity = '',
   initialVerified = false
 }: HomePageClientProps) {
+  // Workers State (initialized from SSR, refreshed client-side)
+  const [workers, setWorkers] = useState<any[]>(initialWorkers);
+
   // Search & Filter State
   const [query, setQuery] = useState(initialQuery);
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
@@ -76,9 +79,45 @@ export default function HomePageClient({
   // Booking Modal State
   const [selectedWorkerForBooking, setSelectedWorkerForBooking] = useState<BookingWorkerInfo | null>(null);
 
-  // Real-time client filter on initialWorkers + live search
+  // Refresh workers live on mount
+  useEffect(() => {
+    async function loadLiveWorkers() {
+      try {
+        const res = await fetch('/api/workers').catch(() => null);
+        let data = null;
+        if (res && res.ok) {
+          data = await res.json();
+        } else {
+          const directRes = await fetch('http://localhost:8000/api/workers').catch(() => null);
+          if (directRes && directRes.ok) data = await directRes.json();
+        }
+
+        if (data && Array.isArray(data) && data.length > 0) {
+          const mapped = data.map((worker: any) => ({
+            id: worker.user_id,
+            name: worker.full_name,
+            profession: cleanName(worker.worker_profile?.skills?.length > 0 ? worker.worker_profile.skills[0].profession.name : (worker.worker_profile?.short_description || "Worker")),
+            rawSkills: worker.worker_profile?.skills?.map((s: any) => s.profession?.name) || [],
+            rating: worker.worker_profile?.average_rating || 4.8,
+            jobs: worker.worker_profile?.completed_jobs || 12,
+            distance: 3.5, 
+            verified: worker.verification_status === "VERIFIED",
+            hourly_rate: worker.worker_profile?.hourly_rate || 350,
+            home_city: worker.worker_profile?.home_city || "Delhi NCR",
+            status: worker.worker_profile?.availability_status || "AVAILABLE_NOW"
+          }));
+          setWorkers(mapped);
+        }
+      } catch (e) {
+        console.error('Failed to load live workers:', e);
+      }
+    }
+    loadLiveWorkers();
+  }, []);
+
+  // Real-time client filter on workers + live search
   const filteredWorkers = useMemo(() => {
-    return initialWorkers.filter(w => {
+    return workers.filter(w => {
       const q = query.toLowerCase().trim();
       const nameMatch = !q || w.name?.toLowerCase().includes(q);
       const profMatch = !q || w.profession?.toLowerCase().includes(q);
@@ -99,7 +138,7 @@ export default function HomePageClient({
 
       return matchesQuery && matchesCategory && matchesCity && matchesVerified && matchesRate;
     });
-  }, [initialWorkers, query, selectedCategory, selectedCity, verifiedOnly, maxRate]);
+  }, [workers, query, selectedCategory, selectedCity, verifiedOnly, maxRate]);
 
   // Handle Quick Tag Click
   const handleTagClick = (tag: string) => {

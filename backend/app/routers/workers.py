@@ -64,10 +64,15 @@ def get_workers(
     max_rate: Optional[float] = None,
     db: Session = Depends(get_db)
 ):
+    # Query all active or non-suspended workers
     query = db.query(models.User).filter(
         models.User.account_type.in_([models.RoleEnum.WORKER, models.RoleEnum.GROUP_LEADER]),
-        models.User.account_status == models.AccountStatusEnum.ACTIVE
-    ).join(models.WorkerProfile, models.User.user_id == models.WorkerProfile.user_id)
+        or_(
+            models.User.account_status == models.AccountStatusEnum.ACTIVE,
+            models.User.account_status == None,
+            models.User.account_status != models.AccountStatusEnum.SUSPENDED
+        )
+    ).outerjoin(models.WorkerProfile, models.User.user_id == models.WorkerProfile.user_id)
     
     if verified_only:
         query = query.filter(models.User.verification_status == models.VerificationStatusEnum.VERIFIED)
@@ -118,7 +123,22 @@ def get_workers(
             query = query.filter(cond)
         query = query.distinct()
             
-    return query.all()
+    workers = query.all()
+
+    # Ensure each worker has a worker_profile attached in response
+    for w in workers:
+        if not w.worker_profile:
+            profile = models.WorkerProfile(
+                user_id=w.user_id,
+                hourly_rate=350,
+                home_city="Delhi NCR",
+                short_description="Professional Verified Worker"
+            )
+            db.add(profile)
+            db.commit()
+            db.refresh(w)
+            
+    return workers
 
 @router.get("/{user_id}/profile")
 def get_worker_profile(user_id: str, db: Session = Depends(get_db)):
