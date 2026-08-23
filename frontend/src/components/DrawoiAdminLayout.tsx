@@ -55,7 +55,6 @@ function DrawoiAdminLayoutContent({ children }: { children: React.ReactNode }) {
     { label: 'Bulk Matchmaking', href: '/admin?tab=matchmaking', tab: 'matchmaking', icon: Layers },
     { label: 'Financials & Invoices', href: '/admin?tab=financials', tab: 'financials', icon: CreditCard },
     { label: 'Platform Analytics', href: '/analytics', icon: BarChart2 },
-    { label: 'Worker Directory', href: '/', icon: Home },
   ];
 
   const userNavItems = [
@@ -74,8 +73,6 @@ function DrawoiAdminLayoutContent({ children }: { children: React.ReactNode }) {
     { label: 'Statistics', href: '/analytics', icon: BarChart2 },
     { label: 'Notifications', href: '/notifications', icon: Bell },
     { label: 'Support Center', href: '/support', icon: HelpCircle },
-    { label: 'Categories', href: '/categories', icon: Grid },
-    { label: 'Worker Directory', href: '/', icon: Home },
   ];
 
   const navItems = isAdmin ? adminNavItems : userNavItems;
